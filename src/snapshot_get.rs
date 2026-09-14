@@ -6,7 +6,7 @@ use clippy_utils::res::MaybeQPath;
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::LateContext;
-use rustc_middle::ty::{AssocContainer, TypeckResults};
+use rustc_middle::ty::TypeckResults;
 
 /// Def paths of the snapshot reads this lint tracks: the `Signal` trait's
 /// `get` (reached through `Computed`, `Map`, `WithMetadata`, `SignalExt`
@@ -46,10 +46,7 @@ pub(crate) fn is_snapshot_get_in(
         _ => None,
     };
     let Some(did) = did else { return false };
-    let did = match cx.tcx.associated_item(did).container {
-        AssocContainer::TraitImpl(Ok(trait_item)) => trait_item,
-        _ => did,
-    };
+    let did = crate::param_bounds::implemented_trait_item(cx.tcx, did);
     SNAPSHOT_GETS
         .iter()
         .any(|path| crate::def_path::def_path_eq(cx, did, path))
