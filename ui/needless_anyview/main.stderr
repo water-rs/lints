@@ -1,0 +1,170 @@
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:35:5
+   |
+LL |     AnyView::new(text("a"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+   |
+   = note: `#[warn(needless_anyview)]` on by default
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:41:5
+   |
+LL | /     if c {
+LL | |         AnyView::new(text("a"))
+LL | |     } else {
+LL | |         AnyView::new(text("b"))
+LL | |     }
+   | |_____^
+   |
+help: drop the `AnyView` wrappers
+   |
+LL -     if c {
+LL -         AnyView::new(text("a"))
+LL -     } else {
+LL -         AnyView::new(text("b"))
+LL -     }
+LL +     if c text("a") else text("b")
+   |
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:51:5
+   |
+LL | /     match c {
+LL | |         true => AnyView::new(text("a")),
+LL | |         false => AnyView::new(text("b")),
+LL | |     }
+   | |_____^
+   |
+help: drop the `AnyView` wrappers
+   |
+LL ~         true => text("a"),
+LL ~         false => text("b"),
+   |
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:61:16
+   |
+LL |         return AnyView::new(text("a"));
+   |                ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:63:5
+   |
+LL |     AnyView::new(text("b"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("b")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:70:5
+   |
+LL | /     match c {
+LL | |         true => AnyView::new(text("a")),
+LL | |         false => AnyView::new(text("b")),
+LL | |     }
+   | |_____^
+   |
+help: drop the `AnyView` wrappers and return `impl View`
+   |
+LL ~ fn pick_erased(c: bool) -> impl View {
+LL |     match c {
+LL ~         true => text("a"),
+LL ~         false => text("b"),
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:78:16
+   |
+LL | fn erased() -> AnyView {
+   |                ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~ fn erased() -> impl View {
+LL ~     text("a")
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:84:21
+   |
+LL | fn passthrough() -> AnyView {
+   |                     ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL - fn passthrough() -> AnyView {
+LL + fn passthrough() -> impl View {
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:133:23
+   |
+LL |     fn view(&self) -> AnyView {
+   |                       ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~     fn view(&self) -> impl View {
+LL ~         text("a")
+   |
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:140:20
+   |
+LL |     let _ = scroll(AnyView::new(text("a")));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:142:20
+   |
+LL |     let _ = scroll(text("a").anyview());
+   |                    ^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:144:24
+   |
+LL |     let _ = takes_view(AnyView::new(text("a")));
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:147:21
+   |
+LL |     let _ = vstack((AnyView::new(text("a")), text("b")));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:150:20
+   |
+LL |     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: drop the `AnyView` wrappers
+   |
+LL -     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+LL +     let _ = vstack([text("a"), text("b")]);
+   |
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:152:42
+   |
+LL |     let _ = when(Binding::bool(true), || AnyView::new(text("a")));
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:158:20
+   |
+LL |             return AnyView::new(text("a"));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:160:9
+   |
+LL |         AnyView::new(text("b"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("b")`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:163:13
+   |
+LL |     let _ = AnyView::new(text("a")).anyview();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: 18 warnings emitted
+

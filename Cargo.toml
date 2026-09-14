@@ -20,6 +20,10 @@ dylint_testing = "6.0"
 waterui = { version = "0.4.1", default-features = false }
 
 [[example]]
+name = "needless_anyview"
+path = "ui/needless_anyview/main.rs"
+
+[[example]]
 name = "normalized_radius_overflow"
 path = "ui/normalized_radius_overflow/main.rs"
 

@@ -1,0 +1,14 @@
+[package]
+name = "needless_anyview"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "needless_anyview"
+path = "main.rs"
+
+[workspace]
