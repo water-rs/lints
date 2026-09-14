@@ -1,0 +1,55 @@
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:14:32
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |         ----- captures `count`, a `Binding`
+LL |     let _ = button("+").action(move || count.set(1));
+   |                                ^^^^^^^
+   |
+   = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+   = note: `#[warn(handler_captures_binding)]` on by default
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:18:30
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |         ---- captures `flag`, a `Binding`
+LL |     let _ = text("a").on_tap(move || flag.set(true));
+   |                              ^^^^^^^
+   |
+   = help: inject it with `.state(&flag)` on the view and take `State(flag): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:22:36
+   |
+LL |     let items: ReactiveList<u32> = ReactiveList::new();
+   |         ----- captures `items`, a `ReactiveList`
+LL |     let _ = button("clear").action(move || items.clear());
+   |                                    ^^^^^^^
+   |
+   = help: inject it with `.state(&items)` on the view and take `State(items): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:27:36
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |         ----- captures `count`, a `Binding`
+LL |     let flag: Binding<bool> = binding(false);
+   |         ---- captures `flag`, a `Binding`
+LL |     let _ = button("reset").action(move || {
+   |                                    ^^^^^^^
+   |
+   = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:35:42
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |         ----- captures `count`, a `Binding`
+LL |     let _ = button("async").action_async(move || {
+   |                                          ^^^^^^^
+   |
+   = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: 5 warnings emitted
+

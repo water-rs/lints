@@ -57,6 +57,15 @@ pub(crate) const VIEW_BUILDER: &[&str] = &["waterui_core", "foundation", "handle
 pub(crate) const VIEW_PARAM_BOUNDS: &[&[&str]] =
     &[&["waterui_core", "ui", "view", "View"], VIEW_BUILDER];
 
+/// Parameter bounds that take an action handler — a closure passed to one is
+/// invoked at event time with arguments extracted from the environment
+/// (`Button::action`/`action_async`, `ViewExt`'s `on_*`/`gesture` modifiers,
+/// `GestureObserver`/`EventHandler`/`DropTarget`).
+pub(crate) const HANDLER_PARAM_BOUNDS: &[&[&str]] = &[
+    &["waterui_core", "foundation", "handler", "Handler"],
+    &["waterui_core", "foundation", "handler", "HandlerOnce"],
+];
+
 /// `param index -> bounds on it that are in `bounds_tables``, for one callee.
 /// Walks the `parent` chain so impl-level bounds (`impl<V: View>`) and trait
 /// supertraits (`trait ViewExt: View`) are seen alongside the callee's own
