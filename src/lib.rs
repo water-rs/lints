@@ -5,9 +5,15 @@ dylint_linting::dylint_library!();
 
 // A list of available compiler crates can be found here:
 // https://doc.rust-lang.org/nightly/nightly-rustc/
+extern crate rustc_ast;
+extern crate rustc_data_structures;
+extern crate rustc_errors;
 extern crate rustc_hir;
+extern crate rustc_lexer;
 extern crate rustc_lint;
+extern crate rustc_middle;
 extern crate rustc_session;
+extern crate rustc_span;
 
 use rustc_lint::{Lint, LintId, LintStore};
 
@@ -79,9 +85,14 @@ macro_rules! declare_waterui_lint {
     };
 }
 
+mod def_path;
 mod normalized_radius_overflow;
+mod signal_get_in_view;
 
-const LINTS: &[&LintInfo] = &[&normalized_radius_overflow::LINT_INFO];
+const LINTS: &[&LintInfo] = &[
+    &normalized_radius_overflow::LINT_INFO,
+    &signal_get_in_view::LINT_INFO,
+];
 
 #[expect(
     clippy::no_mangle_with_rust_abi,
@@ -94,6 +105,27 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
     lint_store
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));
+
+    // `format!(..)` loses its template when lowered to HIR; the early
+    // collector keeps the AST `FormatArgs` so the late pass can rebuild a
+    // `text!(..)` suggestion from it.
+    let format_args = clippy_utils::macros::FormatArgsStorage::default();
+    lint_store.register_early_pass({
+        let format_args = format_args.clone();
+        move || {
+            Box::new(signal_get_in_view::FormatArgsCollector::new(
+                format_args.clone(),
+            ))
+        }
+    });
+    lint_store.register_late_pass({
+        let format_args = format_args.clone();
+        move |_| {
+            Box::new(signal_get_in_view::SignalGetInView::new(
+                format_args.clone(),
+            ))
+        }
+    });
 
     for group in Group::ALL {
         lint_store.register_group(

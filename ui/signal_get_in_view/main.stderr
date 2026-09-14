@@ -1,0 +1,125 @@
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:40:35
+   |
+LL |     let _ = text("hello").opacity(fade.get());
+   |                                   ^^^^^^^^^^
+   |
+   = note: `#[deny(signal_get_in_view)]` on by default
+help: pass the signal itself so the view can subscribe to updates
+   |
+LL -     let _ = text("hello").opacity(fade.get());
+LL +     let _ = text("hello").opacity(fade.clone());
+   |
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:42:35
+   |
+LL |     let _ = text("hello").opacity(fade.computed().get());
+   |                                   ^^^^^^^^^^^^^^^^^^^^^
+   |
+help: pass the signal itself so the view can subscribe to updates
+   |
+LL -     let _ = text("hello").opacity(fade.computed().get());
+LL +     let _ = text("hello").opacity(fade.computed().clone());
+   |
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:44:32
+   |
+LL |     let _ = text(format!("{}", count.get()));
+   |             -------------------^^^^^^^^^^^-- help: use `text!` so the placeholders subscribe to the signals: `text!("{count}")`
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:46:18
+   |
+LL |     let _ = text(count.get().to_string());
+   |                  ^^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:48:20
+   |
+LL |     let _ = button(name.get());
+   |                    ^^^^^^^^^^
+   |
+help: pass the signal itself so the view can subscribe to updates
+   |
+LL -     let _ = button(name.get());
+LL +     let _ = button(name.clone());
+   |
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:50:35
+   |
+LL |     let _ = text("hello").opacity(fade.get() as f64);
+   |                                   ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:52:35
+   |
+LL |     let _ = text("hello").opacity(fade.get() * 2.0);
+   |                                   ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:54:39
+   |
+LL |     let _ = text(Into::<String>::into(name.get()));
+   |                                       ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:56:35
+   |
+LL |     let _ = text(Wrapped { value: name.get() });
+   |                                   ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:58:26
+   |
+LL |     let _ = takes_signal(fade.get());
+   |                          ^^^^^^^^^^
+   |
+help: pass the signal itself so the view can subscribe to updates
+   |
+LL -     let _ = takes_signal(fade.get());
+LL +     let _ = takes_signal(fade.clone());
+   |
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:60:28
+   |
+LL |     let _ = takes_computed(count.get());
+   |                            ^^^^^^^^^^^
+   |
+help: pass the signal itself so the view can subscribe to updates
+   |
+LL -     let _ = takes_computed(count.get());
+LL +     let _ = takes_computed(count.clone());
+   |
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:63:26
+   |
+LL |     let _ = AnyView::new(title.get());
+   |                          ^^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:66:33
+   |
+LL |     let _ = AnyViewBuilder::new(builder.get());
+   |                                 ^^^^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+error: aborting due to 13 previous errors
+
