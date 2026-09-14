@@ -1,0 +1,14 @@
+[package]
+name = "normalized_radius_overflow"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "normalized_radius_overflow"
+path = "main.rs"
+
+[workspace]
