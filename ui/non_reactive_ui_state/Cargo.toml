@@ -1,0 +1,14 @@
+[package]
+name = "non_reactive_ui_state"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "non_reactive_ui_state"
+path = "main.rs"
+
+[workspace]
