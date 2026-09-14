@@ -25,6 +25,10 @@ name = "collection_item_snapshot"
 path = "ui/collection_item_snapshot/main.rs"
 
 [[example]]
+name = "handler_captures_binding"
+path = "ui/handler_captures_binding/main.rs"
+
+[[example]]
 name = "if_else_view"
 path = "ui/if_else_view/main.rs"
 
