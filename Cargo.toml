@@ -105,6 +105,10 @@ name = "tappable_without_role"
 path = "ui/tappable_without_role/main.rs"
 
 [[example]]
+name = "task_handle_dropped"
+path = "ui/task_handle_dropped/main.rs"
+
+[[example]]
 name = "verbatim_text_literal"
 path = "ui/verbatim_text_literal/main.rs"
 
