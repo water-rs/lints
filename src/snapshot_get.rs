@@ -6,7 +6,7 @@ use clippy_utils::res::MaybeQPath;
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::LateContext;
-use rustc_middle::ty::AssocContainer;
+use rustc_middle::ty::{AssocContainer, TypeckResults};
 
 /// Def paths of the snapshot reads this lint tracks: the `Signal` trait's
 /// `get` (reached through `Computed`, `Map`, `WithMetadata`, `SignalExt`
@@ -25,9 +25,21 @@ const SNAPSHOT_GETS: &[&[&str]] = &[
 /// item, which normalizes those calls onto `nami_core::Signal::get`. The
 /// inherent `Binding::get` keeps its own `InherentImpl` def path.
 pub(crate) fn is_snapshot_get(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
+    is_snapshot_get_in(cx, cx.typeck_results(), expr)
+}
+
+/// [`is_snapshot_get`] against an explicit `TypeckResults` — for callers
+/// examining expressions that live in a body other than the one `cx`
+/// currently type-checks (e.g. a `let` use scanned while visiting the map
+/// that initializes it).
+pub(crate) fn is_snapshot_get_in(
+    cx: &LateContext<'_>,
+    typeck: &TypeckResults<'_>,
+    expr: &Expr<'_>,
+) -> bool {
     let did = match expr.kind {
-        ExprKind::MethodCall(..) => cx.typeck_results().type_dependent_def_id(expr.hir_id),
-        ExprKind::Call(func, _) => match func.res(cx) {
+        ExprKind::MethodCall(..) => typeck.type_dependent_def_id(expr.hir_id),
+        ExprKind::Call(func, _) => match func.res(typeck) {
             Res::Def(DefKind::AssocFn, did) => Some(did),
             _ => None,
         },

@@ -25,6 +25,10 @@ name = "if_else_view"
 path = "ui/if_else_view/main.rs"
 
 [[example]]
+name = "manual_text_map"
+path = "ui/manual_text_map/main.rs"
+
+[[example]]
 name = "needless_anyview"
 path = "ui/needless_anyview/main.rs"
 

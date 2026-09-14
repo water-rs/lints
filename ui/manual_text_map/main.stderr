@@ -1,0 +1,290 @@
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:28:14
+   |
+LL |         text(self.count.map(|v| format!("{v} left")).computed())
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(manual_text_map)]` on by default
+help: write it as `text!`
+   |
+LL -         text(self.count.map(|v| format!("{v} left")).computed())
+LL +         text!("{v} left", v = self.count)
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:44:25
+   |
+LL |         into_text_param(count.map(|c| format!("{c} unread")).computed());
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL ~     use waterui::reactive::{SignalExt, binding};
+LL +     use waterui::text;
+LL |     use waterui::text::IntoText;
+...
+LL |         // Fires — `impl IntoText` argument.
+LL ~         into_text_param(text!("{count} unread"));
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:64:26
+   |
+LL |     let selection_text = selection.clone().map(|fruit| format!("{fruit:?}"));
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: write the text position as `text!("{selection:?}")` — `selection_text` and the `let` both go away
+   = note: `selection_text` only carries a `format!` into a text position
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:69:18
+   |
+LL |     let _ = text(count.map(|c| format!("{c} items")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(count.map(|c| format!("{c} items")).computed());
+LL +     let _ = text!("{count} items");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:71:18
+   |
+LL |     let _ = text(name.map(|v| v.to_string()).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(name.map(|v| v.to_string()).computed());
+LL +     let _ = text!("{name}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:73:18
+   |
+LL |     let _ = text(name.map(|v| v.clone()).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(name.map(|v| v.clone()).computed());
+LL +     let _ = text!("{name}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:75:18
+   |
+LL |     let _ = text(price.map(|v| format!("{v:.1}")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(price.map(|v| format!("{v:.1}")).computed());
+LL +     let _ = text!("{price:.1}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:77:18
+   |
+LL |     let _ = text(price.map(|v| format!("{v:>7.1}")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(price.map(|v| format!("{v:>7.1}")).computed());
+LL +     let _ = text!("{price:>7.1}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:79:18
+   |
+LL |     let _ = text(count.map(|v| format!("{} items", v)).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(count.map(|v| format!("{} items", v)).computed());
+LL +     let _ = text!("{count} items");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:81:18
+   |
+LL |     let _ = text(count.map(|v| format!("{n} named", n = v)).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(count.map(|v| format!("{n} named", n = v)).computed());
+LL +     let _ = text!("{count} named");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:83:18
+   |
+LL |     let _ = text(name.map(|v| -> Str { format!("{v}?").into() }).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(name.map(|v| -> Str { format!("{v}?").into() }).computed());
+LL +     let _ = text!("{name}?");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:86:9
+   |
+LL | /         zip(first.clone(), last.clone())
+LL | |             .map(|(f, l)| format!("{f} {l}"))
+   | |_____________________________________________^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(
+LL -         zip(first.clone(), last.clone())
+LL -             .map(|(f, l)| format!("{f} {l}"))
+LL -             .computed(),
+LL -     );
+LL +     let _ = text!("{first} {last}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:92:9
+   |
+LL | /         first
+LL | |             .zip(&last)
+LL | |             .map(|(f, l)| format!("{f} + {l}"))
+   | |_______________________________________________^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(
+LL -         first
+LL -             .zip(&last)
+LL -             .map(|(f, l)| format!("{f} + {l}"))
+LL -             .computed(),
+LL -     );
+LL +     let _ = text!("{first} + {last}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:98:18
+   |
+LL |     let _ = text(map(count.clone(), |v| format!("{v}!")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(map(count.clone(), |v| format!("{v}!")).computed());
+LL +     let _ = text!("{count}!");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:103:9
+   |
+LL | /         count
+LL | |             .map(move |c| format!("{c} of {}", total2.get()))
+   | |_____________________________________________________________^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(
+LL -         count
+LL -             .map(move |c| format!("{c} of {}", total2.get()))
+LL -             .computed(),
+LL -     );
+LL +     let _ = text!("{count} of {total2}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:109:16
+   |
+LL |     takes_text(count.map(|c| format!("{c} things")).computed());
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     takes_text(count.map(|c| format!("{c} things")).computed());
+LL +     takes_text(text!("{count} things"));
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:111:20
+   |
+LL |     let _ = button(count.map(|c| format!("Buy {c}")).computed());
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = button(count.map(|c| format!("Buy {c}")).computed());
+LL +     let _ = button(text!("Buy {count}"));
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:114:30
+   |
+LL |     let _ = text!("{x}", x = count.map(|c| format!("{c} left")).computed());
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text!("{x}", x = count.map(|c| format!("{c} left")).computed());
+LL +     let _ = text!("{count} left");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:116:18
+   |
+LL |     let _ = text(count.map(|c| format!("{{{c}}} items")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(count.map(|c| format!("{{{c}}} items")).computed());
+LL +     let _ = text!("{{{count}}} items");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:120:13
+   |
+LL |         x = count.map(|c| format!("{c} left")).computed()
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text!(
+LL -         "{name}: {x}",
+LL -         x = count.map(|c| format!("{c} left")).computed()
+LL -     );
+LL +     let _ = text!("{name}: {count} left");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:123:19
+   |
+LL |     let summary = total.clone().map(|t| format!("Total: {t}")).computed();
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: write the text position as `text!("Total: {total}")` — `summary` and the `let` both go away
+   = note: `summary` only carries a `format!` into a text position
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:126:18
+   |
+LL |     let _ = text(user.map(|u| format!("user {}", u.name)).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `text!` placeholders take identifiers bound to signals — bind the value under a name: `text!("{name}", name = user.map(|u| u.name))`
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:129:9
+   |
+LL | /         zip(count.clone(), width)
+LL | |             .map(|(v, w)| format!("{v:w$}"))
+   | |____________________________________________^
+   |
+   = help: `text!` can't carry `{:*}`-style dynamic width/precision — bind the rendered value under a name instead
+
+warning: 23 warnings emitted
+
