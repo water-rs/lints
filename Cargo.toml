@@ -49,6 +49,10 @@ name = "needless_anyview"
 path = "ui/needless_anyview/main.rs"
 
 [[example]]
+name = "non_reactive_ui_state"
+path = "ui/non_reactive_ui_state/main.rs"
+
+[[example]]
 name = "normalized_radius_overflow"
 path = "ui/normalized_radius_overflow/main.rs"
 

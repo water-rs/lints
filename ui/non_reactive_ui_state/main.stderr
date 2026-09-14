@@ -1,0 +1,67 @@
+warning: a `RefCell` field on a `View` type is not reactive state
+  --> $DIR/main.rs:23:5
+   |
+LL |     value: Rc<RefCell<u32>>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+   = note: `#[warn(non_reactive_ui_state)]` on by default
+
+warning: mutating a `RefCell` from a handler never notifies the UI
+  --> $DIR/main.rs:48:41
+   |
+LL |     let _ = button("a").action(move || *n.borrow_mut() += 1);
+   |                                         ^^^^^^^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `Cell` from a handler never notifies the UI
+  --> $DIR/main.rs:52:40
+   |
+LL |     let _ = button("a").action(move || c.set(1));
+   |                                        ^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `Mutex` from a handler never notifies the UI
+  --> $DIR/main.rs:56:41
+   |
+LL |     let _ = button("a").action(move || *m.lock().unwrap() += 1);
+   |                                         ^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `RwLock` from a handler never notifies the UI
+  --> $DIR/main.rs:60:41
+   |
+LL |     let _ = button("a").action(move || *w.write().unwrap() += 1);
+   |                                         ^^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `Atomic<u32>` from a handler never notifies the UI
+  --> $DIR/main.rs:67:25
+   |
+LL |         .on_tap(move || a.store(1, Ordering::Relaxed));
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `static mut` from a handler never notifies the UI
+  --> $DIR/main.rs:70:44
+   |
+LL |     let _ = button("a").action(|| unsafe { COUNTER += 1 });
+   |                                            ^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: mutating a `thread_local!` from a handler never notifies the UI
+  --> $DIR/main.rs:73:35
+   |
+LL |     let _ = button("a").action(|| TLS.with(|v| v.set(1)));
+   |                                   ^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: 8 warnings emitted
+
