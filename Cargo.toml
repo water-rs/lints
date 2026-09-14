@@ -37,6 +37,10 @@ name = "handler_captures_binding"
 path = "ui/handler_captures_binding/main.rs"
 
 [[example]]
+name = "hardcoded_theme_value"
+path = "ui/hardcoded_theme_value/main.rs"
+
+[[example]]
 name = "if_else_view"
 path = "ui/if_else_view/main.rs"
 
