@@ -30,11 +30,14 @@ pub(crate) const SIGNAL_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_controls", "label", "IntoLabel"],
 ];
 
+/// `waterui_core::foundation::handler::ViewBuilder` — the `VIEW_PARAM_BOUNDS`
+/// entry for a view-factory parameter: a closure argument to one is a builder
+/// the callee invokes to produce a view each time it rebuilds.
+pub(crate) const VIEW_BUILDER: &[&str] = &["waterui_core", "foundation", "handler", "ViewBuilder"];
+
 /// Parameter bounds that take a view — a subtree, not a value.
-pub(crate) const VIEW_PARAM_BOUNDS: &[&[&str]] = &[
-    &["waterui_core", "ui", "view", "View"],
-    &["waterui_core", "foundation", "handler", "ViewBuilder"],
-];
+pub(crate) const VIEW_PARAM_BOUNDS: &[&[&str]] =
+    &[&["waterui_core", "ui", "view", "View"], VIEW_BUILDER];
 
 /// `param index -> bounds on it that are in `bounds_tables``, for one callee.
 /// Walks the `parent` chain so impl-level bounds (`impl<V: View>`) and trait

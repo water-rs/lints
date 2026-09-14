@@ -16,7 +16,7 @@ use rustc_span::Span;
 use std::mem;
 
 use crate::anyview::{ANYVIEW, erased_inner, is_anyview, peel};
-use crate::param_bounds::{BoundTarget, call_arg_bounds_in, call_args};
+use crate::param_bounds::{BoundTarget, VIEW_BUILDER, call_arg_bounds_in, call_args};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -68,10 +68,6 @@ const TUPLE_VIEWS: &[&str] = &["waterui_core", "ui", "view", "TupleViews"];
 
 /// `Views` — likewise for a collection of views.
 const VIEWS: &[&str] = &["waterui_core", "ui", "views", "Views"];
-
-/// `ViewBuilder` — the parameter produces a view, so a closure argument's
-/// return positions are view positions.
-const VIEW_BUILDER: &[&str] = &["waterui_core", "foundation", "handler", "ViewBuilder"];
 
 /// Bounds that make an argument position accept views.
 const VIEW_POSITION_BOUNDS: &[&[&str]] = &[VIEW, TUPLE_VIEWS, VIEWS, VIEW_BUILDER];
