@@ -87,6 +87,7 @@ macro_rules! declare_waterui_lint {
 
 mod anyview;
 mod carriers;
+mod collection_item_snapshot;
 mod def_path;
 mod format_args;
 mod if_else_view;
@@ -98,6 +99,7 @@ mod normalized_radius_overflow;
 mod param_bounds;
 mod qualified_waterui_path;
 mod redundant_anyview;
+mod row_builder;
 mod set_with_own_get;
 mod signal_get_in_view;
 mod snapshot_get;
@@ -108,6 +110,7 @@ mod watch_ignores_value;
 mod watch_over_collection;
 
 const LINTS: &[&LintInfo] = &[
+    &collection_item_snapshot::LINT_INFO,
     &if_else_view::LINT_INFO,
     &manual_identifiable::LINT_INFO,
     &manual_text_map::LINT_INFO,
@@ -133,6 +136,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     dylint_linting::init_config(sess);
 
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
+    lint_store.register_late_pass(|_| Box::new(collection_item_snapshot::CollectionItemSnapshot));
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));

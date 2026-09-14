@@ -1,16 +1,14 @@
 use clippy_utils::diagnostics::span_lint_and_then;
-use clippy_utils::macros::{root_macro_call, root_macro_call_first_node};
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::visitors::{Descend, for_each_expr};
-use rustc_hir::{Block, Expr, ExprKind, HirId, Node, Pat, UnOp};
+use rustc_hir::{Block, Expr, ExprKind, HirId, Pat};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TypeckResults;
 use rustc_session::declare_lint_pass;
-use rustc_span::{ExpnId, sym};
 use std::ops::ControlFlow;
 
-use crate::carriers::{CARRIER_CALLS, is_call_to};
-use crate::param_bounds::{SIGNAL_PARAM_BOUNDS, call_arg_bounds_in, call_args};
+use crate::carriers::carried_arg;
+use crate::param_bounds::{SIGNAL_PARAM_BOUNDS, arg_has_bound};
 use crate::watch::watch_call;
 
 declare_waterui_lint! {
@@ -57,71 +55,6 @@ const MESSAGE: &str =
 const READ_LABEL: &str = "reaches a signal-taking parameter here";
 const HELP: &str = "pass the signal itself — `text!(\"{count}\")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state";
 
-/// The outermost expression of macro expansion `expn` containing `hir_id` —
-/// the ancestor `root_macro_call_first_node` recognizes as the call's first
-/// node. `None` when the expansion's root cannot be found.
-fn expansion_root<'hir>(
-    cx: &LateContext<'hir>,
-    hir_id: HirId,
-    expn: ExpnId,
-) -> Option<&'hir Expr<'hir>> {
-    cx.tcx.hir_parent_id_iter(hir_id).find_map(|id| {
-        let Node::Expr(expr) = cx.tcx.hir_node(id) else {
-            return None;
-        };
-        root_macro_call_first_node(cx, expr)
-            .is_some_and(|call| call.expn == expn)
-            .then_some(expr)
-    })
-}
-
-/// `Some((call, index))` when `read`, after climbing through value carriers —
-/// `.clone()`/`.to_owned()`/`.to_string()` at operand position 0, `&`/`*`,
-/// drop-temps, and a `format!(..)` invocation it is an argument of — sits at
-/// argument `index` of `call`. `None` when the value is consumed any other
-/// way: a `match`/`if` scrutinee, a `let` init, a field, the callee, a
-/// non-carrier call like `.len()`.
-fn carried_arg<'hir>(
-    cx: &LateContext<'hir>,
-    typeck: &TypeckResults<'hir>,
-    read: &'hir Expr<'hir>,
-) -> Option<(&'hir Expr<'hir>, usize)> {
-    let mut current = read;
-    loop {
-        let parent_id = cx.tcx.parent_hir_id(current.hir_id);
-        // `current` inside a `format!(..)` expansion is a format argument;
-        // the value carried onward is the expansion's outermost node.
-        if let Some(call) = root_macro_call(cx.tcx.hir_span(parent_id))
-            && cx.tcx.get_diagnostic_name(call.def_id) == Some(sym::format_macro)
-        {
-            current = expansion_root(cx, parent_id, call.expn)?;
-            continue;
-        }
-        let Node::Expr(parent) = cx.tcx.hir_node(parent_id) else {
-            return None;
-        };
-        match parent.kind {
-            ExprKind::AddrOf(.., inner)
-            | ExprKind::Unary(UnOp::Deref, inner)
-            | ExprKind::DropTemps(inner)
-                if inner.hir_id == current.hir_id =>
-            {
-                current = parent;
-            }
-            ExprKind::Call(..) | ExprKind::MethodCall(..) => {
-                let args = call_args(parent);
-                let index = args.iter().position(|arg| arg.hir_id == current.hir_id)?;
-                if index == 0 && is_call_to(cx, typeck, parent, CARRIER_CALLS) {
-                    current = parent;
-                } else {
-                    return Some((parent, index));
-                }
-            }
-            _ => return None,
-        }
-    }
-}
-
 /// The `HirId`s of every local the parameter pattern binds: one for
 /// `|v|`/`|_v|`, several for a destructure like `|(a, b)|`.
 fn bound_locals(pat: &Pat<'_>) -> Vec<HirId> {
@@ -137,8 +70,7 @@ fn is_signal_position<'tcx>(
     call: &Expr<'tcx>,
     index: usize,
 ) -> bool {
-    call_arg_bounds_in(cx, typeck, call, &[SIGNAL_PARAM_BOUNDS])
-        .is_some_and(|(_, bounds)| bounds.get(index).is_some_and(|targets| !targets.is_empty()))
+    arg_has_bound(cx, typeck, call, &[SIGNAL_PARAM_BOUNDS], index)
 }
 
 impl<'tcx> LateLintPass<'tcx> for WatchForReactiveValue {
