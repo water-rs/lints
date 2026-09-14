@@ -29,6 +29,10 @@ name = "empty_label_literal"
 path = "ui/empty_label_literal/main.rs"
 
 [[example]]
+name = "fixed_children_in_vec"
+path = "ui/fixed_children_in_vec/main.rs"
+
+[[example]]
 name = "handler_captures_binding"
 path = "ui/handler_captures_binding/main.rs"
 
