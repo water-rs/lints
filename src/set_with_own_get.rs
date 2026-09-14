@@ -13,6 +13,7 @@ use rustc_middle::ty::{Ty, TyKind, TypeVisitableExt, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Pos, SyntaxContext};
 
+use crate::binding::{BINDING, BINDING_SET};
 use crate::carriers::strip_wraps;
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
@@ -55,14 +56,7 @@ declare_lint_pass!(SetWithOwnGet => [SET_WITH_OWN_GET]);
 /// `set` methods the lint recognizes: `Binding`'s inherent `set` and the
 /// `CustomBinding` trait's `set`, which trait-impl callees normalize onto
 /// through [`implemented_trait_item`].
-const SET_PATHS: &[&[&str]] = &[
-    &["nami", "reactive_core", "binding", "Binding", "set"],
-    &["nami_core", "CustomBinding", "set"],
-];
-
-/// `nami`'s `Binding<T>` — the only receiver type with `get_mut`/`toggle`/
-/// `with_mut`, so the only one a suggestion can name.
-const BINDING: &[&str] = &["nami", "reactive_core", "binding", "Binding"];
+const SET_PATHS: &[&[&str]] = &[BINDING_SET, &["nami_core", "CustomBinding", "set"]];
 
 const MESSAGE: &str = "this `set` recomputes the binding from its own `get()` snapshot";
 const GET_LABEL: &str = "the value read here is stale by the time `set` runs";

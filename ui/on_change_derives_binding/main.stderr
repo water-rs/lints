@@ -1,0 +1,41 @@
+warning: this `on_change` copies a derived value into a second binding
+  --> $DIR/main.rs:17:13
+   |
+LL |     let _ = text("a").on_change(&count, move |v| doubled.set(v * 2));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------------------------^
+   |                                         |
+   |                                         `doubled` lags the source by one update and is a second source of truth
+   |
+   = help: derive it once — `let doubled = count.map(|v| v * 2);` — and read the `Computed` where `doubled` was read
+note: the lint level is defined here
+  --> $DIR/main.rs:6:9
+   |
+LL | #![warn(on_change_derives_binding)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this `on_change` copies a derived value into a second binding
+  --> $DIR/main.rs:21:13
+   |
+LL |        let _ = text("a").on_change(&count, move |v| {
+   |   _____________^                           -
+   |  |_________________________________________|
+LL | ||         label.set(Str::from(v.to_string().to_uppercase()))
+LL | ||     });
+   | ||_____-^
+   | |______|
+   |        `label` lags the source by one update and is a second source of truth
+   |
+   = help: derive it once — `let label = count.map(|v| Str::from(v.to_string().to_uppercase()));` — and read the `Computed` where `label` was read
+
+warning: this `on_change` copies a derived value into a second binding
+  --> $DIR/main.rs:27:13
+   |
+LL |     let _ = text("a").on_change(&flag, move |v| other.set(!v));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^----------------------^
+   |                                        |
+   |                                        `other` lags the source by one update and is a second source of truth
+   |
+   = help: derive it once — `let other = flag.map(|v| !v);` — and read the `Computed` where `other` was read
+
+warning: 3 warnings emitted
+
