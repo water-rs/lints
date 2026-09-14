@@ -1,0 +1,54 @@
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:7:23
+   |
+LL |     let _v: AnyView = AnyView::new(AnyView::new(text("a")));
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: drop the second wrapper: `AnyView::new(text("a"))`
+   |
+   = note: `#[warn(redundant_anyview)]` on by default
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:7:36
+   |
+LL |     let _v: AnyView = AnyView::new(AnyView::new(text("a")));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+   |
+   = note: `#[warn(needless_anyview)]` on by default
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:12:13
+   |
+LL |     let _ = AnyView::new(v);
+   |             ^^^^^^^^^^^^^^^ help: drop the second wrapper: `v`
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = v.anyview();
+   |             ^^^^^^^^^^^ help: drop the second wrapper: `v`
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:20:13
+   |
+LL |     let _ = ViewExt::anyview(v);
+   |             ^^^^^^^^^^^^^^^^^^^ help: drop the second wrapper: `v`
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:27:13
+   |
+LL |       let _ = AnyView::new(match flag {
+   |  _____________^
+LL | |         true => a,
+LL | |         false => b,
+LL | |     });
+   | |______^
+   |
+help: drop the second wrapper
+   |
+LL ~     let _ = match flag {
+LL +         true => a,
+LL +         false => b,
+LL ~     };
+   |
+
+warning: 6 warnings emitted
+
