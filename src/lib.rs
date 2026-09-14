@@ -101,6 +101,7 @@ mod redundant_anyview;
 mod set_with_own_get;
 mod signal_get_in_view;
 mod snapshot_get;
+mod state_created_in_rebuilt_scope;
 mod watch;
 mod watch_for_reactive_value;
 mod watch_ignores_value;
@@ -116,6 +117,8 @@ const LINTS: &[&LintInfo] = &[
     &redundant_anyview::LINT_INFO,
     &set_with_own_get::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
+    &state_created_in_rebuilt_scope::LINT_INFO,
+    &state_created_in_rebuilt_scope::row_builder::LINT_INFO,
     &watch_for_reactive_value::LINT_INFO,
     &watch_ignores_value::LINT_INFO,
     &watch_over_collection::LINT_INFO,
@@ -159,6 +162,9 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass({
         let format_args = format_args.clone();
         move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
+    });
+    lint_store.register_late_pass(|_| {
+        Box::new(state_created_in_rebuilt_scope::StateCreatedInRebuiltScope)
     });
     lint_store.register_late_pass(|_| Box::new(watch_for_reactive_value::WatchForReactiveValue));
     lint_store.register_late_pass(|_| Box::new(watch_ignores_value::WatchIgnoresValue));

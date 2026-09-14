@@ -57,6 +57,10 @@ name = "signal_get_in_view"
 path = "ui/signal_get_in_view/main.rs"
 
 [[example]]
+name = "state_created_in_rebuilt_scope"
+path = "ui/state_created_in_rebuilt_scope/main.rs"
+
+[[example]]
 name = "watch_for_reactive_value"
 path = "ui/watch_for_reactive_value/main.rs"
 
