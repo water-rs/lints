@@ -69,6 +69,10 @@ name = "state_created_in_rebuilt_scope"
 path = "ui/state_created_in_rebuilt_scope/main.rs"
 
 [[example]]
+name = "verbatim_text_literal"
+path = "ui/verbatim_text_literal/main.rs"
+
+[[example]]
 name = "watch_for_reactive_value"
 path = "ui/watch_for_reactive_value/main.rs"
 

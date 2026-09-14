@@ -21,17 +21,19 @@ use rustc_hir::intravisit::{self, Visitor};
 use rustc_hir::{Block, Expr, ExprKind, HirId, LetStmt, Node, Pat, PatKind, QPath};
 use rustc_lexer::{FrontmatterAllowed, LiteralKind, TokenKind, tokenize};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyCtxt, TyKind, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::{TyCtxt, TypeVisitableExt, TypeckResults};
 use rustc_session::impl_lint_pass;
 use rustc_span::symbol::{Ident, Symbol};
 use rustc_span::{ExpnKind, MacroKind, Span, sym};
 use std::cell::OnceCell;
 use std::ops::{ControlFlow, Range};
 
-use crate::carriers::{CLONE, TO_OWNED, TO_STRING, is_call_to, strip_wraps};
+use crate::carriers::{
+    CLONE, FROM, INTO, TO_OWNED, TO_STRING, is_call_to, is_string_ty, strip_wraps,
+};
 use crate::def_path::def_path_eq;
 use crate::imports::{Bare, bare_status, use_insertion};
-use crate::param_bounds::{call_arg_bounds_in, call_args};
+use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds_in, call_args};
 use crate::snapshot_get::{get_receiver, is_snapshot_get_in};
 
 declare_waterui_lint! {
@@ -86,12 +88,6 @@ const ZIP_FNS: &[&[&str]] = &[
     &["nami", "reactive_core", "zip", "zip"],
 ];
 
-/// `From::from` — `String::from(format!(..))` / `Str::from(v)` wrappers.
-const FROM: &[&str] = &["core", "convert", "From", "from"];
-
-/// `Into::into` — `format!(..).into()`.
-const INTO: &[&str] = &["core", "convert", "Into", "into"];
-
 /// Calls a map result may pass through on its way to a text position. They
 /// only rewrap the signal, so the analysis peels them and the fix drops them.
 const RESULT_ADAPTERS: &[&[&str]] = &[
@@ -123,15 +119,6 @@ const TEXT_FN: &[&str] = &["waterui_text", "text", "text"];
 /// `Text::localized_with` — the call `text!` emits around its captures; an
 /// ancestor of it marks an expression as living inside the expansion.
 const LOCALIZED_WITH: &[&str] = &["waterui_text", "text", "Text", "localized_with"];
-
-/// Parameter bounds that take a text-producing value.
-const TEXT_BOUNDS: &[&[&str]] = &[
-    &["waterui_text", "text", "IntoText"],
-    &["waterui_controls", "label", "IntoLabel"],
-];
-
-/// String-shaped types a mapped closure may produce.
-const STRING_TYS: &[&[&str]] = &[&["alloc", "string", "String"], &["waterui_str", "Str"]];
 
 /// `use` text inserted when `text` isn't already in scope.
 const TEXT_USE: &str = "waterui::text";
@@ -206,16 +193,6 @@ fn sources<'hir>(
             .collect();
     }
     vec![expr]
-}
-
-/// `String` / `Str` / `&str` — the string-shaped output a text-feeding map
-/// must produce.
-fn is_string_ty(cx: &LateContext<'_>, ty: Ty<'_>) -> bool {
-    match ty.peel_refs().kind() {
-        TyKind::Str => true,
-        TyKind::Adt(def, _) => STRING_TYS.iter().any(|p| def_path_eq(cx, def.did(), p)),
-        _ => false,
-    }
 }
 
 /// The bindings a map-closure parameter pattern makes, related to the
@@ -594,7 +571,7 @@ fn text_position<'hir>(
     call: &Expr<'hir>,
     arg: &Expr<'hir>,
 ) -> TextPos {
-    let Some((callee, per_arg)) = call_arg_bounds_in(cx, typeck, call, &[TEXT_BOUNDS]) else {
+    let Some((callee, per_arg)) = call_arg_bounds_in(cx, typeck, call, &[TEXT_PARAM_BOUNDS]) else {
         return TextPos::None;
     };
     let Some(index) = call_args(call).iter().position(|a| a.hir_id == arg.hir_id) else {

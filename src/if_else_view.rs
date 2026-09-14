@@ -16,7 +16,7 @@ use std::cell::OnceCell;
 use std::ops::ControlFlow;
 
 use crate::imports::{Bare, bare_status, use_insertion};
-use crate::param_bounds::{call_arg_bounds, call_args};
+use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds, call_args};
 use crate::snapshot_get::{get_receiver, is_snapshot_get};
 
 declare_waterui_lint! {
@@ -144,13 +144,6 @@ fn arm_text<'a>(cx: &LateContext<'a>, arm: &Expr<'a>) -> Option<String> {
     };
     Some(format!("|| {}", snippet_opt(cx, body.span)?))
 }
-
-/// `IntoText`/`IntoLabel` — a parameter that consumes the chosen view as
-/// text or a label, where a `when(..)` chain does not fit.
-const TEXT_PARAM_BOUNDS: &[&[&str]] = &[
-    &["waterui_text", "text", "IntoText"],
-    &["waterui_controls", "label", "IntoLabel"],
-];
 
 /// Whether `expr` is passed straight to an `IntoText`/`IntoLabel` parameter
 /// (`button(if c { text("a") } else { text("b") }, ..)`): the arms are
