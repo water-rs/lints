@@ -60,13 +60,9 @@ const NORMALIZED_RADIUS_CTORS: &[RadiusCtor] = &[
 ];
 
 fn normalized_radius_ctor(cx: &LateContext<'_>, def_id: DefId) -> Option<&'static RadiusCtor> {
-    let def_path = cx.get_def_path(def_id);
-    NORMALIZED_RADIUS_CTORS.iter().find(|ctor| {
-        def_path
-            .iter()
-            .map(|segment| segment.as_str())
-            .eq(ctor.def_path.iter().copied())
-    })
+    NORMALIZED_RADIUS_CTORS
+        .iter()
+        .find(|ctor| crate::def_path::def_path_eq(cx, def_id, &ctor.def_path))
 }
 
 impl<'tcx> LateLintPass<'tcx> for NormalizedRadiusOverflow {

@@ -23,5 +23,9 @@ waterui = { version = "0.4.1", default-features = false }
 name = "normalized_radius_overflow"
 path = "ui/normalized_radius_overflow/main.rs"
 
+[[example]]
+name = "signal_get_in_view"
+path = "ui/signal_get_in_view/main.rs"
+
 [package.metadata.rust-analyzer]
 rustc_private = true
