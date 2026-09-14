@@ -1,0 +1,14 @@
+[package]
+name = "if_else_view"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "if_else_view"
+path = "main.rs"
+
+[workspace]

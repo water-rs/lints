@@ -6,6 +6,27 @@ LL |     AnyView::new(text("a"))
    |
    = note: `#[warn(needless_anyview)]` on by default
 
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:41:5
+   |
+LL | /     if c {
+LL | |         AnyView::new(text("a"))
+LL | |     } else {
+LL | |         AnyView::new(text("b"))
+LL | |     }
+   | |_____^
+   |
+   = note: `#[warn(if_else_view)]` on by default
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL -     if c {
+LL -         AnyView::new(text("a"))
+LL -     } else {
+LL -         AnyView::new(text("b"))
+LL -     }
+LL +     when(c, || AnyView::new(text("a"))).otherwise(|| AnyView::new(text("b")))
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:41:5
    |
@@ -94,6 +115,26 @@ LL - fn passthrough() -> AnyView {
 LL + fn passthrough() -> impl View {
    |
 
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:99:5
+   |
+LL | /     if c {
+LL | |         AnyView::new(text("a"))
+LL | |     } else {
+LL | |         AnyView::new(item())
+LL | |     }
+   | |_____^
+   |
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL -     if c {
+LL -         AnyView::new(text("a"))
+LL -     } else {
+LL -         AnyView::new(item())
+LL -     }
+LL +     when(c, || AnyView::new(text("a"))).otherwise(|| AnyView::new(item()))
+   |
+
 warning: the return type can be `impl View`
   --> $DIR/main.rs:133:23
    |
@@ -166,5 +207,5 @@ warning: erasing to `AnyView` is unnecessary — the position already accepts `i
 LL |     let _ = AnyView::new(text("a")).anyview();
    |             ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
 
-warning: 18 warnings emitted
+warning: 20 warnings emitted
 

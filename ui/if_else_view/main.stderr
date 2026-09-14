@@ -1,0 +1,152 @@
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:14:13
+   |
+LL |       let _ = if c {
+   |  _____________^
+LL | |         text("a").anyview()
+LL | |     } else {
+LL | |         text("b").anyview()
+LL | |     };
+   | |_____^
+   |
+   = note: `#[warn(if_else_view)]` on by default
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (plain): both arms erase to `AnyView` — `when` needs no erasure.
+LL ~     let _ = when(c, || text("a").anyview()).otherwise(|| text("b").anyview());
+   |
+
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:20:13
+   |
+LL |     let _ = if c { text("a") } else { text("b") };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (plain): same-typed arms unify to `Text`.
+LL ~     let _ = when(c, || text("a")).otherwise(|| text("b"));
+   |
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:22:13
+   |
+LL |     let _ = if flag.get() { text("on") } else { text("off") };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (snapshot): `x.get()` — the fix passes `flag.clone()` to `when`.
+LL ~     let _ = when(flag.clone(), || text("on")).otherwise(|| text("off"));
+   |
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:24:13
+   |
+LL |     let _ = if !flag.get() { text("off") } else { text("on") };
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (snapshot): `!x.get()` — the fix passes `!flag.clone()`.
+LL ~     let _ = when(!flag.clone(), || text("off")).otherwise(|| text("on"));
+   |
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:26:13
+   |
+LL |       let _ = if items.get().is_empty() {
+   |  _____________^
+LL | |         text("empty")
+LL | |     } else {
+LL | |         text("full")
+LL | |     };
+   | |_____^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+   = help: derive a `Computed<bool>` with `map`/`zip` and pass it to `when`
+
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:32:13
+   |
+LL |       let _ = if c {
+   |  _____________^
+LL | |         text("a")
+LL | |     } else if d {
+LL | |         text("b")
+LL | |     } else {
+LL | |         text("e")
+LL | |     };
+   | |_____^
+   |
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (plain): an `else if` chain is one diagnostic on the outer `if`.
+LL ~     let _ = when(c, || text("a")).or(d, || text("b")).otherwise(|| text("e"));
+   |
+
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:40:13
+   |
+LL |       let _ = if c {
+   |  _____________^
+LL | |         side_a();
+LL | |         text("a")
+LL | |     } else {
+LL | |         text("b")
+LL | |     };
+   | |_____^
+   |
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (plain): block arms with statements stay verbatim in `|| { .. }`.
+LL ~     let _ = when(c, || {
+LL +         side_a();
+LL +         text("a")
+LL ~     }).otherwise(|| text("b"));
+   |
+
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:47:21
+   |
+LL |     let _ = vstack((if c { text("a") } else { text("b") }, text("tail")));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL |     // Fires (plain): an `if` inside a `vstack` tuple element.
+LL ~     let _ = vstack((when(c, || text("a")).otherwise(|| text("b")), text("tail")));
+   |
+
+warning: 8 warnings emitted
+
