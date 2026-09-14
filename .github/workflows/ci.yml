@@ -44,6 +44,11 @@ jobs:
           toolchain: ${{ steps.toolchain.outputs.channel }}
           components: ${{ steps.toolchain.outputs.components }},clippy
       - uses: Swatinem/rust-cache@v2
+      # `.cargo/config.toml` links every target through `dylint-link`, so the
+      # library's own dependencies do not build without it.
+      - uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: dylint-link
       - run: cargo clippy --all-targets -- -D warnings
 
   test:
@@ -64,6 +69,10 @@ jobs:
           toolchain: ${{ steps.toolchain.outputs.channel }}
           components: ${{ steps.toolchain.outputs.components }}
       - uses: Swatinem/rust-cache@v2
-      - name: Install cargo-dylint and dylint-link
-        run: cargo install cargo-dylint dylint-link --locked
+      - uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-dylint
+      - uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: dylint-link
       - run: cargo test
