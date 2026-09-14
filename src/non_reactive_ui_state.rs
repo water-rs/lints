@@ -12,9 +12,8 @@ use rustc_middle::ty::{Ty, TyKind};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Span, sym};
 
-use crate::anyview::peel;
 use crate::def_path::def_path_eq;
-use crate::param_bounds::{HANDLER_PARAM_BOUNDS, call_arg_bounds, call_args};
+use crate::param_bounds::handler_closures;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -289,20 +288,8 @@ impl<'tcx> LateLintPass<'tcx> for NonReactiveUiState {
     }
 
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        if expr.span.from_expansion()
-            || !matches!(expr.kind, ExprKind::Call(..) | ExprKind::MethodCall(..))
-        {
-            return;
-        }
-        let Some((_, per_arg)) = call_arg_bounds(cx, expr, &[HANDLER_PARAM_BOUNDS]) else {
-            return;
-        };
-        for (arg, targets) in call_args(expr).into_iter().zip(per_arg) {
-            if !targets.is_empty()
-                && let ExprKind::Closure(closure) = peel(arg).kind
-            {
-                check_handler_closure(cx, closure);
-            }
+        for closure in handler_closures(cx, expr) {
+            check_handler_closure(cx, closure);
         }
     }
 }
