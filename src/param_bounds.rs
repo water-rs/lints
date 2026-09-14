@@ -2,12 +2,14 @@ use clippy_utils::ty::all_predicates_of;
 use rustc_data_structures::fx::FxHashMap;
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::def_id::DefId;
-use rustc_hir::{Expr, ExprKind};
+use rustc_hir::{Closure, Expr, ExprKind};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
     AssocContainer, ClauseKind, EarlyBinder, GenericArg, GenericArgsRef, PredicatePolarity, Ty,
     TyCtxt, TyKind, TypeckResults,
 };
+
+use crate::anyview::peel;
 
 /// A trait bound a callee's parameter carries, matched against a lint's
 /// target bound table.
@@ -69,6 +71,31 @@ pub(crate) const HANDLER_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_core", "foundation", "handler", "Handler"],
     &["waterui_core", "foundation", "handler", "HandlerOnce"],
 ];
+
+/// The closures `call` passes in a handler position — one per
+/// `HANDLER_PARAM_BOUNDS` argument that is written as a closure literal.
+pub(crate) fn handler_closures<'tcx>(
+    cx: &LateContext<'tcx>,
+    call: &'tcx Expr<'tcx>,
+) -> Vec<&'tcx Closure<'tcx>> {
+    if call.span.from_expansion()
+        || !matches!(call.kind, ExprKind::Call(..) | ExprKind::MethodCall(..))
+    {
+        return Vec::new();
+    }
+    let Some((_, per_arg)) = call_arg_bounds(cx, call, &[HANDLER_PARAM_BOUNDS]) else {
+        return Vec::new();
+    };
+    call_args(call)
+        .into_iter()
+        .zip(per_arg)
+        .filter(|(_, targets)| !targets.is_empty())
+        .filter_map(|(arg, _)| match peel(arg).kind {
+            ExprKind::Closure(closure) => Some(closure),
+            _ => None,
+        })
+        .collect()
+}
 
 /// `param index -> bounds on it that are in `bounds_tables``, for one callee.
 /// Walks the `parent` chain so impl-level bounds (`impl<V: View>`) and trait

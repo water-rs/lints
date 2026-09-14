@@ -1,14 +1,13 @@
 use clippy_utils::diagnostics::span_lint_and_then;
-use rustc_hir::{Closure, Expr, ExprKind};
+use rustc_hir::{Closure, Expr};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
 use rustc_session::declare_lint_pass;
 use rustc_span::{Span, Symbol};
 
-use crate::anyview::peel;
 use crate::binding::BINDING;
 use crate::def_path::def_path_eq;
-use crate::param_bounds::{HANDLER_PARAM_BOUNDS, call_arg_bounds, call_args};
+use crate::param_bounds::handler_closures;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -109,20 +108,8 @@ fn check_handler_closure(cx: &LateContext<'_>, closure: &Closure<'_>) {
 
 impl<'tcx> LateLintPass<'tcx> for HandlerCapturesBinding {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        if expr.span.from_expansion()
-            || !matches!(expr.kind, ExprKind::Call(..) | ExprKind::MethodCall(..))
-        {
-            return;
-        }
-        let Some((_, per_arg)) = call_arg_bounds(cx, expr, &[HANDLER_PARAM_BOUNDS]) else {
-            return;
-        };
-        for (arg, targets) in call_args(expr).into_iter().zip(per_arg) {
-            if !targets.is_empty()
-                && let ExprKind::Closure(closure) = peel(arg).kind
-            {
-                check_handler_closure(cx, closure);
-            }
+        for closure in handler_closures(cx, expr) {
+            check_handler_closure(cx, closure);
         }
     }
 }
