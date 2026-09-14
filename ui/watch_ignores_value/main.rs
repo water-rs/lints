@@ -26,9 +26,15 @@ fn main() {
     let _ = watch(pair.clone(), |(_a, _b)| text("fixed"));
 
     // Silent — `v` is read.
-    let _ = watch(count.clone(), |v| text(v.to_string()));
+    let _ = watch(count.clone(), |v| match v {
+        0 => text("none"),
+        _ => text("some"),
+    });
     // Silent — destructured parameter, `a` is read.
-    let _ = watch(pair, |(a, _)| text(a.to_string()));
+    let _ = watch(pair, |(a, _)| match a {
+        0 => text("none"),
+        _ => text("some"),
+    });
     // Silent — `v` is read through a `let`.
     let _ = watch(count.clone(), |v| {
         let n = v;

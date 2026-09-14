@@ -305,7 +305,7 @@ fn ret_position(cx: &LateContext<'_>, hir_id: HirId) -> Position {
 /// argument, or a return position of a `ViewBuilder` closure argument.
 fn in_view_slot<'tcx>(cx: &LateContext<'tcx>, call: &'tcx Expr<'tcx>, needle: &Expr<'tcx>) -> bool {
     let typeck = typeck_of(cx.tcx, call.hir_id);
-    let Some((_, bounds)) = call_arg_bounds_in(cx, typeck, call, VIEW_POSITION_BOUNDS) else {
+    let Some((_, bounds)) = call_arg_bounds_in(cx, typeck, call, &[VIEW_POSITION_BOUNDS]) else {
         return false;
     };
     call_args(call)
@@ -343,7 +343,7 @@ fn closure_is_builder_arg<'tcx>(cx: &LateContext<'tcx>, closure: &Expr<'tcx>) ->
             Node::Expr(parent) => match parent.kind {
                 ExprKind::Call(..) | ExprKind::MethodCall(..) => {
                     let typeck = typeck_of(cx.tcx, parent.hir_id);
-                    return call_arg_bounds_in(cx, typeck, parent, &[VIEW_BUILDER]).is_some_and(
+                    return call_arg_bounds_in(cx, typeck, parent, &[&[VIEW_BUILDER]]).is_some_and(
                         |(_, bounds)| {
                             call_args(parent)
                                 .into_iter()
@@ -376,16 +376,15 @@ fn views_collection_arg<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> bool
             Node::Expr(parent) => match parent.kind {
                 ExprKind::Call(..) | ExprKind::MethodCall(..) => {
                     let typeck = typeck_of(cx.tcx, parent.hir_id);
-                    return call_arg_bounds_in(cx, typeck, parent, COLLECTION_BOUNDS).is_some_and(
-                        |(_, bounds)| {
+                    return call_arg_bounds_in(cx, typeck, parent, &[COLLECTION_BOUNDS])
+                        .is_some_and(|(_, bounds)| {
                             call_args(parent)
                                 .into_iter()
                                 .zip(bounds)
                                 .any(|(arg, targets)| {
                                     !targets.is_empty() && peel(arg).hir_id == expr.hir_id
                                 })
-                        },
-                    );
+                        });
                 }
                 ExprKind::DropTemps(_) => cur = parent.hir_id,
                 ExprKind::Block(block, _) if block.hir_id == cur => cur = parent.hir_id,

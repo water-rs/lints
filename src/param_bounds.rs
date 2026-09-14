@@ -20,7 +20,23 @@ pub(crate) struct BoundTarget<'tcx> {
     pub args: &'tcx [GenericArg<'tcx>],
 }
 
-/// `param index -> bounds on it that are in `bounds_paths``, for one callee.
+/// Parameter bounds that take a live signal — a value passed to one of
+/// these is subscribed to, not snapshotted.
+pub(crate) const SIGNAL_PARAM_BOUNDS: &[&[&str]] = &[
+    &["nami", "reactive_core", "signal", "IntoSignal"],
+    &["nami", "reactive_core", "signal", "IntoComputed"],
+    &["waterui_core", "state", "computed_f32", "IntoSignalF32"],
+    &["waterui_text", "text", "IntoText"],
+    &["waterui_controls", "label", "IntoLabel"],
+];
+
+/// Parameter bounds that take a view — a subtree, not a value.
+pub(crate) const VIEW_PARAM_BOUNDS: &[&[&str]] = &[
+    &["waterui_core", "ui", "view", "View"],
+    &["waterui_core", "foundation", "handler", "ViewBuilder"],
+];
+
+/// `param index -> bounds on it that are in `bounds_tables``, for one callee.
 /// Walks the `parent` chain so impl-level bounds (`impl<V: View>`) and trait
 /// supertraits (`trait ViewExt: View`) are seen alongside the callee's own
 /// `where`/APIT clauses.
@@ -28,7 +44,7 @@ fn param_trait_bounds<'tcx>(
     cx: &LateContext<'tcx>,
     callee: DefId,
     substs: GenericArgsRef<'tcx>,
-    bounds_paths: &[&[&'static str]],
+    bounds_tables: &[&[&[&'static str]]],
 ) -> FxHashMap<u32, Vec<BoundTarget<'tcx>>> {
     let mut bounds: FxHashMap<u32, Vec<BoundTarget<'tcx>>> = FxHashMap::default();
     for &(clause, _) in all_predicates_of(cx.tcx, callee) {
@@ -36,8 +52,9 @@ fn param_trait_bounds<'tcx>(
             continue;
         };
         if pred.polarity != PredicatePolarity::Positive
-            || !bounds_paths
+            || !bounds_tables
                 .iter()
+                .flat_map(|table| table.iter().copied())
                 .any(|path| crate::def_path::def_path_eq(cx, pred.trait_ref.def_id, path))
         {
             continue;
@@ -136,17 +153,17 @@ pub(crate) fn call_args<'a, 'hir>(call: &'a Expr<'hir>) -> Vec<&'a Expr<'hir>> {
 }
 
 /// `(callee, per-argument bound targets)` for a `Call`/`MethodCall`: for each
-/// argument position, the `bounds_paths` bounds the matching parameter
+/// argument position, the `bounds_tables` bounds the matching parameter
 /// carries — an empty vec for positions without one. `typeck` must be the
 /// `TypeckResults` of the body containing `call`.
 pub(crate) fn call_arg_bounds_in<'tcx>(
     cx: &LateContext<'tcx>,
     typeck: &TypeckResults<'tcx>,
     call: &Expr<'tcx>,
-    bounds_paths: &[&[&'static str]],
+    bounds_tables: &[&[&[&'static str]]],
 ) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
     let (callee, substs) = call_target(typeck, call)?;
-    let bounds = param_trait_bounds(cx, callee, substs, bounds_paths);
+    let bounds = param_trait_bounds(cx, callee, substs, bounds_tables);
     if bounds.is_empty() {
         return None;
     }
@@ -171,7 +188,7 @@ pub(crate) fn call_arg_bounds_in<'tcx>(
 pub(crate) fn call_arg_bounds<'tcx>(
     cx: &LateContext<'tcx>,
     call: &Expr<'tcx>,
-    bounds_paths: &[&[&'static str]],
+    bounds_tables: &[&[&[&'static str]]],
 ) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
-    call_arg_bounds_in(cx, cx.typeck_results(), call, bounds_paths)
+    call_arg_bounds_in(cx, cx.typeck_results(), call, bounds_tables)
 }

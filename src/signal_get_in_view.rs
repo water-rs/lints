@@ -12,7 +12,9 @@ use rustc_middle::ty::TypeVisitableExt;
 use rustc_session::impl_lint_pass;
 use rustc_span::sym;
 
-use crate::param_bounds::{BoundTarget, call_arg_bounds, call_args};
+use crate::param_bounds::{
+    BoundTarget, SIGNAL_PARAM_BOUNDS, VIEW_PARAM_BOUNDS, call_arg_bounds, call_args,
+};
 use crate::snapshot_get::{get_receiver, is_snapshot_get};
 
 declare_waterui_lint! {
@@ -49,20 +51,6 @@ declare_waterui_lint! {
     correctness,
     "a `.get()` snapshot flows into a reactive or view parameter"
 }
-
-/// Def paths of the parameter bounds that expect a live signal or view.
-/// Matched against the callee's generic predicates, so any call site whose
-/// parameter carries one of these bounds is checked regardless of the crate
-/// the callee lives in.
-const REACTIVE_PARAM_BOUNDS: &[&[&str]] = &[
-    &["nami", "reactive_core", "signal", "IntoSignal"],
-    &["nami", "reactive_core", "signal", "IntoComputed"],
-    &["waterui_core", "state", "computed_f32", "IntoSignalF32"],
-    &["waterui_text", "text", "IntoText"],
-    &["waterui_controls", "label", "IntoLabel"],
-    &["waterui_core", "ui", "view", "View"],
-    &["waterui_core", "foundation", "handler", "ViewBuilder"],
-];
 
 /// `text` — the only callee for which `text(format!(..))` can be rewritten as
 /// `text!(..)`, since `text!` produces a `Text` directly.
@@ -133,7 +121,7 @@ impl<'tcx> Visitor<'tcx> for SnapshotGet<'_, 'tcx> {
 /// The inner `check_expr` owns diagnostics for those positions, so
 /// [`SnapshotGet`] skips them to keep one diagnostic per `.get()`.
 fn bound_arg_mask<'tcx>(cx: &LateContext<'tcx>, call: &Expr<'tcx>) -> Vec<bool> {
-    call_arg_bounds(cx, call, REACTIVE_PARAM_BOUNDS)
+    call_arg_bounds(cx, call, &[SIGNAL_PARAM_BOUNDS, VIEW_PARAM_BOUNDS])
         .map(|(_, bounds)| bounds.iter().map(|targets| !targets.is_empty()).collect())
         .unwrap_or_default()
 }
@@ -348,7 +336,9 @@ fn report_arg<'tcx>(
 
 impl<'tcx> LateLintPass<'tcx> for SignalGetInView {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        let Some((callee, arg_bounds)) = call_arg_bounds(cx, expr, REACTIVE_PARAM_BOUNDS) else {
+        let Some((callee, arg_bounds)) =
+            call_arg_bounds(cx, expr, &[SIGNAL_PARAM_BOUNDS, VIEW_PARAM_BOUNDS])
+        else {
             return;
         };
         for (arg, targets) in call_args(expr).into_iter().zip(arg_bounds) {
