@@ -1,0 +1,43 @@
+warning: a tap gesture on a view with no accessibility role or label
+  --> $DIR/main.rs:12:23
+   |
+LL |     let _ = text("a").on_tap(|| {});
+   |                       ^^^^^^^^^^^^^
+   |
+   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
+   = note: `#[warn(tappable_without_role)]` on by default
+
+warning: a tap gesture on a view with no accessibility role or label
+  --> $DIR/main.rs:14:44
+   |
+LL |     let _ = hstack((text("a"), text("b"))).on_tap_gesture(|| {});
+   |                                            ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
+
+warning: a tap gesture on a view with no accessibility role or label
+  --> $DIR/main.rs:16:33
+   |
+LL |     let _ = text("a").padding().on_tap(|| {});
+   |                                 ^^^^^^^^^^^^^
+   |
+   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
+
+warning: a tap gesture on a view with no accessibility role or label
+  --> $DIR/main.rs:18:23
+   |
+LL |     let _ = text("a").gesture(TapGesture::new(), || {});
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
+
+warning: a tap gesture on a view with no accessibility role or label
+  --> $DIR/main.rs:20:23
+   |
+LL |     let _ = text("a").on_tap(|| {}).a11y_hidden(true);
+   |                       ^^^^^^^^^^^^^
+   |
+   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
+
+warning: 5 warnings emitted
+
