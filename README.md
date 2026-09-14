@@ -1,4 +1,4 @@
-# waterui-lints
+# lints
 
 WaterUI-specific lints, packaged as a [dylint](https://github.com/trailofbits/dylint) library.
 
@@ -16,7 +16,7 @@ Then, in the project's `Cargo.toml`:
 
 ```toml
 [workspace.metadata.dylint]
-libraries = [{ git = "https://github.com/water-rs/waterui-lints", tag = "v0.1.0" }]
+libraries = [{ git = "https://github.com/water-rs/lints", tag = "v0.1.0" }]
 ```
 
 and `cargo dylint --all`. The `water` CLI will front this as `water lint` (water-rs/waterui#735).
