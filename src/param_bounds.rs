@@ -41,6 +41,10 @@ pub(crate) const SNAPSHOT_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_core", "state", "computed_f32", "IntoSignalF32"],
 ];
 
+/// Parameter bounds that take a control's mandatory label — the text a
+/// screen reader announces and `waterui-testing` queries match on.
+pub(crate) const LABEL_PARAM_BOUNDS: &[&[&str]] = &[&["waterui_controls", "label", "IntoLabel"]];
+
 /// Parameter bounds that take text — `&'static str` resolves through the
 /// localization catalog, while `String`/`Str` stay verbatim.
 pub(crate) const TEXT_PARAM_BOUNDS: &[&[&str]] = &[
