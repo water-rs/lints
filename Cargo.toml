@@ -52,5 +52,9 @@ path = "ui/signal_get_in_view/main.rs"
 name = "watch_ignores_value"
 path = "ui/watch_ignores_value/main.rs"
 
+[[example]]
+name = "watch_over_collection"
+path = "ui/watch_over_collection/main.rs"
+
 [package.metadata.rust-analyzer]
 rustc_private = true

@@ -1,0 +1,46 @@
+warning: this `watch` rebuilds every row whenever the collection changes
+  --> $DIR/main.rs:31:13
+   |
+LL |       let _ = watch(items.clone(), |items| {
+   |               ^     ------------- `Vec<Item>` is a collection — `watch` replaces the whole subtree on every change
+   |  _____________|
+   | |
+LL | |         vstack((text(items.len().to_string()),))
+LL | |     });
+   | |______^
+   |
+   = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
+   = note: `#[warn(watch_over_collection)]` on by default
+
+warning: this `watch` rebuilds every row whenever the collection changes
+  --> $DIR/main.rs:35:13
+   |
+LL |     let _ = Dynamic::watch(names, |names| vstack((text(names.len().to_string()),)));
+   |             ^^^^^^^^^^^^^^^-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                            |
+   |                            `Vec<String>` is a collection — `watch` replaces the whole subtree on every change
+   |
+   = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
+
+warning: this `watch` rebuilds every row whenever the collection changes
+  --> $DIR/main.rs:37:13
+   |
+LL |     let _ = watch(items.clone(), render);
+   |             ^^^^^^-------------^^^^^^^^^
+   |                   |
+   |                   `Vec<Item>` is a collection — `watch` replaces the whole subtree on every change
+   |
+   = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
+
+warning: this `watch` rebuilds every row whenever the collection changes
+  --> $DIR/main.rs:39:13
+   |
+LL |     let _ = watch(fixed, |fixed| text(fixed.len().to_string()));
+   |             ^^^^^^-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                   |
+   |                   `[i32; 3]` is a collection — `watch` replaces the whole subtree on every change
+   |
+   = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
+
+warning: 4 warnings emitted
+

@@ -64,7 +64,10 @@ impl<'tcx> LateLintPass<'tcx> for WatchIgnoresValue {
         let Some(call) = watch_call(cx, expr) else {
             return;
         };
-        let body = cx.tcx.hir_body(call.closure.body);
+        let Some(closure) = call.closure() else {
+            return;
+        };
+        let body = cx.tcx.hir_body(closure.body);
         // `Fn(T) -> V` arity is one; a closure of any other arity already
         // failed type checking, so there is nothing to flag.
         let [param] = body.params else {
