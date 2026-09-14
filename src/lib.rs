@@ -86,8 +86,10 @@ macro_rules! declare_waterui_lint {
 }
 
 mod def_path;
+mod format_args;
 mod if_else_view;
 mod imports;
+mod manual_text_map;
 mod needless_anyview;
 mod normalized_radius_overflow;
 mod param_bounds;
@@ -97,6 +99,7 @@ mod snapshot_get;
 
 const LINTS: &[&LintInfo] = &[
     &if_else_view::LINT_INFO,
+    &manual_text_map::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
@@ -125,11 +128,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     let format_args = clippy_utils::macros::FormatArgsStorage::default();
     lint_store.register_early_pass({
         let format_args = format_args.clone();
-        move || {
-            Box::new(signal_get_in_view::FormatArgsCollector::new(
-                format_args.clone(),
-            ))
-        }
+        move || Box::new(format_args::FormatArgsCollector::new(format_args.clone()))
     });
     lint_store.register_late_pass({
         let format_args = format_args.clone();
@@ -138,6 +137,10 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
                 format_args.clone(),
             ))
         }
+    });
+    lint_store.register_late_pass({
+        let format_args = format_args.clone();
+        move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
     });
 
     for group in Group::ALL {

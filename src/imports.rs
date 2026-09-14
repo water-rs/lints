@@ -334,7 +334,28 @@ pub(crate) fn use_insertion(
     Some(match predecessor {
         Some((span, _)) => {
             let indent = snippet_indent(cx.sess(), *span).unwrap_or_default();
-            (span.shrink_to_hi(), format!("\n{indent}"), String::new())
+            // Whether a `use` item's span covers its terminating `;`
+            // depends on the use-tree shape — normalize to just past it so
+            // the new line lands after the statement instead of inside it.
+            // A use tree can never contain `;`, so extending to the first
+            // one is exact.
+            let hi = if snippet_opt(cx.sess(), *span)
+                .is_some_and(|text| text.trim_end().ends_with(';'))
+            {
+                span.hi()
+            } else {
+                tcx.sess
+                    .source_map()
+                    .span_extend_while(*span, |c| c != ';')
+                    .ok()?
+                    .hi()
+                    + BytePos(1)
+            };
+            (
+                span.with_hi(hi).shrink_to_hi(),
+                format!("\n{indent}"),
+                String::new(),
+            )
         }
         None => {
             let (span, _) = &uses[0];

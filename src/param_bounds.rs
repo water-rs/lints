@@ -105,6 +105,12 @@ fn call_target<'tcx>(
     }
 }
 
+/// The resolved callee `DefId` of a `Call`/`MethodCall` — for lints that
+/// need what a call resolves to without its parameter bounds.
+pub(crate) fn call_def_id<'hir>(typeck: &TypeckResults<'hir>, expr: &Expr<'hir>) -> Option<DefId> {
+    call_target(typeck, expr).map(|(did, _)| did)
+}
+
 /// The arguments of `call` in parameter order — the receiver counts as
 /// position 0 for method calls.
 pub(crate) fn call_args<'a, 'hir>(call: &'a Expr<'hir>) -> Vec<&'a Expr<'hir>> {
