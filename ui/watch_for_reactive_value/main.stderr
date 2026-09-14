@@ -19,6 +19,28 @@ LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
    |
    = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
 
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:21:43
+   |
+LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+   |                                           ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(format_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+LL +     let _ = watch(count.clone(), |v| text(text!("{v} left")));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:21:43
+   |
+LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+   |                                           ^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+   = note: `#[warn(plural_bypass)]` on by default
+
 warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
   --> $DIR/main.rs:23:13
    |
@@ -61,5 +83,5 @@ LL | |     });
    |
    = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
 
-warning: 6 warnings emitted
+warning: 8 warnings emitted
 
