@@ -45,6 +45,10 @@ name = "qualified_waterui_path"
 path = "ui/qualified_waterui_path/main.rs"
 
 [[example]]
+name = "set_with_own_get"
+path = "ui/set_with_own_get/main.rs"
+
+[[example]]
 name = "signal_get_in_view"
 path = "ui/signal_get_in_view/main.rs"
 
