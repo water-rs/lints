@@ -1,5 +1,4 @@
 use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
-use clippy_utils::res::MaybeQPath;
 use clippy_utils::source::snippet_opt;
 use rustc_errors::Applicability;
 use rustc_hir::def::{DefKind, Res};
@@ -16,6 +15,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 use std::mem;
 
+use crate::anyview::{ANYVIEW, erased_inner, is_anyview, peel};
 use crate::param_bounds::{BoundTarget, call_arg_bounds_in, call_args};
 
 declare_waterui_lint! {
@@ -56,18 +56,6 @@ declare_waterui_lint! {
 
 declare_lint_pass!(NeedlessAnyview => [NEEDLESS_ANYVIEW]);
 
-/// `waterui_core::components::anyview::AnyView` — the erasure target.
-const ANYVIEW: &[&str] = &["waterui_core", "components", "anyview", "AnyView"];
-
-/// `AnyView::new` — an inherent associated function on `AnyView`.
-const ANYVIEW_NEW: &[&str] = &["waterui_core", "components", "anyview", "AnyView", "new"];
-
-/// `ViewExt::anyview` — the extension method producing `AnyView`.
-const ANYVIEW_EXT: &[&str] = &["waterui_internal", "view", "ViewExt", "anyview"];
-
-/// The erasure-producing calls, by defining-crate path.
-const ERASURE_CALLS: &[&[&str]] = &[ANYVIEW_NEW, ANYVIEW_EXT];
-
 /// `View` — a bound that makes an argument position accept any view.
 const VIEW: &[&str] = &["waterui_core", "ui", "view", "View"];
 
@@ -98,50 +86,6 @@ const COLLECTION_BOUNDS: &[&[&str]] = &[TUPLE_VIEWS, VIEWS];
 const ERASURE_MSG: &str =
     "erasing to `AnyView` is unnecessary — the position already accepts `impl View`";
 const IMPL_VIEW_MSG: &str = "the return type can be `impl View`";
-
-/// The view `expr` erases — the argument of `AnyView::new(v)` or the receiver
-/// of `v.anyview()`/`ViewExt::anyview(v)` — when `expr` is exactly such a
-/// call. `typeck` must be the `TypeckResults` of the body containing `expr`.
-fn erased_inner<'tcx>(
-    cx: &LateContext<'tcx>,
-    typeck: &TypeckResults<'tcx>,
-    expr: &'tcx Expr<'tcx>,
-) -> Option<&'tcx Expr<'tcx>> {
-    if expr.span.from_expansion() {
-        return None;
-    }
-    let (def_id, inner) = match expr.kind {
-        ExprKind::Call(func, [inner]) => match func.res(typeck) {
-            Res::Def(DefKind::AssocFn, did) => (did, inner),
-            _ => return None,
-        },
-        ExprKind::MethodCall(_, receiver, [], _) => {
-            (typeck.type_dependent_def_id(expr.hir_id)?, receiver)
-        }
-        _ => return None,
-    };
-    ERASURE_CALLS
-        .iter()
-        .any(|path| crate::def_path::def_path_eq(cx, def_id, path))
-        .then_some(inner)
-}
-
-/// `expr` with drop-temps and block wrappers removed — the value that
-/// actually occupies the position.
-fn peel<'tcx>(expr: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
-    let mut expr = expr;
-    loop {
-        expr = match expr.kind {
-            ExprKind::DropTemps(inner) => inner,
-            ExprKind::Block(block, _) => match block.expr {
-                Some(tail) => tail,
-                None => break,
-            },
-            _ => break,
-        };
-    }
-    expr
-}
 
 /// The `TypeckResults` of the body containing `hir_id`.
 fn typeck_of<'tcx>(tcx: TyCtxt<'tcx>, hir_id: HirId) -> &'tcx TypeckResults<'tcx> {
@@ -456,7 +400,11 @@ fn uniformly_erased<'tcx>(
 ) -> Option<Vec<(&'tcx Expr<'tcx>, &'tcx Expr<'tcx>)>> {
     let erased = exprs
         .into_iter()
-        .map(|expr| Some((expr, erased_inner(cx, typeck, peel(expr))?)))
+        .map(|expr| {
+            let inner = erased_inner(cx, typeck, peel(expr))?;
+            // Erasures of an `AnyView` belong to `redundant_anyview`.
+            (!is_anyview(cx, typeck.expr_ty(inner))).then_some((expr, inner))
+        })
         .collect::<Option<Vec<_>>>()?;
     let (first, rest) = erased.split_first()?;
     let first_ty = typeck.expr_ty(first.1);
@@ -581,9 +529,13 @@ impl<'tcx> Visitor<'tcx> for SigRewrite<'_, 'tcx> {
         }
         if let Some(inner) = erased_inner(self.cx, self.typeck, expr) {
             match position(self.cx, expr) {
-                Position::AnyViewSig { .. } => self.returns.push((expr, inner)),
+                // Erasures of an `AnyView` belong to `redundant_anyview` —
+                // the signature rewrite leaves them to that lint's fix.
+                Position::AnyViewSig { .. } if !is_anyview(self.cx, self.typeck.expr_ty(inner)) => {
+                    self.returns.push((expr, inner));
+                }
                 Position::Kept => self.kept = true,
-                Position::ViewSlot | Position::Transparent => {}
+                Position::AnyViewSig { .. } | Position::ViewSlot | Position::Transparent => {}
             }
         }
         intravisit::walk_expr(self, expr);
@@ -614,6 +566,9 @@ impl<'tcx> LateLintPass<'tcx> for NeedlessAnyview {
             _ => {}
         }
         if let Some(inner) = erased_inner(cx, typeck, expr)
+            // `redundant_anyview` owns erasures whose inner is already an
+            // `AnyView` — this lint would report the same call on one span.
+            && !is_anyview(cx, typeck.expr_ty(inner))
             && let Position::ViewSlot = position(cx, expr)
         {
             report_strip(cx, expr, inner);

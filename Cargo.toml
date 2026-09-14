@@ -45,6 +45,10 @@ name = "qualified_waterui_path"
 path = "ui/qualified_waterui_path/main.rs"
 
 [[example]]
+name = "redundant_anyview"
+path = "ui/redundant_anyview/main.rs"
+
+[[example]]
 name = "set_with_own_get"
 path = "ui/set_with_own_get/main.rs"
 

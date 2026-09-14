@@ -161,6 +161,10 @@ fn main() {
     });
     // Fires: `AnyView::new` as the receiver of `.anyview()` — `Self: View`.
     let _ = AnyView::new(text("a")).anyview();
+    // `redundant_anyview` only: the argument position accepts `impl View`,
+    // but the value erased is already an `AnyView`, so this lint steps aside.
+    let v: AnyView = text("a").anyview();
+    let _ = scroll(AnyView::new(v));
 
     // Silent: `.overlay`'s `Layer` parameter carries no `View` bound — the
     // bound lives on `impl View for Overlay` — so the call cannot be told
