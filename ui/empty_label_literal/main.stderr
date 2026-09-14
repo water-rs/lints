@@ -1,0 +1,67 @@
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:15:20
+   |
+LL |     let _ = button("");
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+   = note: `#[deny(empty_label_literal)]` on by default
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:17:20
+   |
+LL |     let _ = button("   ");
+   |                    ^^^^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:19:20
+   |
+LL |     let _ = toggle("", &flag);
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:21:20
+   |
+LL |     let _ = slider("/t", &value);
+   |                    ^^^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:23:19
+   |
+LL |     let _ = field("", &name);
+   |                   ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:25:34
+   |
+LL |     let _ = text("a").a11y_label("");
+   |                                  ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:27:20
+   |
+LL |     let _ = button("").action(|| {});
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: an empty label defeats the mandatory label
+  --> $DIR/main.rs:41:20
+   |
+LL |     let _ = button("").a11y_label("Save");
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+error: aborting due to 8 previous errors
+
