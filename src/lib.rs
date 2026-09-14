@@ -89,6 +89,7 @@ mod def_path;
 mod format_args;
 mod if_else_view;
 mod imports;
+mod manual_identifiable;
 mod manual_text_map;
 mod needless_anyview;
 mod normalized_radius_overflow;
@@ -99,6 +100,7 @@ mod snapshot_get;
 
 const LINTS: &[&LintInfo] = &[
     &if_else_view::LINT_INFO,
+    &manual_identifiable::LINT_INFO,
     &manual_text_map::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
@@ -116,6 +118,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
 
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
+    lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
     lint_store
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));

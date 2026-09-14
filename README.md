@@ -26,6 +26,7 @@ and `cargo dylint --all`. The `water` CLI will front this as `water lint` (water
 | Lint | Group | Description | Autofix |
 | ---- | ----- | ----------- | ------- |
 | `if_else_view` | `waterui_style` (warn) | Flags `if`/`else` that produce views — `when(cond, \|\| ..).otherwise(\|\| ..)` needs no `AnyView` erasure and stays reactive; conditions that `.get()` a signal are flagged as one-shot snapshots | Yes |
+| `manual_identifiable` | `waterui_style` (warn) | Flags `impl Identifiable` whose `id` returns a field verbatim and `use_id`/`self_id` wrappers on local structs — `#[derive(Identifiable)]` plus `#[id]` on the field covers both | Yes |
 | `manual_text_map` | `waterui_style` (warn) | Flags `.map(\|v\| format!(..))`/`.to_string()` over signals whose result only feeds a text position — `text!` formats the signal itself and keeps the template translatable | Yes |
 | `needless_anyview` | `waterui_style` (warn) | Flags `AnyView::new`/`.anyview()` erasure where `impl View` is already accepted — `AnyView` is only needed for `AnyView` fields, `-> AnyView` signatures, `Vec<AnyView>`, and mixed-type branches | Yes |
 | `normalized_radius_overflow` | `waterui_correctness` (deny) | Flags `RoundedRectangle`/`UnevenRoundedRectangle` radius constants above `0.5` — radii are fractions of the shorter side, not points | No |

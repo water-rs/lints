@@ -5,8 +5,8 @@ use rustc_hir::def_id::DefId;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
-    ClauseKind, EarlyBinder, GenericArg, GenericArgsRef, PredicatePolarity, Ty, TyKind,
-    TypeckResults,
+    AssocContainer, ClauseKind, EarlyBinder, GenericArg, GenericArgsRef, PredicatePolarity, Ty,
+    TyCtxt, TyKind, TypeckResults,
 };
 
 /// A trait bound a callee's parameter carries, matched against a lint's
@@ -109,6 +109,18 @@ fn call_target<'tcx>(
 /// need what a call resolves to without its parameter bounds.
 pub(crate) fn call_def_id<'hir>(typeck: &TypeckResults<'hir>, expr: &Expr<'hir>) -> Option<DefId> {
     call_target(typeck, expr).map(|(did, _)| did)
+}
+
+/// The trait item `did` implements — `impl Trait for T::f` points back at
+/// the trait's `f` — or `did` itself for inherent items and free items. A
+/// method call on a trait method resolves to the impl's method, whose def
+/// path is `<impl Trait for T>::f`; normalizing onto the trait item lets
+/// def-path matching hit `path::to::Trait::f`.
+pub(crate) fn implemented_trait_item(tcx: TyCtxt<'_>, did: DefId) -> DefId {
+    match tcx.opt_associated_item(did).map(|assoc| assoc.container) {
+        Some(AssocContainer::TraitImpl(Ok(trait_item))) => trait_item,
+        _ => did,
+    }
 }
 
 /// The arguments of `call` in parameter order — the receiver counts as

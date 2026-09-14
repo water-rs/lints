@@ -1,0 +1,170 @@
+warning: `Identifiable` can be derived — mark `id` with `#[id]` and drop the impl
+  --> $DIR/main.rs:21:5
+   |
+LL | /     impl Identifiable for CopyId {
+LL | |         type Id = u64;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.id
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+   = note: `#[warn(manual_identifiable)]` on by default
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct CopyId {
+LL ~         #[id]
+LL ~         id: u64,
+   |
+
+warning: `Identifiable` can be derived — mark `id` with `#[id]` and drop the impl
+  --> $DIR/main.rs:33:5
+   |
+LL | /     impl Identifiable for CloneId {
+LL | |         type Id = String;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.id.clone()
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct CloneId {
+LL ~         #[id]
+LL ~         id: String,
+   |
+
+warning: `Identifiable` can be derived — mark `0` with `#[id]` and drop the impl
+  --> $DIR/main.rs:43:5
+   |
+LL | /     impl Identifiable for Slot {
+LL | |         type Id = u64;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.0
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct Slot(#[id] u64);
+   |
+
+warning: `Identifiable` can be derived — mark `id` with `#[id]` and drop the impl
+  --> $DIR/main.rs:56:5
+   |
+LL | /     impl Identifiable for Derived {
+LL | |         type Id = u64;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.id
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Debug, Clone, Identifiable)]
+LL |     struct Derived {
+LL ~         #[id]
+LL ~         id: u64,
+   |
+
+warning: `Identifiable` can be derived — mark `id` with `#[id]` and drop the impl
+  --> $DIR/main.rs:70:5
+   |
+LL | /     impl<T, ID: Hash + Ord + Clone> Identifiable for TreeNode<T, ID> {
+LL | |         type Id = ID;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.id.clone()
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct TreeNode<T, ID: Hash + Ord + Clone> {
+LL ~         #[id]
+LL ~         id: ID,
+   |
+
+warning: `Identifiable` can be derived — mark `key` with `#[id]` and drop the impl
+  --> $DIR/main.rs:85:5
+   |
+LL | /     impl Identifiable for Attributed {
+LL | |         type Id = u64;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.key
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct Attributed {
+LL ~         #[id]
+LL ~         /// The node's key.
+   |
+
+warning: `Keyed` can derive `Identifiable` — `use_id`/`self_id` wrap foreign types
+  --> $DIR/main.rs:214:17
+   |
+LL |         let _ = keyed.use_id(|v| v.key);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: derive `Identifiable` on `Keyed` and use the value directly
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct Keyed {
+LL ~         #[id]
+LL ~         key: u64,
+LL |     }
+...
+LL |         // Fires — `use_id` selects a field of a local struct.
+LL ~         let _ = keyed;
+   |
+
+warning: `Single` can derive `Identifiable` — `use_id`/`self_id` wrap foreign types
+  --> $DIR/main.rs:221:17
+   |
+LL |         let _ = single.self_id();
+   |                 ^^^^^^^^^^^^^^^^
+   |
+help: derive `Identifiable` on `Single` and use the value directly
+   |
+LL ~     #[derive(Identifiable)]
+LL ~     struct Single {
+LL ~         #[id]
+LL ~         token: String,
+LL |     }
+...
+LL |         // Fires — `self_id` on a single-field local struct.
+LL ~         let _ = single;
+   |
+
+warning: `Identifiable` can be derived — mark `token` with `#[id]` and drop the impl
+  --> $DIR/main.rs:264:5
+   |
+LL | /     impl Identifiable for Token {
+LL | |         type Id = String;
+LL | |         fn id(&self) -> Self::Id {
+LL | |             self.token.clone()
+LL | |         }
+LL | |     }
+   | |_____^
+   |
+help: derive `Identifiable` and mark the field with `#[id]`
+   |
+LL ~     #[derive(waterui::Identifiable)]
+LL ~     struct Token {
+LL ~         #[id]
+LL ~         token: String,
+   |
+
+warning: 9 warnings emitted
+
