@@ -1,0 +1,63 @@
+warning: a literal color in view code does not adapt to the color scheme
+  --> $DIR/main.rs:22:30
+   |
+LL |         text("a").foreground(Color::srgb(255, 0, 0)),
+   |                              ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use a theme token — `ForegroundColor`, `BackgroundColor`, `SurfaceColor`, `AccentColor`, `MutedForegroundColor` from `waterui::graphics::color` — or lift a brand color to a named constant
+note: the lint level is defined here
+  --> $DIR/main.rs:8:9
+   |
+LL | #![warn(hardcoded_theme_value)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+warning: a literal color in view code does not adapt to the color scheme
+  --> $DIR/main.rs:24:30
+   |
+LL |         text("a").foreground(Srgb::new(0.2, 0.2, 0.2)),
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use a theme token — `ForegroundColor`, `BackgroundColor`, `SurfaceColor`, `AccentColor`, `MutedForegroundColor` from `waterui::graphics::color` — or lift a brand color to a named constant
+
+warning: a literal color in view code does not adapt to the color scheme
+  --> $DIR/main.rs:26:30
+   |
+LL |         text("a").foreground(Color::srgb_hex("#ff8800")),
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use a theme token — `ForegroundColor`, `BackgroundColor`, `SurfaceColor`, `AccentColor`, `MutedForegroundColor` from `waterui::graphics::color` — or lift a brand color to a named constant
+
+warning: a literal font size in view code does not follow the typography scale
+  --> $DIR/main.rs:28:18
+   |
+LL |         text("a").size(18.0),
+   |                  ^^^^^^^^^^^
+   |
+   = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
+
+warning: a literal font size in view code does not follow the typography scale
+  --> $DIR/main.rs:30:40
+   |
+LL |         text("a").font(Font::new(Title).size(20.0)),
+   |                                        ^^^^^^^^^^^
+   |
+   = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
+
+warning: a literal font size in view code does not follow the typography scale
+  --> $DIR/main.rs:32:40
+   |
+LL |         when(flag.clone(), || text("b").size(11.0)),
+   |                                        ^^^^^^^^^^^
+   |
+   = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
+
+warning: a literal font size in view code does not follow the typography scale
+  --> $DIR/main.rs:49:18
+   |
+LL |         text("a").size(13.0)
+   |                  ^^^^^^^^^^^
+   |
+   = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
+
+warning: 7 warnings emitted
+

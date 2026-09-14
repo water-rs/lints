@@ -94,6 +94,7 @@ mod empty_label_literal;
 mod fixed_children_in_vec;
 mod format_args;
 mod handler_captures_binding;
+mod hardcoded_theme_value;
 mod if_else_view;
 mod imports;
 mod manual_identifiable;
@@ -126,6 +127,7 @@ const LINTS: &[&LintInfo] = &[
     &fixed_children_in_vec::LINT_INFO,
     &fixed_children_in_vec::push_loop_seed::LINT_INFO,
     &handler_captures_binding::LINT_INFO,
+    &hardcoded_theme_value::LINT_INFO,
     &if_else_view::LINT_INFO,
     &manual_identifiable::LINT_INFO,
     &manual_text_map::LINT_INFO,
@@ -161,6 +163,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(empty_label_literal::EmptyLabelLiteral));
     lint_store.register_late_pass(|_| Box::new(fixed_children_in_vec::FixedChildrenInVec));
     lint_store.register_late_pass(|_| Box::new(handler_captures_binding::HandlerCapturesBinding));
+    lint_store.register_late_pass(|_| Box::new(hardcoded_theme_value::HardcodedThemeValue));
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
