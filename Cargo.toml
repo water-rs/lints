@@ -21,6 +21,10 @@ nami = "0.11.2"
 waterui = { version = "0.4.1", default-features = false }
 
 [[example]]
+name = "collection_item_snapshot"
+path = "ui/collection_item_snapshot/main.rs"
+
+[[example]]
 name = "if_else_view"
 path = "ui/if_else_view/main.rs"
 

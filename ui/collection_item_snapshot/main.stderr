@@ -1,0 +1,53 @@
+warning: this reactive property is a snapshot of an item field
+  --> $DIR/main.rs:39:9
+   |
+LL |         text(row.title.clone()).visible(row.unread)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^----------^
+   |                                         |
+   |                                         changes to `unread` will not re-render the row unless the item's id changes
+   |
+   = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
+   = note: `#[warn(collection_item_snapshot)]` on by default
+
+warning: this reactive property is a snapshot of an item field
+  --> $DIR/main.rs:42:48
+   |
+LL |     let _ = Lazy::for_each(list.clone(), |row| text("a").opacity(row.alpha));
+   |                                                ^^^^^^^^^^^^^^^^^^---------^
+   |                                                                  |
+   |                                                                  changes to `alpha` will not re-render the row unless the item's id changes
+   |
+   = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
+
+warning: this reactive property is a snapshot of an item field
+  --> $DIR/main.rs:44:48
+   |
+LL |     let _ = Lazy::for_each(list.clone(), |row| when(row.unread, || text("dot")));
+   |                                                ^^^^^----------^^^^^^^^^^^^^^^^^
+   |                                                     |
+   |                                                     changes to `unread` will not re-render the row unless the item's id changes
+   |
+   = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
+
+warning: this reactive property is a snapshot of an item field
+  --> $DIR/main.rs:48:23
+   |
+LL |         ListItem::new(text("a").disabled(row.unread))
+   |                       ^^^^^^^^^^^^^^^^^^^----------^
+   |                                          |
+   |                                          changes to `unread` will not re-render the row unless the item's id changes
+   |
+   = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
+
+warning: this reactive property is a snapshot of an item field
+  --> $DIR/main.rs:52:9
+   |
+LL |         text("a").visible(unread)
+   |         ^^^^^^^^^^^^^^^^^^------^
+   |                           |
+   |                           changes to `unread` will not re-render the row unless the item's id changes
+   |
+   = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
+
+warning: 5 warnings emitted
+

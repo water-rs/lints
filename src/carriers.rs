@@ -2,9 +2,11 @@
 //! inspecting it (`&`, `*`, `.clone()`, `.to_owned()`, `.to_string()`,
 //! `format!(..)`), shared by lints that trace where a value flows.
 
-use rustc_hir::{Expr, ExprKind};
+use clippy_utils::macros::{root_macro_call, root_macro_call_first_node};
+use rustc_hir::{Expr, ExprKind, HirId, Node, UnOp};
 use rustc_lint::LateContext;
 use rustc_middle::ty::TypeckResults;
+use rustc_span::{ExpnId, sym};
 
 use crate::param_bounds::call_args;
 
@@ -38,6 +40,71 @@ pub(crate) fn is_call_to<'hir>(
             .iter()
             .any(|p| crate::def_path::def_path_eq(cx, did, p))
     })
+}
+
+/// The outermost expression of macro expansion `expn` containing `hir_id` —
+/// the ancestor `root_macro_call_first_node` recognizes as the call's first
+/// node. `None` when the expansion's root cannot be found.
+fn expansion_root<'hir>(
+    cx: &LateContext<'hir>,
+    hir_id: HirId,
+    expn: ExpnId,
+) -> Option<&'hir Expr<'hir>> {
+    cx.tcx.hir_parent_id_iter(hir_id).find_map(|id| {
+        let Node::Expr(expr) = cx.tcx.hir_node(id) else {
+            return None;
+        };
+        root_macro_call_first_node(cx, expr)
+            .is_some_and(|call| call.expn == expn)
+            .then_some(expr)
+    })
+}
+
+/// `Some((call, index))` when `read`, after climbing through value carriers —
+/// `.clone()`/`.to_owned()`/`.to_string()` at operand position 0, `&`/`*`,
+/// drop-temps, and a `format!(..)` invocation it is an argument of — sits at
+/// argument `index` of `call`. `None` when the value is consumed any other
+/// way: a `match`/`if` scrutinee, a `let` init, a field, the callee, a
+/// non-carrier call like `.len()`.
+pub(crate) fn carried_arg<'hir>(
+    cx: &LateContext<'hir>,
+    typeck: &TypeckResults<'hir>,
+    read: &'hir Expr<'hir>,
+) -> Option<(&'hir Expr<'hir>, usize)> {
+    let mut current = read;
+    loop {
+        let parent_id = cx.tcx.parent_hir_id(current.hir_id);
+        // `current` inside a `format!(..)` expansion is a format argument;
+        // the value carried onward is the expansion's outermost node.
+        if let Some(call) = root_macro_call(cx.tcx.hir_span(parent_id))
+            && cx.tcx.get_diagnostic_name(call.def_id) == Some(sym::format_macro)
+        {
+            current = expansion_root(cx, parent_id, call.expn)?;
+            continue;
+        }
+        let Node::Expr(parent) = cx.tcx.hir_node(parent_id) else {
+            return None;
+        };
+        match parent.kind {
+            ExprKind::AddrOf(.., inner)
+            | ExprKind::Unary(UnOp::Deref, inner)
+            | ExprKind::DropTemps(inner)
+                if inner.hir_id == current.hir_id =>
+            {
+                current = parent;
+            }
+            ExprKind::Call(..) | ExprKind::MethodCall(..) => {
+                let args = call_args(parent);
+                let index = args.iter().position(|arg| arg.hir_id == current.hir_id)?;
+                if index == 0 && is_call_to(cx, typeck, parent, CARRIER_CALLS) {
+                    current = parent;
+                } else {
+                    return Some((parent, index));
+                }
+            }
+            _ => return None,
+        }
+    }
 }
 
 /// `&x`, `x.clone()`, drop-temps — wrappers a map receiver or a `zip`

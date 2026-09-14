@@ -25,6 +25,7 @@ and `cargo dylint --all`. The `water` CLI will front this as `water lint` (water
 
 | Lint | Group | Description | Autofix |
 | ---- | ----- | ----------- | ------- |
+| `collection_item_snapshot` | `waterui_suspicious` (warn) | Flags a non-signal field of a `for_each` item read into an `IntoSignal`/`IntoComputed`/`IntoSignalF32` parameter — `for_each` diffs by id, so the snapshot never re-renders; derive a `Computed` or keep a `Binding` on the item | No |
 | `if_else_view` | `waterui_style` (warn) | Flags `if`/`else` that produce views — `when(cond, \|\| ..).otherwise(\|\| ..)` needs no `AnyView` erasure and stays reactive; conditions that `.get()` a signal are flagged as one-shot snapshots | Yes |
 | `manual_identifiable` | `waterui_style` (warn) | Flags `impl Identifiable` whose `id` returns a field verbatim and `use_id`/`self_id` wrappers on local structs — `#[derive(Identifiable)]` plus `#[id]` on the field covers both | Yes |
 | `manual_text_map` | `waterui_style` (warn) | Flags `.map(\|v\| format!(..))`/`.to_string()` over signals whose result only feeds a text position — `text!` formats the signal itself and keeps the template translatable | Yes |

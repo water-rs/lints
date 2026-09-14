@@ -140,20 +140,6 @@ const STATE_TYPES: &[&[&str]] = &[
     &["nami", "data", "collection", "List"],
 ];
 
-/// Calls whose generator closure — always the second argument — is a row
-/// builder. The stack `for_each` functions are emitted by the
-/// `impl_stack_for_each!` macro inside each per-stack module
-/// (`waterui-layout-0.3.2/src/stack.rs`), so their def paths carry the
-/// `vstack`/`hstack`/`zstack` module segment.
-const ROW_BUILDER_CALLS: &[&[&str]] = &[
-    &["waterui_core", "ui", "views", "ForEach", "new"],
-    &["waterui_internal", "component", "lazy", "Lazy", "for_each"],
-    &["waterui_internal", "component", "list", "List", "for_each"],
-    &["waterui_layout", "stack", "vstack", "VStack", "for_each"],
-    &["waterui_layout", "stack", "hstack", "HStack", "for_each"],
-    &["waterui_layout", "stack", "zstack", "ZStack", "for_each"],
-];
-
 const REBUILT_MSG: &str = "reactive state created inside a scope that is rebuilt on every change";
 const ROW_MSG: &str = "reactive state created inside a row builder";
 const CTOR_LABEL: &str =
@@ -278,16 +264,7 @@ impl<'tcx> LateLintPass<'tcx> for StateCreatedInRebuiltScope {
                 }
             }
         }
-        if call_def_id(cx.typeck_results(), expr)
-            .map(|did| implemented_trait_item(cx.tcx, did))
-            .is_some_and(|did| {
-                ROW_BUILDER_CALLS
-                    .iter()
-                    .any(|path| crate::def_path::def_path_eq(cx, did, path))
-            })
-            && let Some(generator) = call_args(expr).get(1)
-            && let ExprKind::Closure(closure) = peel(generator).kind
-        {
+        if let Some(closure) = crate::row_builder::row_builder_closure(cx, expr) {
             scopes.push((closure, Scope::RowBuilder));
         }
         for (closure, scope) in scopes {

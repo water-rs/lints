@@ -30,6 +30,17 @@ pub(crate) const SIGNAL_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_controls", "label", "IntoLabel"],
 ];
 
+/// Parameter bounds that subscribe to a signal into a *property* — the
+/// `SIGNAL_PARAM_BOUNDS` subset at which a plain value is a frozen snapshot
+/// of the data it was read from. `IntoText`/`IntoLabel` are absent:
+/// rendering text from an item field is ordinary row content, not the bug
+/// `collection_item_snapshot` hunts.
+pub(crate) const SNAPSHOT_PARAM_BOUNDS: &[&[&str]] = &[
+    &["nami", "reactive_core", "signal", "IntoSignal"],
+    &["nami", "reactive_core", "signal", "IntoComputed"],
+    &["waterui_core", "state", "computed_f32", "IntoSignalF32"],
+];
+
 /// `waterui_core::foundation::handler::ViewBuilder` — the `VIEW_PARAM_BOUNDS`
 /// entry for a view-factory parameter: a closure argument to one is a builder
 /// the callee invokes to produce a view each time it rebuilds.
@@ -194,4 +205,18 @@ pub(crate) fn call_arg_bounds<'tcx>(
     bounds_tables: &[&[&[&'static str]]],
 ) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
     call_arg_bounds_in(cx, cx.typeck_results(), call, bounds_tables)
+}
+
+/// Whether `call`'s parameter at `index` carries any of `bounds_tables`'
+/// bounds. `typeck` must be the `TypeckResults` of the body containing
+/// `call`.
+pub(crate) fn arg_has_bound<'tcx>(
+    cx: &LateContext<'tcx>,
+    typeck: &TypeckResults<'tcx>,
+    call: &Expr<'tcx>,
+    bounds_tables: &[&[&[&'static str]]],
+    index: usize,
+) -> bool {
+    call_arg_bounds_in(cx, typeck, call, bounds_tables)
+        .is_some_and(|(_, bounds)| bounds.get(index).is_some_and(|targets| !targets.is_empty()))
 }
