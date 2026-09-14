@@ -96,6 +96,7 @@ mod needless_anyview;
 mod normalized_radius_overflow;
 mod param_bounds;
 mod qualified_waterui_path;
+mod set_with_own_get;
 mod signal_get_in_view;
 mod snapshot_get;
 mod watch;
@@ -110,6 +111,7 @@ const LINTS: &[&LintInfo] = &[
     &needless_anyview::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
+    &set_with_own_get::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
     &watch_for_reactive_value::LINT_INFO,
     &watch_ignores_value::LINT_INFO,
@@ -132,6 +134,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));
     lint_store
         .register_late_pass(|_| Box::new(qualified_waterui_path::QualifiedWateruiPath::default()));
+    lint_store.register_late_pass(|_| Box::new(set_with_own_get::SetWithOwnGet));
 
     // `format!(..)` loses its template when lowered to HIR; the early
     // collector keeps the AST `FormatArgs` so the late pass can rebuild a

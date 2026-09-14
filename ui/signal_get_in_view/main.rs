@@ -74,7 +74,10 @@ fn main() {
     // not the user's.
     let _ = AnyView::new(text!("{count}"));
     // Silent: `.get()` inside a button handler closure is a one-shot read.
-    let _ = button("increment").action(move || count.set(count.get() + 1));
+    let _ = button("increment").action(move || {
+        let n = count.get();
+        count.set(n + 1);
+    });
     // Silent: no snapshot at all.
     let _ = text("hello").opacity(0.5);
 }
