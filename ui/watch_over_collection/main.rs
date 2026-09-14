@@ -39,7 +39,10 @@ fn main() {
     let _ = watch(fixed, |fixed| text(fixed.len().to_string()));
 
     // Silent — `i32` is not a collection.
-    let _ = watch(count.clone(), |count| text(count.to_string()));
+    let _ = watch(count.clone(), |count| match count {
+        0 => text("none"),
+        _ => text("some"),
+    });
     // Silent — `String` is not a collection.
     let _ = watch(name, |name| text(name.len().to_string()));
     // Silent — `Option<Item>` is not a collection.

@@ -159,7 +159,7 @@ fn feeds_text_param<'a>(cx: &LateContext<'a>, expr: &Expr<'a>) -> bool {
     let Node::Expr(parent) = cx.tcx.parent_hir_node(expr.hir_id) else {
         return false;
     };
-    let Some((_, per_arg)) = call_arg_bounds(cx, parent, TEXT_PARAM_BOUNDS) else {
+    let Some((_, per_arg)) = call_arg_bounds(cx, parent, &[TEXT_PARAM_BOUNDS]) else {
         return false;
     };
     call_args(parent)

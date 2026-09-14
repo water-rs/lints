@@ -49,6 +49,10 @@ name = "signal_get_in_view"
 path = "ui/signal_get_in_view/main.rs"
 
 [[example]]
+name = "watch_for_reactive_value"
+path = "ui/watch_for_reactive_value/main.rs"
+
+[[example]]
 name = "watch_ignores_value"
 path = "ui/watch_ignores_value/main.rs"
 

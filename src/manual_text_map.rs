@@ -28,9 +28,10 @@ use rustc_span::{ExpnKind, MacroKind, Span, sym};
 use std::cell::OnceCell;
 use std::ops::{ControlFlow, Range};
 
+use crate::carriers::{CLONE, TO_OWNED, TO_STRING, is_call_to, strip_wraps};
 use crate::def_path::def_path_eq;
 use crate::imports::{Bare, bare_status, use_insertion};
-use crate::param_bounds::{call_arg_bounds_in, call_args, call_def_id};
+use crate::param_bounds::{call_arg_bounds_in, call_args};
 use crate::snapshot_get::{get_receiver, is_snapshot_get_in};
 
 declare_waterui_lint! {
@@ -84,18 +85,6 @@ const ZIP_FNS: &[&[&str]] = &[
     &["nami", "reactive_core", "ext", "SignalExt", "zip"],
     &["nami", "reactive_core", "zip", "zip"],
 ];
-
-/// `ToOwned::to_owned` — `text!` wraps every captured slot value in
-/// `(<expr>).to_owned()`, which is also how a `text!` alias binding is
-/// recognized.
-const TO_OWNED: &[&str] = &["alloc", "borrow", "ToOwned", "to_owned"];
-
-/// `ToString::to_string` — `|v| v.to_string()`.
-const TO_STRING: &[&str] = &["alloc", "string", "ToString", "to_string"];
-
-/// `Clone::clone` — `|v| v.clone()` over a `Str`/`String` parameter, and
-/// `.clone()` receivers/arguments the analysis strips.
-const CLONE: &[&str] = &["core", "clone", "Clone", "clone"];
 
 /// `From::from` — `String::from(format!(..))` / `Str::from(v)` wrappers.
 const FROM: &[&str] = &["core", "convert", "From", "from"];
@@ -165,16 +154,6 @@ fn bare_path_ident(expr: &Expr<'_>) -> Option<Symbol> {
     None
 }
 
-/// `true` when `expr` resolves to one of `paths` under `typeck`.
-fn is_call_to<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    expr: &Expr<'hir>,
-    paths: &[&[&'static str]],
-) -> bool {
-    call_def_id(typeck, expr).is_some_and(|did| paths.iter().any(|p| def_path_eq(cx, did, p)))
-}
-
 /// `sig.map(f)` / `nami::map(sig, f)` → `(receiver, closure)`.
 fn map_call<'hir>(
     cx: &LateContext<'_>,
@@ -209,25 +188,6 @@ fn closure_parts<'hir>(
         return None;
     };
     Some((param.pat, body.value, tcx.typeck_body(closure.body)))
-}
-
-/// `&x`, `x.clone()`, drop-temps — wrappers a map receiver or a `zip`
-/// argument may carry; the analysis looks through them.
-fn strip_wraps<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    mut expr: &'hir Expr<'hir>,
-) -> &'hir Expr<'hir> {
-    loop {
-        expr = match expr.kind {
-            ExprKind::AddrOf(.., inner) | ExprKind::DropTemps(inner) => inner,
-            _ if is_call_to(cx, typeck, expr, &[CLONE]) => match call_args(expr).as_slice() {
-                [first, ..] => *first,
-                [] => return expr,
-            },
-            _ => return expr,
-        };
-    }
 }
 
 /// The signals the map reads: `zip(a, b)` / `a.zip(&b)` flatten to their
@@ -634,7 +594,7 @@ fn text_position<'hir>(
     call: &Expr<'hir>,
     arg: &Expr<'hir>,
 ) -> TextPos {
-    let Some((callee, per_arg)) = call_arg_bounds_in(cx, typeck, call, TEXT_BOUNDS) else {
+    let Some((callee, per_arg)) = call_arg_bounds_in(cx, typeck, call, &[TEXT_BOUNDS]) else {
         return TextPos::None;
     };
     let Some(index) = call_args(call).iter().position(|a| a.hir_id == arg.hir_id) else {

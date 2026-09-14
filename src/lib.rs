@@ -85,6 +85,7 @@ macro_rules! declare_waterui_lint {
     };
 }
 
+mod carriers;
 mod def_path;
 mod format_args;
 mod if_else_view;
@@ -98,6 +99,7 @@ mod qualified_waterui_path;
 mod signal_get_in_view;
 mod snapshot_get;
 mod watch;
+mod watch_for_reactive_value;
 mod watch_ignores_value;
 mod watch_over_collection;
 
@@ -109,6 +111,7 @@ const LINTS: &[&LintInfo] = &[
     &normalized_radius_overflow::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
+    &watch_for_reactive_value::LINT_INFO,
     &watch_ignores_value::LINT_INFO,
     &watch_over_collection::LINT_INFO,
 ];
@@ -150,6 +153,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         let format_args = format_args.clone();
         move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
     });
+    lint_store.register_late_pass(|_| Box::new(watch_for_reactive_value::WatchForReactiveValue));
     lint_store.register_late_pass(|_| Box::new(watch_ignores_value::WatchIgnoresValue));
     lint_store.register_late_pass(|_| Box::new(watch_over_collection::WatchOverCollection));
 
