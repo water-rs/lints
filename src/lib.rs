@@ -116,6 +116,7 @@ mod snapshot_get;
 mod state_created_in_rebuilt_scope;
 mod tap_gesture;
 mod tappable_without_role;
+mod task_handle_dropped;
 mod verbatim_text_literal;
 mod watch;
 mod watch_for_reactive_value;
@@ -147,6 +148,7 @@ const LINTS: &[&LintInfo] = &[
     &state_created_in_rebuilt_scope::LINT_INFO,
     &state_created_in_rebuilt_scope::row_builder::LINT_INFO,
     &tappable_without_role::LINT_INFO,
+    &task_handle_dropped::LINT_INFO,
     &verbatim_text_literal::LINT_INFO,
     &watch_for_reactive_value::LINT_INFO,
     &watch_ignores_value::LINT_INFO,
@@ -209,6 +211,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         Box::new(state_created_in_rebuilt_scope::StateCreatedInRebuiltScope)
     });
     lint_store.register_late_pass(|_| Box::new(tappable_without_role::TappableWithoutRole));
+    lint_store.register_late_pass(|_| Box::new(task_handle_dropped::TaskHandleDropped));
     lint_store.register_late_pass(|_| Box::new(verbatim_text_literal::VerbatimTextLiteral));
     lint_store.register_late_pass(|_| Box::new(watch_for_reactive_value::WatchForReactiveValue));
     lint_store.register_late_pass(|_| Box::new(watch_ignores_value::WatchIgnoresValue));
