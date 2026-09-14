@@ -81,6 +81,10 @@ name = "opacity_as_visibility"
 path = "ui/opacity_as_visibility/main.rs"
 
 [[example]]
+name = "positional_state_ambiguity"
+path = "ui/positional_state_ambiguity/main.rs"
+
+[[example]]
 name = "qualified_waterui_path"
 path = "ui/qualified_waterui_path/main.rs"
 
