@@ -98,6 +98,7 @@ mod manual_identifiable;
 mod manual_text_map;
 mod needless_anyview;
 mod normalized_radius_overflow;
+mod on_tap_on_control;
 mod opacity_as_visibility;
 mod param_bounds;
 mod qualified_waterui_path;
@@ -122,6 +123,7 @@ const LINTS: &[&LintInfo] = &[
     &manual_text_map::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
+    &on_tap_on_control::LINT_INFO,
     &opacity_as_visibility::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
     &redundant_anyview::LINT_INFO,
@@ -152,6 +154,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
     lint_store
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));
+    lint_store.register_late_pass(|_| Box::new(on_tap_on_control::OnTapOnControl));
     lint_store.register_late_pass(|_| Box::new(opacity_as_visibility::OpacityAsVisibility));
     lint_store
         .register_late_pass(|_| Box::new(qualified_waterui_path::QualifiedWateruiPath::default()));

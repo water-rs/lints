@@ -1,0 +1,75 @@
+warning: a tap gesture on a `Button` competes with the control's own activation
+  --> $DIR/main.rs:18:25
+   |
+LL |     let _ = button("a").on_tap(|| {});
+   |                         ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+   = note: `#[warn(on_tap_on_control)]` on by default
+
+warning: a tap gesture on a `Toggle` competes with the control's own activation
+  --> $DIR/main.rs:20:32
+   |
+LL |     let _ = toggle("a", &flag).on_tap(|| {});
+   |                                ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `Slider` competes with the control's own activation
+  --> $DIR/main.rs:22:33
+   |
+LL |     let _ = slider("a", &value).on_tap_gesture(|| {});
+   |                                 ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `Stepper` competes with the control's own activation
+  --> $DIR/main.rs:24:34
+   |
+LL |     let _ = stepper("a", &count).on_tap_gesture_count(2, || {});
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `TextField` competes with the control's own activation
+  --> $DIR/main.rs:26:40
+   |
+LL |     let _ = TextField::new("a", &name).on_tap(|| {});
+   |                                        ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `ListItem` competes with the control's own activation
+  --> $DIR/main.rs:29:38
+   |
+LL |     let _ = ListItem::new(text("a")).gesture(TapGesture::new(), || {});
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `Menu` competes with the control's own activation
+  --> $DIR/main.rs:31:41
+   |
+LL |     let _ = Menu::new("a", button("b")).on_tap(|| {});
+   |                                         ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `Picker` competes with the control's own activation
+  --> $DIR/main.rs:33:70
+   |
+LL |     let _ = Picker::new("a", Computed::constant(Vec::new()), &count).on_tap(|| {});
+   |                                                                      ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: a tap gesture on a `NavigationLink` competes with the control's own activation
+  --> $DIR/main.rs:35:69
+   |
+LL |     let _ = NavigationLink::new("a", || navigation("b", text("c"))).on_tap(|| {});
+   |                                                                     ^^^^^^^^^^^^^
+   |
+   = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
+
+warning: 9 warnings emitted
+

@@ -53,6 +53,10 @@ name = "normalized_radius_overflow"
 path = "ui/normalized_radius_overflow/main.rs"
 
 [[example]]
+name = "on_tap_on_control"
+path = "ui/on_tap_on_control/main.rs"
+
+[[example]]
 name = "opacity_as_visibility"
 path = "ui/opacity_as_visibility/main.rs"
 
