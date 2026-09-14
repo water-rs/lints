@@ -86,10 +86,13 @@ macro_rules! declare_waterui_lint {
 }
 
 mod def_path;
+mod needless_anyview;
 mod normalized_radius_overflow;
+mod param_bounds;
 mod signal_get_in_view;
 
 const LINTS: &[&LintInfo] = &[
+    &needless_anyview::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
 ];
@@ -103,6 +106,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     dylint_linting::init_config(sess);
 
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
+    lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
     lint_store
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));
 

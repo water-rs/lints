@@ -1,9 +1,8 @@
 use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
-use clippy_utils::fn_def_id_with_node_args;
 use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
 use clippy_utils::res::MaybeQPath;
 use clippy_utils::source::{SpanRangeExt, snippet_opt};
-use clippy_utils::ty::{all_predicates_of, implements_trait};
+use clippy_utils::ty::implements_trait;
 use rustc_ast::format::{FormatArgsPiece, FormatArgumentKind};
 use rustc_ast::{Crate as AstCrate, Expr as AstExpr, ExprKind as AstExprKind, FormatArgs};
 use rustc_data_structures::fx::FxHashMap;
@@ -14,13 +13,12 @@ use rustc_hir::intravisit::{self, Visitor, nested_filter};
 use rustc_hir::{Expr, ExprKind, QPath};
 use rustc_lexer::{FrontmatterAllowed, TokenKind, tokenize};
 use rustc_lint::{EarlyContext, EarlyLintPass, LateContext, LateLintPass};
-use rustc_middle::ty::{
-    AssocContainer, ClauseKind, EarlyBinder, GenericArg, GenericArgsRef, PredicatePolarity, Ty,
-    TyKind, TypeVisitableExt,
-};
+use rustc_middle::ty::{AssocContainer, TypeVisitableExt};
 use rustc_session::impl_lint_pass;
 use rustc_span::{Span, hygiene, sym};
 use std::mem;
+
+use crate::param_bounds::{BoundTarget, call_arg_bounds, call_args};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -99,63 +97,6 @@ impl SignalGetInView {
 }
 
 impl_lint_pass!(SignalGetInView => [SIGNAL_GET_IN_VIEW]);
-
-/// A trait bound a callee's parameter carries, matched against
-/// `REACTIVE_PARAM_BOUNDS`.
-struct BoundTarget<'tcx> {
-    trait_did: DefId,
-    /// The bound's generic arguments minus `Self` (e.g. `[f32]` for
-    /// `IntoComputed<f32>`), instantiated with the call site's substitutions.
-    args: &'tcx [GenericArg<'tcx>],
-}
-
-/// `param index -> bounds on it that are in `REACTIVE_PARAM_BOUNDS``, for one
-/// callee. Walks the `parent` chain so impl-level bounds (`impl<V: View>`) and
-/// trait supertraits (`trait ViewExt: View`) are seen alongside the callee's
-/// own `where`/APIT clauses.
-fn reactive_param_bounds<'tcx>(
-    cx: &LateContext<'tcx>,
-    callee: DefId,
-    substs: GenericArgsRef<'tcx>,
-) -> FxHashMap<u32, Vec<BoundTarget<'tcx>>> {
-    let mut bounds: FxHashMap<u32, Vec<BoundTarget<'tcx>>> = FxHashMap::default();
-    for &(clause, _) in all_predicates_of(cx.tcx, callee) {
-        let ClauseKind::Trait(pred) = clause.kind().skip_binder() else {
-            continue;
-        };
-        if pred.polarity != PredicatePolarity::Positive
-            || !REACTIVE_PARAM_BOUNDS
-                .iter()
-                .any(|path| crate::def_path::def_path_eq(cx, pred.trait_ref.def_id, path))
-        {
-            continue;
-        }
-        let TyKind::Param(param) = *pred.trait_ref.self_ty().kind() else {
-            continue;
-        };
-        let instantiated = EarlyBinder::bind(clause).instantiate(cx.tcx, substs);
-        let ClauseKind::Trait(inst_pred) = instantiated.kind().skip_norm_wip().skip_binder() else {
-            continue;
-        };
-        bounds.entry(param.index).or_default().push(BoundTarget {
-            trait_did: pred.trait_ref.def_id,
-            args: &inst_pred.trait_ref.args[1..],
-        });
-    }
-    bounds
-}
-
-/// The bound on `input` — a callee's declared parameter type — if it is a
-/// type parameter bound by a reactive/view trait.
-fn param_bounds<'a, 'tcx>(
-    bounds: &'a FxHashMap<u32, Vec<BoundTarget<'tcx>>>,
-    input: Ty<'tcx>,
-) -> Option<&'a Vec<BoundTarget<'tcx>>> {
-    let TyKind::Param(param) = *input.peel_refs().kind() else {
-        return None;
-    };
-    bounds.get(&param.index)
-}
 
 /// Whether `expr` is a `x.get()` resolving to `Signal::get` or `Binding::get`.
 ///
@@ -240,23 +181,10 @@ impl<'tcx> Visitor<'tcx> for SnapshotGet<'_, 'tcx> {
 /// counts as position 0 for method calls) maps to a reactive-bound parameter.
 /// The inner `check_expr` owns diagnostics for those positions, so
 /// [`SnapshotGet`] skips them to keep one diagnostic per `.get()`.
-fn bound_arg_mask(cx: &LateContext<'_>, call: &Expr<'_>) -> Vec<bool> {
-    let Some((callee, substs)) = fn_def_id_with_node_args(cx, call) else {
-        return Vec::new();
-    };
-    let bounds = reactive_param_bounds(cx, callee, substs);
-    if bounds.is_empty() {
-        return Vec::new();
-    }
-    cx.tcx
-        .fn_sig(callee)
-        .instantiate_identity()
-        .skip_norm_wip()
-        .skip_binder()
-        .inputs()
-        .iter()
-        .map(|input| param_bounds(&bounds, *input).is_some())
-        .collect()
+fn bound_arg_mask<'tcx>(cx: &LateContext<'tcx>, call: &Expr<'tcx>) -> Vec<bool> {
+    call_arg_bounds(cx, call, REACTIVE_PARAM_BOUNDS)
+        .map(|(_, bounds)| bounds.iter().map(|targets| !targets.is_empty()).collect())
+        .unwrap_or_default()
 }
 
 /// `Some(())` when `arg`, stripping drop-temps, is exactly `get`.
@@ -469,29 +397,12 @@ fn report_arg<'tcx>(
 
 impl<'tcx> LateLintPass<'tcx> for SignalGetInView {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        let Some((callee, substs)) = fn_def_id_with_node_args(cx, expr) else {
+        let Some((callee, arg_bounds)) = call_arg_bounds(cx, expr, REACTIVE_PARAM_BOUNDS) else {
             return;
         };
-        let bounds = reactive_param_bounds(cx, callee, substs);
-        if bounds.is_empty() {
-            return;
-        }
-        let sig = cx
-            .tcx
-            .fn_sig(callee)
-            .instantiate_identity()
-            .skip_norm_wip()
-            .skip_binder();
-        let args = match expr.kind {
-            ExprKind::Call(_, args) => args.iter().collect::<Vec<_>>(),
-            ExprKind::MethodCall(_, receiver, args, _) => {
-                std::iter::once(receiver).chain(args).collect()
-            }
-            _ => return,
-        };
-        for (arg, input) in args.into_iter().zip(sig.inputs()) {
-            if let Some(targets) = param_bounds(&bounds, *input) {
-                report_arg(cx, &self.format_args, expr, callee, arg, targets);
+        for (arg, targets) in call_args(expr).into_iter().zip(arg_bounds) {
+            if !targets.is_empty() {
+                report_arg(cx, &self.format_args, expr, callee, arg, &targets);
             }
         }
     }

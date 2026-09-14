@@ -25,6 +25,7 @@ and `cargo dylint --all`. The `water` CLI will front this as `water lint` (water
 
 | Lint | Group | Description | Autofix |
 | ---- | ----- | ----------- | ------- |
+| `needless_anyview` | `waterui_style` (warn) | Flags `AnyView::new`/`.anyview()` erasure where `impl View` is already accepted — `AnyView` is only needed for `AnyView` fields, `-> AnyView` signatures, `Vec<AnyView>`, and mixed-type branches | Yes |
 | `normalized_radius_overflow` | `waterui_correctness` (deny) | Flags `RoundedRectangle`/`UnevenRoundedRectangle` radius constants above `0.5` — radii are fractions of the shorter side, not points | No |
 | `signal_get_in_view` | `waterui_correctness` (deny) | Flags `.get()` snapshots passed to reactive/view parameters (`IntoSignal`, `IntoComputed`, `IntoText`, `IntoLabel`, `View`, `ViewBuilder`) — the view freezes at the first read | Yes |
 
