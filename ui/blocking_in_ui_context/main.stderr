@@ -1,0 +1,61 @@
+error: `std::thread::sleep` blocks the UI thread's executor
+  --> $DIR/main.rs:12:35
+   |
+LL |     let _ = button("a").action(|| std::thread::sleep(Duration::from_millis(1)));
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: await `waterui::task::sleep(duration)` in an `.action_async`/`.task(..)` future instead
+   = note: `#[deny(thread_sleep_in_ui)]` on by default
+
+warning: this call blocks inside a UI context (handler)
+  --> $DIR/main.rs:16:17
+   |
+LL |         let _ = std::fs::read_to_string("/etc/hosts");
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
+   = note: `#[warn(blocking_in_ui_context)]` on by default
+
+warning: this call blocks inside a UI context (async block)
+  --> $DIR/main.rs:21:17
+   |
+LL |         let _ = std::fs::read("/etc/hosts");
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
+
+warning: mutating a `Mutex` from a handler never notifies the UI
+  --> $DIR/main.rs:29:14
+   |
+LL |         drop(m.lock().unwrap());
+   |              ^^^^^^^^
+   |
+   = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+   = note: `#[warn(non_reactive_ui_state)]` on by default
+
+warning: this call blocks inside a UI context (handler)
+  --> $DIR/main.rs:29:14
+   |
+LL |         drop(m.lock().unwrap());
+   |              ^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
+
+warning: this call blocks inside a UI context (async block)
+  --> $DIR/main.rs:55:13
+   |
+LL |     let _ = std::fs::read("/x");
+   |             ^^^^^^^^^^^^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
+
+error: `std::thread::sleep` blocks the UI thread's executor
+  --> $DIR/main.rs:63:9
+   |
+LL |         std::thread::sleep(Duration::from_millis(1));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: await `waterui::task::sleep(duration)` in an `.action_async`/`.task(..)` future instead
+
+error: aborting due to 2 previous errors; 5 warnings emitted
+
