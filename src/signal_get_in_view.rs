@@ -1,24 +1,23 @@
 use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
-use clippy_utils::res::MaybeQPath;
 use clippy_utils::source::{SpanRangeExt, snippet_opt};
 use clippy_utils::ty::implements_trait;
 use rustc_ast::format::{FormatArgsPiece, FormatArgumentKind};
 use rustc_ast::{Crate as AstCrate, Expr as AstExpr, ExprKind as AstExprKind, FormatArgs};
 use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Applicability;
-use rustc_hir::def::{DefKind, Res};
 use rustc_hir::def_id::DefId;
 use rustc_hir::intravisit::{self, Visitor, nested_filter};
 use rustc_hir::{Expr, ExprKind, QPath};
 use rustc_lexer::{FrontmatterAllowed, TokenKind, tokenize};
 use rustc_lint::{EarlyContext, EarlyLintPass, LateContext, LateLintPass};
-use rustc_middle::ty::{AssocContainer, TypeVisitableExt};
+use rustc_middle::ty::TypeVisitableExt;
 use rustc_session::impl_lint_pass;
 use rustc_span::{Span, hygiene, sym};
 use std::mem;
 
 use crate::param_bounds::{BoundTarget, call_arg_bounds, call_args};
+use crate::snapshot_get::{get_receiver, is_snapshot_get};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -69,15 +68,6 @@ const REACTIVE_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_core", "foundation", "handler", "ViewBuilder"],
 ];
 
-/// Def paths of the snapshot reads this lint tracks: the `Signal` trait's
-/// `get` (reached through `Computed`, `Map`, `WithMetadata`, `SignalExt`
-/// types, …) and `Binding`'s inherent `get`, which shadows the trait method
-/// in method resolution.
-const SNAPSHOT_GETS: &[&[&str]] = &[
-    &["nami_core", "Signal", "get"],
-    &["nami", "reactive_core", "binding", "Binding", "get"],
-];
-
 /// `text` — the only callee for which `text(format!(..))` can be rewritten as
 /// `text!(..)`, since `text!` produces a `Text` directly.
 const TEXT_FN: &[&str] = &["waterui_text", "text", "text"];
@@ -97,41 +87,6 @@ impl SignalGetInView {
 }
 
 impl_lint_pass!(SignalGetInView => [SIGNAL_GET_IN_VIEW]);
-
-/// Whether `expr` is a `x.get()` resolving to `Signal::get` or `Binding::get`.
-///
-/// A `computed.get()` call resolves to the method inside `impl Signal for
-/// Computed`, whose def path is `<impl Signal for Computed>::get` — not the
-/// trait's. `AssocContainer::TraitImpl` points back at the implemented trait
-/// item, which normalizes those calls onto `nami_core::Signal::get`. The
-/// inherent `Binding::get` keeps its own `InherentImpl` def path.
-fn is_snapshot_get(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
-    let did = match expr.kind {
-        ExprKind::MethodCall(..) => cx.typeck_results().type_dependent_def_id(expr.hir_id),
-        ExprKind::Call(func, _) => match func.res(cx) {
-            Res::Def(DefKind::AssocFn, did) => Some(did),
-            _ => None,
-        },
-        _ => None,
-    };
-    let Some(did) = did else { return false };
-    let did = match cx.tcx.associated_item(did).container {
-        AssocContainer::TraitImpl(Ok(trait_item)) => trait_item,
-        _ => did,
-    };
-    SNAPSHOT_GETS
-        .iter()
-        .any(|path| crate::def_path::def_path_eq(cx, did, path))
-}
-
-/// The receiver (`x` in `x.get()` / `Signal::get(x)`).
-fn get_receiver<'tcx>(expr: &'tcx Expr<'tcx>) -> Option<&'tcx Expr<'tcx>> {
-    match expr.kind {
-        ExprKind::MethodCall(_, receiver, [], _) => Some(receiver),
-        ExprKind::Call(_, [receiver]) => Some(receiver),
-        _ => None,
-    }
-}
 
 /// Collects `.get()` snapshots inside one argument expression. Everything is
 /// walked except closures and const blocks (deferred/foreign bodies where a
