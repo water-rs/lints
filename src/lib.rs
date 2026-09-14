@@ -107,6 +107,7 @@ mod on_change_derives_binding;
 mod on_tap_on_control;
 mod opacity_as_visibility;
 mod param_bounds;
+mod positional_state_ambiguity;
 mod qualified_waterui_path;
 mod redundant_anyview;
 mod row_builder;
@@ -141,6 +142,7 @@ const LINTS: &[&LintInfo] = &[
     &on_change_derives_binding::LINT_INFO,
     &on_tap_on_control::LINT_INFO,
     &opacity_as_visibility::LINT_INFO,
+    &positional_state_ambiguity::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
     &redundant_anyview::LINT_INFO,
     &set_with_own_get::LINT_INFO,
@@ -178,6 +180,8 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(on_change_derives_binding::OnChangeDerivesBinding));
     lint_store.register_late_pass(|_| Box::new(on_tap_on_control::OnTapOnControl));
     lint_store.register_late_pass(|_| Box::new(opacity_as_visibility::OpacityAsVisibility));
+    lint_store
+        .register_late_pass(|_| Box::new(positional_state_ambiguity::PositionalStateAmbiguity));
     lint_store
         .register_late_pass(|_| Box::new(qualified_waterui_path::QualifiedWateruiPath::default()));
     lint_store.register_late_pass(|_| Box::new(redundant_anyview::RedundantAnyview));

@@ -78,6 +78,21 @@ pub(crate) fn handler_closures<'tcx>(
     cx: &LateContext<'tcx>,
     call: &'tcx Expr<'tcx>,
 ) -> Vec<&'tcx Closure<'tcx>> {
+    handler_args(cx, call)
+        .into_iter()
+        .filter_map(|arg| match peel(arg).kind {
+            ExprKind::Closure(closure) => Some(closure),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The arguments `call` passes in a handler position — one per
+/// `HANDLER_PARAM_BOUNDS` argument, whatever the argument's shape.
+pub(crate) fn handler_args<'tcx>(
+    cx: &LateContext<'tcx>,
+    call: &'tcx Expr<'tcx>,
+) -> Vec<&'tcx Expr<'tcx>> {
     if call.span.from_expansion()
         || !matches!(call.kind, ExprKind::Call(..) | ExprKind::MethodCall(..))
     {
@@ -90,10 +105,7 @@ pub(crate) fn handler_closures<'tcx>(
         .into_iter()
         .zip(per_arg)
         .filter(|(_, targets)| !targets.is_empty())
-        .filter_map(|(arg, _)| match peel(arg).kind {
-            ExprKind::Closure(closure) => Some(closure),
-            _ => None,
-        })
+        .map(|(arg, _)| arg)
         .collect()
 }
 

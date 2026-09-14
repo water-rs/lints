@@ -1,0 +1,38 @@
+warning: two `State<waterui::Binding<i32>>` parameters bind to `.state(..)` calls by position
+  --> $DIR/main.rs:25:55
+   |
+LL |             |State(x): State<Binding<i32>>, State(y): State<Binding<i32>>| {
+   |                        -------------------            ^^^^^^^^^^^^^^^^^^^ binds to the second `.state(&..)` of type `waterui::Binding<i32>`, whichever that is
+   |                        |
+   |                        the first `State<waterui::Binding<i32>>` parameter
+   |
+   = help: put both values in one `Clone` struct and inject it once with `.state(&app)`; take `State(app): State<App>`
+   = note: `#[warn(positional_state_ambiguity)]` on by default
+
+warning: two `State<waterui::Binding<i32>>` parameters bind to `.state(..)` calls by position
+  --> $DIR/main.rs:34:32
+   |
+LL | fn both(State(a): State<Binding<i32>>, State(b): State<Binding<i32>>) {
+   |                   -------------------            ------------------- binds to the second `.state(&..)` of type `waterui::Binding<i32>`, whichever that is
+   |                   |
+   |                   the first `State<waterui::Binding<i32>>` parameter
+...
+LL |     let _ = button("y").action(both).state(&a).state(&b);
+   |                                ^^^^
+   |
+   = note: `both` declares these parameters
+   = help: put both values in one `Clone` struct and inject it once with `.state(&app)`; take `State(app): State<App>`
+
+warning: two `State<waterui::Binding<i32>>` parameters bind to `.state(..)` calls by position
+  --> $DIR/main.rs:41:24
+   |
+LL |             |State(x): State<Binding<i32>>,
+   |                        ------------------- the first `State<waterui::Binding<i32>>` parameter
+LL |              State(f): State<Binding<bool>>,
+LL |              State(y): State<Binding<i32>>| {
+   |                        ^^^^^^^^^^^^^^^^^^^ binds to the second `.state(&..)` of type `waterui::Binding<i32>`, whichever that is
+   |
+   = help: put both values in one `Clone` struct and inject it once with `.state(&app)`; take `State(app): State<App>`
+
+warning: 3 warnings emitted
+
