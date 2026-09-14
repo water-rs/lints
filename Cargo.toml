@@ -48,5 +48,9 @@ path = "ui/qualified_waterui_path/main.rs"
 name = "signal_get_in_view"
 path = "ui/signal_get_in_view/main.rs"
 
+[[example]]
+name = "watch_ignores_value"
+path = "ui/watch_ignores_value/main.rs"
+
 [package.metadata.rust-analyzer]
 rustc_private = true
