@@ -5,7 +5,7 @@
 use clippy_utils::macros::{root_macro_call, root_macro_call_first_node};
 use rustc_hir::{Expr, ExprKind, HirId, Node, UnOp};
 use rustc_lint::LateContext;
-use rustc_middle::ty::TypeckResults;
+use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_span::{ExpnId, sym};
 
 use crate::param_bounds::call_args;
@@ -26,6 +26,28 @@ pub(crate) const CLONE: &[&str] = &["core", "clone", "Clone", "clone"];
 /// carrier calls `watch_for_reactive_value` climbs through on the way to a
 /// signal-taking parameter.
 pub(crate) const CARRIER_CALLS: &[&[&str]] = &[CLONE, TO_OWNED, TO_STRING];
+
+/// `From::from` — `String::from(..)` / `Str::from(..)` wrappers.
+pub(crate) const FROM: &[&str] = &["core", "convert", "From", "from"];
+
+/// `Into::into` — `x.into()` / `Into::<T>::into(x)` conversions.
+pub(crate) const INTO: &[&str] = &["core", "convert", "Into", "into"];
+
+/// String-shaped types a `From`/`Into` conversion may produce.
+pub(crate) const STRING_TYS: &[&[&str]] =
+    &[&["alloc", "string", "String"], &["waterui_str", "Str"]];
+
+/// `String` / `Str` / `&str` — the string shape a `From`/`Into` conversion
+/// or a `.to_string()`/`.clone()` result must have to count as text.
+pub(crate) fn is_string_ty(cx: &LateContext<'_>, ty: Ty<'_>) -> bool {
+    match ty.peel_refs().kind() {
+        TyKind::Str => true,
+        TyKind::Adt(def, _) => STRING_TYS
+            .iter()
+            .any(|p| crate::def_path::def_path_eq(cx, def.did(), p)),
+        _ => false,
+    }
+}
 
 /// `true` when `expr` is a `Call`/`MethodCall` resolving to one of `paths`
 /// under `typeck`.

@@ -41,6 +41,13 @@ pub(crate) const SNAPSHOT_PARAM_BOUNDS: &[&[&str]] = &[
     &["waterui_core", "state", "computed_f32", "IntoSignalF32"],
 ];
 
+/// Parameter bounds that take text — `&'static str` resolves through the
+/// localization catalog, while `String`/`Str` stay verbatim.
+pub(crate) const TEXT_PARAM_BOUNDS: &[&[&str]] = &[
+    &["waterui_text", "text", "IntoText"],
+    &["waterui_controls", "label", "IntoLabel"],
+];
+
 /// `waterui_core::foundation::handler::ViewBuilder` — the `VIEW_PARAM_BOUNDS`
 /// entry for a view-factory parameter: a closure argument to one is a builder
 /// the callee invokes to produce a view each time it rebuilds.
