@@ -81,6 +81,10 @@ name = "state_created_in_rebuilt_scope"
 path = "ui/state_created_in_rebuilt_scope/main.rs"
 
 [[example]]
+name = "tappable_without_role"
+path = "ui/tappable_without_role/main.rs"
+
+[[example]]
 name = "verbatim_text_literal"
 path = "ui/verbatim_text_literal/main.rs"
 
