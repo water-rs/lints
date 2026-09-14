@@ -1,0 +1,27 @@
+[package]
+name = "waterui-lints"
+version = "0.1.0"
+authors = ["Lexo Liu <me@lexo.cool>"]
+description = "WaterUI-specific lints, packaged as a dylint library"
+edition = "2024"
+license = "Apache-2.0 OR MIT"
+publish = false
+
+[lib]
+name = "waterui_lints"
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
+dylint_linting = "6.0"
+
+[dev-dependencies]
+dylint_testing = "6.0"
+waterui = { version = "0.4.1", default-features = false }
+
+[[example]]
+name = "normalized_radius_overflow"
+path = "ui/normalized_radius_overflow/main.rs"
+
+[package.metadata.rust-analyzer]
+rustc_private = true
