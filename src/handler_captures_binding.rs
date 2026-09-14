@@ -6,6 +6,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::{Span, Symbol};
 
 use crate::anyview::peel;
+use crate::binding::BINDING;
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{HANDLER_PARAM_BOUNDS, call_arg_bounds, call_args};
 
@@ -57,7 +58,7 @@ declare_lint_pass!(HandlerCapturesBinding => [HANDLER_CAPTURES_BINDING]);
 /// name the diagnostic calls them by (`nami`'s `List` is `ReactiveList` in
 /// the `waterui` facade).
 const CAPTURED_HANDLES: &[(&[&str], &str)] = &[
-    (&["nami", "reactive_core", "binding", "Binding"], "Binding"),
+    (BINDING, "Binding"),
     (&["nami", "data", "collection", "List"], "ReactiveList"),
 ];
 
