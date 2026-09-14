@@ -73,11 +73,13 @@ fn main() {
     // Silent: `text!` subscribes to `count` itself; its expansion's reads are
     // not the user's.
     let _ = AnyView::new(text!("{count}"));
-    // Silent: `.get()` inside a button handler closure is a one-shot read.
-    let _ = button("increment").action(move || {
-        let n = count.get();
-        count.set(n + 1);
-    });
+    // Silent: `.get()` inside a button handler is a one-shot read.
+    let _ = button("increment")
+        .action(|State(count): State<Binding<i32>>| {
+            let n = count.get();
+            count.set(n + 1);
+        })
+        .state(&count);
     // Silent: no snapshot at all.
     let _ = text("hello").opacity(0.5);
 }
