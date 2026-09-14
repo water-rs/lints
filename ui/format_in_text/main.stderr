@@ -1,0 +1,88 @@
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:21:18
+   |
+LL |     let _ = text(format!("Record #{:06}", record.id));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(format_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("Record #{:06}", record.id));
+LL +     let _ = text(text!("Record #{id:06}", id = record.id));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:21:18
+   |
+LL |     let _ = text(format!("Record #{:06}", record.id));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+   = note: `#[warn(plural_bypass)]` on by default
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:23:18
+   |
+LL |     let _ = text(format!("Hello, {}", name));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("Hello, {}", name));
+LL +     let _ = text(text!("Hello, {name}"));
+   |
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:25:18
+   |
+LL |     let _ = text(format!("{count} unread"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("{count} unread"));
+LL +     let _ = text(text!("{count} unread"));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:25:18
+   |
+LL |     let _ = text(format!("{count} unread"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:27:20
+   |
+LL |     let _ = button(format!("Delete {}", name));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = button(format!("Delete {}", name));
+LL +     let _ = button(text!("Delete {name}"));
+   |
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:29:18
+   |
+LL |     let _ = text(format!("Total: {}", n * 2.0));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use `text!` so the sentence is one catalog key with slots
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:32:18
+   |
+LL |     let _ = text(format!("Hi {}", name).to_string());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("Hi {}", name).to_string());
+LL +     let _ = text(text!("Hi {name}"));
+   |
+
+warning: 8 warnings emitted
+

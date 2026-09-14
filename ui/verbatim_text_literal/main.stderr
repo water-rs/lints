@@ -95,5 +95,27 @@ LL -     let _ = button("Save".to_string());
 LL +     let _ = button("Save");
    |
 
-warning: 8 warnings emitted
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:37:18
+   |
+LL |     let _ = text(format!("count: {n}"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(format_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("count: {n}"));
+LL +     let _ = text(text!("count: {n}"));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:37:18
+   |
+LL |     let _ = text(format!("count: {n}"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+   = note: `#[warn(plural_bypass)]` on by default
+
+warning: 10 warnings emitted
 

@@ -1,16 +1,14 @@
 use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
-use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
+use clippy_utils::macros::FormatArgsStorage;
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
-use rustc_ast::format::{FormatArgsPiece, FormatArgumentKind};
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
 use rustc_hir::intravisit::{self, Visitor, nested_filter};
-use rustc_hir::{Expr, ExprKind, QPath};
+use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TypeVisitableExt;
 use rustc_session::impl_lint_pass;
-use rustc_span::sym;
 
 use crate::param_bounds::{
     BoundTarget, SIGNAL_PARAM_BOUNDS, VIEW_PARAM_BOUNDS, call_arg_bounds, call_args,
@@ -154,108 +152,6 @@ fn clone_suggestion<'tcx>(
     }
 }
 
-/// An identifier usable in a `text!` `{name}` placeholder, paired with the
-/// source of the value it must be bound to — `None` when the name is a
-/// plain in-scope binding that `text!` captures by itself.
-fn placeholder_name(
-    cx: &LateContext<'_>,
-    fallback: usize,
-    expr: &Expr<'_>,
-) -> (String, Option<String>) {
-    if let ExprKind::Path(QPath::Resolved(None, path)) = expr.kind
-        && let [segment] = path.segments
-    {
-        return (segment.ident.to_string(), None);
-    }
-    let name = match expr.kind {
-        ExprKind::Field(_, ident) => ident.to_string(),
-        ExprKind::Path(QPath::Resolved(None, path)) => path
-            .segments
-            .last()
-            .map(|segment| segment.ident.to_string())
-            .unwrap_or_else(|| format!("arg{fallback}")),
-        _ => format!("arg{fallback}"),
-    };
-    (
-        name,
-        Some(snippet_opt(cx, expr.span).unwrap_or_else(|| "_".into())),
-    )
-}
-
-/// Builds the `text!("{name}"[, name = expr]*)` rewrite for
-/// `text(format!(..))`, or `None` when the expansion or spans cannot be
-/// mapped back to source.
-fn text_macro_suggestion(
-    storage: &FormatArgsStorage,
-    cx: &LateContext<'_>,
-    arg: &Expr<'_>,
-) -> Option<String> {
-    let macro_call = root_macro_call_first_node(cx, arg)?;
-    if cx.tcx.get_diagnostic_name(macro_call.def_id) != Some(sym::format_macro) {
-        return None;
-    }
-    let format_args = storage.get(cx, arg, macro_call.expn)?;
-
-    // Name every argument; explicit `name = expr` bindings keep their name and
-    // are re-emitted with the snapshot's receiver as the value.
-    let mut names: Vec<String> = Vec::new();
-    let mut bindings: Vec<String> = Vec::new();
-    for (index, argument) in format_args.arguments.all_args().iter().enumerate() {
-        let hir_arg = find_format_arg_expr(arg, argument);
-        let get_receiver = hir_arg.and_then(|expr| {
-            is_snapshot_get(cx, expr)
-                .then(|| get_receiver(expr))
-                .flatten()
-        });
-        let (name, binding) = match argument.kind {
-            FormatArgumentKind::Captured(ident) => (ident.to_string(), None),
-            FormatArgumentKind::Named(ident) => {
-                let source = get_receiver
-                    .or(hir_arg)
-                    .and_then(|expr| snippet_opt(cx, expr.span))?;
-                (ident.to_string(), Some(source))
-            }
-            FormatArgumentKind::Normal => placeholder_name(cx, index, get_receiver.or(hir_arg)?),
-        };
-        if let Some(source) = binding {
-            bindings.push(format!("{name} = {source}"));
-        }
-        names.push(name);
-    }
-
-    // Rebuild the literal from the template: every placeholder becomes
-    // `{name}` since `text!` only takes named slots. Template literals are
-    // unescaped text, so braces they contain must be re-escaped as `{{`/`}}`.
-    let mut literal = String::new();
-    for piece in &format_args.template {
-        match piece {
-            FormatArgsPiece::Literal(text) => {
-                for ch in text.as_str().chars() {
-                    match ch {
-                        '{' => literal.push_str("{{"),
-                        '}' => literal.push_str("}}"),
-                        _ => literal.push(ch),
-                    }
-                }
-            }
-            FormatArgsPiece::Placeholder(placeholder) => {
-                let index = placeholder.argument.index.ok()?;
-                literal.push('{');
-                literal.push_str(names.get(index)?);
-                literal.push('}');
-            }
-        }
-    }
-
-    let mut suggestion = format!("text!({literal:?}");
-    for binding in &bindings {
-        suggestion.push_str(", ");
-        suggestion.push_str(binding);
-    }
-    suggestion.push(')');
-    Some(suggestion)
-}
-
 fn report_arg<'tcx>(
     cx: &LateContext<'tcx>,
     storage: &FormatArgsStorage,
@@ -299,7 +195,7 @@ fn report_arg<'tcx>(
                 }
             }
         } else if index == 0 && crate::def_path::def_path_eq(cx, callee, TEXT_FN) {
-            match text_macro_suggestion(storage, cx, arg) {
+            match crate::format_args::text_macro_suggestion(storage, cx, arg) {
                 Some(suggestion) => {
                     span_lint_and_then(cx, SIGNAL_GET_IN_VIEW, get.span, MESSAGE, |diag| {
                         diag.span_suggestion(

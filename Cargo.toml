@@ -33,6 +33,10 @@ name = "fixed_children_in_vec"
 path = "ui/fixed_children_in_vec/main.rs"
 
 [[example]]
+name = "format_in_text"
+path = "ui/format_in_text/main.rs"
+
+[[example]]
 name = "handler_captures_binding"
 path = "ui/handler_captures_binding/main.rs"
 

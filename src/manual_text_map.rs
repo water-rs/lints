@@ -7,10 +7,7 @@ use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::for_each_expr_without_closures;
-use rustc_ast::format::{
-    FormatAlignment, FormatArgsPiece, FormatCount, FormatDebugHex, FormatOptions, FormatSign,
-    FormatTrait,
-};
+use rustc_ast::format::{FormatArgsPiece, FormatCount};
 use rustc_ast::token;
 use rustc_ast::{FormatArgs, LitKind};
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
@@ -32,6 +29,7 @@ use crate::carriers::{
     CLONE, FROM, INTO, TO_OWNED, TO_STRING, is_call_to, is_string_ty, strip_wraps,
 };
 use crate::def_path::def_path_eq;
+use crate::format_args::{escape_literal, render_options};
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds_in, call_args};
 use crate::snapshot_get::{get_receiver, is_snapshot_get_in};
@@ -756,84 +754,6 @@ fn parse_text_call(src: &str) -> Option<TextCall> {
         literal: literal?,
         context,
         bindings,
-    })
-}
-
-/// Escape `text` for reuse inside a `text!` literal — braces double up, the
-/// rest is verbatim.
-fn escape_literal(text: &str, out: &mut String) {
-    for ch in text.chars() {
-        match ch {
-            '{' => out.push_str("{{"),
-            '}' => out.push_str("}}"),
-            _ => out.push(ch),
-        }
-    }
-}
-
-/// `:?`/`:>8.2`/`:x?` — everything `FormatOptions`/`FormatTrait` carries,
-/// returned with the leading `:`, or `None` when a spec uses an argument
-/// count (`{:.*}`, `{:w$}`), which a `text!` rewrite cannot carry.
-fn render_options(options: &FormatOptions, trait_: FormatTrait) -> Option<String> {
-    for count in [options.width.as_ref(), options.precision.as_ref()]
-        .into_iter()
-        .flatten()
-    {
-        if matches!(count, FormatCount::Argument(_)) {
-            return None;
-        }
-    }
-    let mut spec = String::new();
-    if let Some(alignment) = options.alignment {
-        if let Some(fill) = options.fill {
-            spec.push(fill);
-        }
-        spec.push(match alignment {
-            FormatAlignment::Left => '<',
-            FormatAlignment::Right => '>',
-            FormatAlignment::Center => '^',
-        });
-    }
-    if let Some(sign) = options.sign {
-        spec.push(match sign {
-            FormatSign::Plus => '+',
-            FormatSign::Minus => '-',
-        });
-    }
-    if options.alternate {
-        spec.push('#');
-    }
-    if options.zero_pad {
-        spec.push('0');
-    }
-    if let Some(FormatCount::Literal(width)) = &options.width {
-        spec.push_str(&width.to_string());
-    }
-    if let Some(FormatCount::Literal(precision)) = &options.precision {
-        spec.push('.');
-        spec.push_str(&precision.to_string());
-    }
-    if let Some(debug_hex) = options.debug_hex {
-        spec.push(match debug_hex {
-            FormatDebugHex::Lower => 'x',
-            FormatDebugHex::Upper => 'X',
-        });
-    }
-    spec.push_str(match trait_ {
-        FormatTrait::Display => "",
-        FormatTrait::Debug => "?",
-        FormatTrait::LowerExp => "e",
-        FormatTrait::UpperExp => "E",
-        FormatTrait::Octal => "o",
-        FormatTrait::Pointer => "p",
-        FormatTrait::Binary => "b",
-        FormatTrait::LowerHex => "x",
-        FormatTrait::UpperHex => "X",
-    });
-    Some(if spec.is_empty() {
-        spec
-    } else {
-        format!(":{spec}")
     })
 }
 

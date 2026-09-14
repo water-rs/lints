@@ -93,6 +93,7 @@ mod def_path;
 mod empty_label_literal;
 mod fixed_children_in_vec;
 mod format_args;
+mod format_in_text;
 mod handler_captures_binding;
 mod hardcoded_theme_value;
 mod if_else_view;
@@ -126,6 +127,8 @@ const LINTS: &[&LintInfo] = &[
     &empty_label_literal::LINT_INFO,
     &fixed_children_in_vec::LINT_INFO,
     &fixed_children_in_vec::push_loop_seed::LINT_INFO,
+    &format_in_text::LINT_INFO,
+    &format_in_text::plural_bypass::LINT_INFO,
     &handler_captures_binding::LINT_INFO,
     &hardcoded_theme_value::LINT_INFO,
     &if_else_view::LINT_INFO,
@@ -185,6 +188,10 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_early_pass({
         let format_args = format_args.clone();
         move || Box::new(format_args::FormatArgsCollector::new(format_args.clone()))
+    });
+    lint_store.register_late_pass({
+        let format_args = format_args.clone();
+        move |_| Box::new(format_in_text::FormatInText::new(format_args.clone()))
     });
     lint_store.register_late_pass({
         let format_args = format_args.clone();

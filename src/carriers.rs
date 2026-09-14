@@ -33,6 +33,9 @@ pub(crate) const FROM: &[&str] = &["core", "convert", "From", "from"];
 /// `Into::into` — `x.into()` / `Into::<T>::into(x)` conversions.
 pub(crate) const INTO: &[&str] = &["core", "convert", "Into", "into"];
 
+/// `Text::verbatim` — marks the text as never translated.
+pub(crate) const TEXT_VERBATIM: &[&str] = &["waterui_text", "text", "Text", "verbatim"];
+
 /// String-shaped types a `From`/`Into` conversion may produce.
 pub(crate) const STRING_TYS: &[&[&str]] =
     &[&["alloc", "string", "String"], &["waterui_str", "Str"]];

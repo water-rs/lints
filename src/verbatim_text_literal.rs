@@ -11,7 +11,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TypeckResults;
 use rustc_session::declare_lint_pass;
 
-use crate::carriers::{FROM, INTO, TO_OWNED, TO_STRING, is_string_ty};
+use crate::carriers::{FROM, INTO, TEXT_VERBATIM, TO_OWNED, TO_STRING, is_string_ty};
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{
     TEXT_PARAM_BOUNDS, call_arg_bounds, call_args, call_def_id, implemented_trait_item,
@@ -56,9 +56,6 @@ const SUGGESTION: &str = "pass the literal itself — `&'static str` is looked u
 
 /// `Str::from_static` — stores the literal verbatim without allocation.
 const FROM_STATIC: &[&str] = &["waterui_str", "Str", "from_static"];
-
-/// `Text::verbatim` — marks the text as never translated.
-const TEXT_VERBATIM: &[&str] = &["waterui_text", "text", "Text", "verbatim"];
 
 declare_lint_pass!(VerbatimTextLiteral => [VERBATIM_TEXT_LITERAL]);
 
