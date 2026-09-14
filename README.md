@@ -52,6 +52,12 @@ Run all UI tests with:
 cargo test
 ```
 
+or a single fixture with:
+
+```sh
+WATERUI_LINTS_UI_EXAMPLE=<lint> cargo test
+```
+
 To build the lint library and run it against a fixture manually (the
 `DYLINT_LIBRARY_PATH` points `--lib` at the freshly built library in
 `target/debug`):

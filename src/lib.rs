@@ -195,5 +195,15 @@ fn ui() {
         std::env::remove_var("RUSTC_WRAPPER");
         std::env::remove_var("RUSTC_WORKSPACE_WRAPPER");
     }
-    dylint_testing::ui_test_examples(env!("CARGO_PKG_NAME"));
+    // `WATERUI_LINTS_UI_EXAMPLE=<fixture>` scopes the run to one fixture so a
+    // lint can be iterated on while sibling fixtures are still unblessed.
+    match std::env::var("WATERUI_LINTS_UI_EXAMPLE") {
+        Ok(example) => dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), &example),
+        Err(std::env::VarError::NotPresent) => {
+            dylint_testing::ui_test_examples(env!("CARGO_PKG_NAME"));
+        }
+        Err(std::env::VarError::NotUnicode(raw)) => {
+            panic!("WATERUI_LINTS_UI_EXAMPLE is not valid Unicode: {raw:?}");
+        }
+    }
 }
