@@ -97,6 +97,8 @@ mod param_bounds;
 mod qualified_waterui_path;
 mod signal_get_in_view;
 mod snapshot_get;
+mod watch;
+mod watch_ignores_value;
 
 const LINTS: &[&LintInfo] = &[
     &if_else_view::LINT_INFO,
@@ -106,6 +108,7 @@ const LINTS: &[&LintInfo] = &[
     &normalized_radius_overflow::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
+    &watch_ignores_value::LINT_INFO,
 ];
 
 #[expect(
@@ -145,6 +148,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         let format_args = format_args.clone();
         move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
     });
+    lint_store.register_late_pass(|_| Box::new(watch_ignores_value::WatchIgnoresValue));
 
     for group in Group::ALL {
         lint_store.register_group(
