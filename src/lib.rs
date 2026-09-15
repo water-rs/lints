@@ -100,6 +100,7 @@ mod handler_captures_binding;
 mod hardcoded_theme_value;
 mod if_else_view;
 mod imports;
+mod list_in_scroll;
 mod localized_concat;
 mod long_text_key;
 mod manual_identifiable;
@@ -142,6 +143,7 @@ const LINTS: &[&LintInfo] = &[
     &handler_captures_binding::LINT_INFO,
     &hardcoded_theme_value::LINT_INFO,
     &if_else_view::LINT_INFO,
+    &list_in_scroll::LINT_INFO,
     &localized_concat::LINT_INFO,
     &long_text_key::LINT_INFO,
     &manual_identifiable::LINT_INFO,
@@ -186,6 +188,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(handler_captures_binding::HandlerCapturesBinding));
     lint_store.register_late_pass(|_| Box::new(hardcoded_theme_value::HardcodedThemeValue));
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
+    lint_store.register_late_pass(|_| Box::new(list_in_scroll::ListInScroll));
     lint_store.register_late_pass(|_| Box::new(localized_concat::LocalizedConcat));
     lint_store.register_late_pass(|_| Box::new(long_text_key::LongTextKey::default()));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));

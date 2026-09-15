@@ -1,0 +1,14 @@
+[package]
+name = "list_in_scroll"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "list_in_scroll"
+path = "main.rs"
+
+[workspace]

@@ -54,6 +54,10 @@ name = "if_else_view"
 path = "ui/if_else_view/main.rs"
 
 [[example]]
+name = "list_in_scroll"
+path = "ui/list_in_scroll/main.rs"
+
+[[example]]
 name = "localized_concat"
 path = "ui/localized_concat/main.rs"
 
