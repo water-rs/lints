@@ -106,6 +106,7 @@ mod long_text_key;
 mod manual_identifiable;
 mod manual_signal_combinator;
 mod manual_text_map;
+mod missing_translation;
 mod needless_anyview;
 mod non_reactive_ui_state;
 mod normalized_radius_overflow;
@@ -125,6 +126,7 @@ mod state_created_in_rebuilt_scope;
 mod tap_gesture;
 mod tappable_without_role;
 mod task_handle_dropped;
+mod text_key;
 mod verbatim_text_literal;
 mod watch;
 mod watch_for_reactive_value;
@@ -149,6 +151,8 @@ const LINTS: &[&LintInfo] = &[
     &manual_identifiable::LINT_INFO,
     &manual_signal_combinator::LINT_INFO,
     &manual_text_map::LINT_INFO,
+    &missing_translation::LINT_INFO,
+    &missing_translation::orphan::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &non_reactive_ui_state::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
@@ -190,7 +194,19 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
     lint_store.register_late_pass(|_| Box::new(list_in_scroll::ListInScroll));
     lint_store.register_late_pass(|_| Box::new(localized_concat::LocalizedConcat));
-    lint_store.register_late_pass(|_| Box::new(long_text_key::LongTextKey::default()));
+
+    // `text!` lowers its key into `format!` bytecode on HIR; the early pass
+    // snapshots the default-format literal so the late text-key lints can
+    // read it.
+    let text_keys = text_key::TextKeys::default();
+    lint_store.register_early_pass({
+        let text_keys = text_keys.clone();
+        move || Box::new(text_key::TextKeyCollector::new(text_keys.clone()))
+    });
+    lint_store.register_late_pass({
+        let text_keys = text_keys.clone();
+        move |_| Box::new(long_text_key::LongTextKey::new(text_keys.clone()))
+    });
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(manual_signal_combinator::ManualSignalCombinator));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
@@ -231,6 +247,14 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         let format_args = format_args.clone();
         move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
     });
+    lint_store.register_late_pass({
+        let text_keys = text_keys.clone();
+        move |_| {
+            Box::new(missing_translation::MissingTranslation::new(
+                text_keys.clone(),
+            ))
+        }
+    });
     lint_store.register_late_pass(|_| Box::new(spacer_in_zstack::SpacerInZstack));
     lint_store.register_late_pass(|_| {
         Box::new(state_created_in_rebuilt_scope::StateCreatedInRebuiltScope)
@@ -270,12 +294,67 @@ fn ui() {
     // `WATERUI_LINTS_UI_EXAMPLE=<fixture>` scopes the run to one fixture so a
     // lint can be iterated on while sibling fixtures are still unblessed.
     match std::env::var("WATERUI_LINTS_UI_EXAMPLE") {
-        Ok(example) => dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), &example),
+        Ok(example) => run_ui_example(&example),
         Err(std::env::VarError::NotPresent) => {
-            dylint_testing::ui_test_examples(env!("CARGO_PKG_NAME"));
+            // `ui_test_examples` cannot give each fixture its own
+            // `CARGO_MANIFEST_DIR`, so enumerate the `ui/<example>/` packages
+            // and run them one at a time.
+            let ui_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("ui");
+            let mut examples: Vec<String> = std::fs::read_dir(&ui_dir)
+                .unwrap()
+                .filter_map(|entry| entry.ok())
+                .filter(|entry| entry.path().join("main.rs").is_file())
+                .filter_map(|entry| entry.file_name().into_string().ok())
+                .collect();
+            examples.sort_unstable();
+            for example in &examples {
+                run_ui_example(example);
+            }
         }
         Err(std::env::VarError::NotUnicode(raw)) => {
             panic!("WATERUI_LINTS_UI_EXAMPLE is not valid Unicode: {raw:?}");
         }
     }
+}
+
+/// Restores `CARGO_MANIFEST_DIR` on drop.
+#[cfg(test)]
+struct ManifestDirGuard(Option<std::ffi::OsString>);
+
+#[cfg(test)]
+impl ManifestDirGuard {
+    fn set(dir: &std::path::Path) -> Self {
+        let previous = std::env::var_os("CARGO_MANIFEST_DIR");
+        unsafe { std::env::set_var("CARGO_MANIFEST_DIR", dir) };
+        Self(previous)
+    }
+}
+
+#[cfg(test)]
+impl Drop for ManifestDirGuard {
+    fn drop(&mut self) {
+        unsafe {
+            match &self.0 {
+                Some(value) => std::env::set_var("CARGO_MANIFEST_DIR", value),
+                None => std::env::remove_var("CARGO_MANIFEST_DIR"),
+            }
+        }
+    }
+}
+
+/// Runs `ui_test_example` for `example` with `CARGO_MANIFEST_DIR` pointed at
+/// the fixture package `ui/<example>`: `text!` reads `CARGO_MANIFEST_DIR/i18n`
+/// at expansion time and the catalog lints (`missing_translation`,
+/// `orphan_translation`) use the same channel, while the compiletest driver
+/// compiles a tempdir copy of `main.rs` and inherits this process's
+/// environment — so without this, a fixture's `i18n/` is invisible to both.
+/// Cargo never reads the variable back, so the one-time library/driver build
+/// and the flag-capture `cargo build` are unaffected.
+#[cfg(test)]
+fn run_ui_example(example: &str) {
+    let manifest_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("ui")
+        .join(example);
+    let _guard = ManifestDirGuard::set(&manifest_dir);
+    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), example);
 }

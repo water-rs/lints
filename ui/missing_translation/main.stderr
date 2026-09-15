@@ -1,0 +1,50 @@
+warning: `Cancel` has no translation in `fr.toml`
+  --> $DIR/main.rs:17:13
+   |
+LL |     let _ = text!("Cancel");
+   |             ^^^^^^^^^^^^^^^
+   |
+   = help: `water doctor` checks the catalogs against each other; this lint checks them against the code
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(missing_translation)]
+   |         ^^^^^^^^^^^^^^^^^^^
+
+warning: `Delete` has no translation in `en.toml`, `fr.toml`
+  --> $DIR/main.rs:19:13
+   |
+LL |     let _ = Text::localized("Delete");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `water doctor` checks the catalogs against each other; this lint checks them against the code
+
+warning: `$about_blurb` has no translation in `en.toml`, `fr.toml`
+  --> $DIR/main.rs:21:13
+   |
+LL |     let _ = text!("$about_blurb");
+   |             ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `water doctor` checks the catalogs against each other; this lint checks them against the code
+
+warning: `Unused key` in `i18n/en.toml` is not used by any `text!` or `Text::localized` in this crate
+  --> $DIR/main.rs:1:1
+   |
+LL | / //! `missing_translation`/`orphan_translation` fixture: keys used by `text!`
+LL | | //! and `Text::localized` are checked against `i18n/en.toml` and
+LL | | //! `i18n/fr.toml`; keys in the catalogs that nothing uses warn on the crate
+LL | | //! root.
+...  |
+LL | |     let _ = Text::verbatim("not a key");
+LL | | }
+   | |_^
+   |
+   = help: `water doctor` checks the catalogs against each other; this lint checks them against the code
+note: the lint level is defined here
+  --> $DIR/main.rs:8:9
+   |
+LL | #![warn(orphan_translation)]
+   |         ^^^^^^^^^^^^^^^^^^
+
+warning: 4 warnings emitted
+
