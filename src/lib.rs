@@ -100,6 +100,7 @@ mod hardcoded_theme_value;
 mod if_else_view;
 mod imports;
 mod manual_identifiable;
+mod manual_signal_combinator;
 mod manual_text_map;
 mod needless_anyview;
 mod non_reactive_ui_state;
@@ -138,6 +139,7 @@ const LINTS: &[&LintInfo] = &[
     &hardcoded_theme_value::LINT_INFO,
     &if_else_view::LINT_INFO,
     &manual_identifiable::LINT_INFO,
+    &manual_signal_combinator::LINT_INFO,
     &manual_text_map::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &non_reactive_ui_state::LINT_INFO,
@@ -178,6 +180,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(hardcoded_theme_value::HardcodedThemeValue));
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
+    lint_store.register_late_pass(|_| Box::new(manual_signal_combinator::ManualSignalCombinator));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
     lint_store.register_late_pass(|_| Box::new(non_reactive_ui_state::NonReactiveUiState));
     lint_store

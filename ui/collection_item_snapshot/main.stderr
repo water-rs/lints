@@ -49,5 +49,13 @@ LL |         text("a").visible(unread)
    |
    = help: derive it as a `Computed` from the owning collection, or keep a `Binding` on the item, so the row updates in place; `#[allow(collection_item_snapshot)]` on the closure if the field is immutable row data
 
-warning: 5 warnings emitted
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:68:58
+   |
+LL |     let _ = Lazy::for_each(list, |row| text("a").visible(row.live.map(|l| !l)));
+   |                                                          ^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `row.live.not()`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
+warning: 6 warnings emitted
 
