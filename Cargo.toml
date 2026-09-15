@@ -15,6 +15,7 @@ crate-type = ["cdylib"]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
 dylint_linting = "6.0"
 serde = { version = "1.0", features = ["derive"] }
+toml = "1.1"
 
 [dev-dependencies]
 dylint_testing = "6.0"
@@ -76,6 +77,10 @@ path = "ui/manual_signal_combinator/main.rs"
 [[example]]
 name = "manual_text_map"
 path = "ui/manual_text_map/main.rs"
+
+[[example]]
+name = "missing_translation"
+path = "ui/missing_translation/main.rs"
 
 [[example]]
 name = "needless_anyview"
