@@ -32,6 +32,10 @@ name = "collection_item_snapshot"
 path = "ui/collection_item_snapshot/main.rs"
 
 [[example]]
+name = "discarded_wait_result"
+path = "ui/discarded_wait_result/main.rs"
+
+[[example]]
 name = "empty_label_literal"
 path = "ui/empty_label_literal/main.rs"
 

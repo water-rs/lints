@@ -1,13 +1,11 @@
 use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::source::snippet_with_applicability;
-use clippy_utils::visitors::is_local_used;
 use rustc_errors::Applicability;
-use rustc_hir::{Block, Expr, ExprKind, LetStmt, PatKind, Stmt, StmtKind};
+use rustc_hir::{Block, Expr, Stmt};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
-use crate::def_path::def_path_eq;
-use crate::param_bounds::call_def_id;
+use crate::discarded_call::{Discarded, discarded_calls, path_call};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -58,22 +56,6 @@ const DETACH_SUGGESTION: &str = "detach the task so it runs to completion";
 const UNREAD_HELP: &str =
     "`.await` the handle, keep it alive for as long as the task should run, or `.detach()` it";
 
-/// `expr`, drop-temps peeled, when it is a call to `spawn`/`spawn_local`.
-/// Parentheses carry no HIR node, so a parenthesized call reaches here with
-/// the parens folded into its span.
-fn spawn_call<'hir>(cx: &LateContext<'hir>, expr: &'hir Expr<'hir>) -> Option<&'hir Expr<'hir>> {
-    let mut expr = expr;
-    while let ExprKind::DropTemps(inner) = expr.kind {
-        expr = inner;
-    }
-    if expr.span.from_expansion() || !matches!(expr.kind, ExprKind::Call(..)) {
-        return None;
-    }
-    call_def_id(cx.typeck_results(), expr)
-        .is_some_and(|did| SPAWN_PATHS.iter().any(|path| def_path_eq(cx, did, path)))
-        .then_some(expr)
-}
-
 /// A `spawn(..);` statement or `let _ = spawn(..);` — the handle drops at the
 /// semicolon, so the statement rewrites to `<call>.detach();`.
 fn lint_detached(cx: &LateContext<'_>, stmt: &Stmt<'_>, call: &Expr<'_>) {
@@ -91,50 +73,23 @@ fn lint_detached(cx: &LateContext<'_>, stmt: &Stmt<'_>, call: &Expr<'_>) {
     });
 }
 
-/// A `let` whose initializer is a spawn call: `let _ =` drops at the
-/// semicolon; a named binding fires only when the rest of `block` — the
-/// statements after `index` plus the tail expression — never reads it (any
-/// read counts: `.await`, `.detach()`, a move into `drop(t)`, a capture).
-fn check_let<'tcx>(
-    cx: &LateContext<'tcx>,
-    block: &'tcx Block<'tcx>,
-    index: usize,
-    stmt: &'tcx Stmt<'tcx>,
-    local: &'tcx LetStmt<'tcx>,
-) {
-    let Some(call) = local.init.and_then(|init| spawn_call(cx, init)) else {
-        return;
-    };
-    match local.pat.kind {
-        PatKind::Wild => lint_detached(cx, stmt, call),
-        PatKind::Binding(_, hir_id, ..)
-            if !is_local_used(cx, (&block.stmts[index + 1..], block.expr), hir_id) =>
-        {
-            span_lint_and_then(cx, TASK_HANDLE_DROPPED, stmt.span, MESSAGE, |diag| {
-                diag.span_label(call.span, CALL_LABEL);
-                diag.help(UNREAD_HELP);
-            });
-        }
-        _ => {}
-    }
+/// A `let t = spawn(..);` whose `t` nothing else in the block reads — the
+/// handle still drops at scope end, but there is no mechanical rewrite (any
+/// read counts: `.await`, `.detach()`, a move into `drop(t)`, a capture), so
+/// this only points at the options.
+fn lint_unread(cx: &LateContext<'_>, stmt: &Stmt<'_>, call: &Expr<'_>) {
+    span_lint_and_then(cx, TASK_HANDLE_DROPPED, stmt.span, MESSAGE, |diag| {
+        diag.span_label(call.span, CALL_LABEL);
+        diag.help(UNREAD_HELP);
+    });
 }
 
 impl<'tcx> LateLintPass<'tcx> for TaskHandleDropped {
     fn check_block(&mut self, cx: &LateContext<'tcx>, block: &'tcx Block<'tcx>) {
-        if block.span.from_expansion() {
-            return;
-        }
-        for (index, stmt) in block.stmts.iter().enumerate() {
-            match stmt.kind {
-                // A no-semi `StmtKind::Expr` mid-block must be `()`-typed, so a
-                // task handle can only sit in `Semi` or a `let` initializer.
-                StmtKind::Semi(expr) => {
-                    if let Some(call) = spawn_call(cx, expr) {
-                        lint_detached(cx, stmt, call);
-                    }
-                }
-                StmtKind::Let(local) => check_let(cx, block, index, stmt, local),
-                StmtKind::Expr(_) | StmtKind::Item(_) => {}
+        for discarded in discarded_calls(cx, block, |cx, expr| path_call(cx, expr, SPAWN_PATHS)) {
+            match discarded {
+                Discarded::AtSemicolon { stmt, call } => lint_detached(cx, stmt, call),
+                Discarded::NeverRead { stmt, call } => lint_unread(cx, stmt, call),
             }
         }
     }
