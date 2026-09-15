@@ -1,5 +1,5 @@
 use clippy_utils::diagnostics::span_lint_and_help;
-use rustc_data_structures::fx::FxHashSet;
+use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::def_id::LocalDefId;
 use rustc_hir::{ClosureKind, CoroutineDesugaring, CoroutineKind, Expr, ExprKind, Node};
 use rustc_lint::{LateContext, LateLintPass};
@@ -8,6 +8,7 @@ use rustc_span::Symbol;
 
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_def_id, handler_closures, implemented_trait_item};
+use crate::thread_sleep::{SLEEP_PATH, is_test_wrapper};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -109,11 +110,6 @@ const SLEEP_HELP: &str =
     "await `waterui::task::sleep(duration)` in an `.action_async`/`.task(..)` future instead";
 const BLOCKING_HELP: &str = "move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API";
 
-/// `std::thread::sleep` — the one blocking call reported under the deny lint.
-/// Its def path is `std::thread::functions::sleep`: `sleep` is `pub use`d
-/// from the private `functions` module.
-const SLEEP_PATH: &str = "std::thread::functions::sleep";
-
 /// The default blocking-call table — spec spellings mapped to the defining
 /// crate's def path. `futures::executor::block_on` and
 /// `futures_executor::block_on` resolve to the one `futures_executor` item,
@@ -211,11 +207,21 @@ impl Context {
 /// shape). The first enclosing item decides between `View::body`/
 /// `GpuView::render` and no context: a `fn` boundary ends the scope, so a
 /// blocking call inside a helper a handler calls is out of scope.
+/// A `#[waterui::test]`/`#[waterui::bench]` wrapper body is a harness
+/// context, not a UI one — `thread_sleep_in_test` reports the sleep there.
 fn ui_context(
     cx: &LateContext<'_>,
     handlers: &FxHashSet<LocalDefId>,
+    test_wrappers: &mut FxHashMap<LocalDefId, bool>,
     expr: &Expr<'_>,
 ) -> Option<Context> {
+    let owner = cx
+        .tcx
+        .typeck_root_def_id(cx.tcx.hir_enclosing_body_owner(expr.hir_id).into())
+        .expect_local();
+    if is_test_wrapper(cx, owner, test_wrappers) {
+        return None;
+    }
     for (_, node) in cx.tcx.hir_parent_iter(expr.hir_id) {
         match node {
             Node::Expr(Expr {
@@ -258,6 +264,8 @@ pub(crate) struct BlockingInUiContext {
     /// closure's body exprs (the late walk is preorder), so a blocking call
     /// can ask whether an enclosing closure is one of these.
     handlers: FxHashSet<LocalDefId>,
+    /// `is_test_wrapper` verdicts per enclosing fn `LocalDefId`.
+    test_wrappers: FxHashMap<LocalDefId, bool>,
     sleep: PathPattern,
     blocking: Vec<PathPattern>,
 }
@@ -267,6 +275,7 @@ impl Default for BlockingInUiContext {
         let config = crate::config::config();
         Self {
             handlers: FxHashSet::default(),
+            test_wrappers: FxHashMap::default(),
             sleep: PathPattern::parse(SLEEP_PATH),
             blocking: DEFAULT_BLOCKING_PATHS
                 .iter()
@@ -305,7 +314,7 @@ impl<'tcx> LateLintPass<'tcx> for BlockingInUiContext {
         if !sleep && !self.blocking.iter().any(|path| path.matches(&def_path)) {
             return;
         }
-        let Some(context) = ui_context(cx, &self.handlers, expr) else {
+        let Some(context) = ui_context(cx, &self.handlers, &mut self.test_wrappers, expr) else {
             return;
         };
         if sleep {

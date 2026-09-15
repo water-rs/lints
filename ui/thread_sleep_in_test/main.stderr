@@ -1,0 +1,51 @@
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:40:5
+   |
+LL |     std::thread::sleep(Duration::from_millis(16));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+   = note: `#[deny(thread_sleep_in_test)]` on by default
+
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:47:5
+   |
+LL |     std::thread::sleep(Duration::from_millis(1));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:55:9
+   |
+LL |         std::thread::sleep(Duration::from_millis(4));
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:63:26
+   |
+LL |     let wait = |ms: u64| std::thread::sleep(Duration::from_millis(ms));
+   |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:73:5
+   |
+LL |     std::thread::sleep(Duration::from_millis(16));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+
+error: `std::thread::sleep` inside a `#[waterui::test]` freezes the animation clock
+  --> $DIR/main.rs:80:5
+   |
+LL |     std::thread::sleep(Duration::from_millis(16));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: the clock advances when frames are pumped, not with wall time — use `app.pump_for(duration)` to advance it, or `Query::wait_for_existence`/`wait_for_value_eq` to wait for a condition
+
+error: aborting due to 6 previous errors
+
