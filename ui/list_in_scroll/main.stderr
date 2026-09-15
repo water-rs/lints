@@ -1,0 +1,63 @@
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:22:13
+   |
+LL |     let _ = scroll(List::for_each(items.clone(), |_| ListItem::new(text("a"))));
+   |             ^^^^^^^-----------------------------------------------------------^
+   |                    |
+   |                    this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+   = note: `#[warn(list_in_scroll)]` on by default
+
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:25:13
+   |
+LL |     let _ = scroll(List::for_each(items.clone(), |_| ListItem::new(text("a"))).on_appear(|| {}));
+   |             ^^^^^^^----------------------------------------------------------------------------^
+   |                    |
+   |                    this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:27:13
+   |
+LL |     let _ = scroll(List::for_each(items.clone(), |_| ListItem::new(text("a"))).editing(false));
+   |             ^^^^^^^--------------------------------------------------------------------------^
+   |                    |
+   |                    this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:29:13
+   |
+LL |     let _ = scroll_horizontal(List::content((|| ListItem::new(text("a")),)));
+   |             ^^^^^^^^^^^^^^^^^^---------------------------------------------^
+   |                               |
+   |                               this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:31:13
+   |
+LL |     let _ = ScrollView::vertical(List::for_each(items.clone(), |_| ListItem::new(text("a"))));
+   |             ^^^^^^^^^^^^^^^^^^^^^-----------------------------------------------------------^
+   |                                  |
+   |                                  this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+
+warning: a `List` inside `scroll(..)` is given unbounded height
+  --> $DIR/main.rs:33:13
+   |
+LL |     let _ = ScrollView::horizontal(List::for_each(items.clone(), |_| ListItem::new(text("a"))));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^-----------------------------------------------------------^
+   |                                    |
+   |                                    this `List` scrolls on its own
+   |
+   = help: `List` scrolls itself and realises only the visible rows; drop the outer `scroll(..)`, or use `Lazy::for_each` inside the scroll view when a plain reactive sequence was wanted
+
+warning: 6 warnings emitted
+
