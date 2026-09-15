@@ -31,6 +31,15 @@ LL |     let _ = button("a").action(move || *m.lock().unwrap() += 1);
    |
    = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
 
+warning: this call blocks inside a UI context (handler)
+  --> $DIR/main.rs:56:41
+   |
+LL |     let _ = button("a").action(move || *m.lock().unwrap() += 1);
+   |                                         ^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
+   = note: `#[warn(blocking_in_ui_context)]` on by default
+
 warning: mutating a `RwLock` from a handler never notifies the UI
   --> $DIR/main.rs:60:41
    |
@@ -38,6 +47,14 @@ LL |     let _ = button("a").action(move || *w.write().unwrap() += 1);
    |                                         ^^^^^^^^^
    |
    = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
+
+warning: this call blocks inside a UI context (handler)
+  --> $DIR/main.rs:60:41
+   |
+LL |     let _ = button("a").action(move || *w.write().unwrap() += 1);
+   |                                         ^^^^^^^^^
+   |
+   = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
 
 warning: mutating a `Atomic<u32>` from a handler never notifies the UI
   --> $DIR/main.rs:67:25
@@ -63,5 +80,5 @@ LL |     let _ = button("a").action(|| TLS.with(|v| v.set(1)));
    |
    = help: keep UI state in a `Binding<T>` (or a `ReactiveList<T>` for sequences); the reactive graph is notified by `set`, not by interior mutability
 
-warning: 8 warnings emitted
+warning: 10 warnings emitted
 
