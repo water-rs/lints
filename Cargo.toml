@@ -20,7 +20,7 @@ toml = "1.1"
 [dev-dependencies]
 dylint_testing = "6.0"
 nami = "0.11.2"
-waterui = { version = "0.4.1", default-features = false }
+waterui = { version = "0.4.1", default-features = false, features = ["media", "gpu"] }
 waterui-testing = "0.4.1"
 
 [[example]]
@@ -54,6 +54,10 @@ path = "ui/hardcoded_theme_value/main.rs"
 [[example]]
 name = "if_else_view"
 path = "ui/if_else_view/main.rs"
+
+[[example]]
+name = "image_without_label"
+path = "ui/image_without_label/main.rs"
 
 [[example]]
 name = "list_in_scroll"
