@@ -5,7 +5,6 @@ use rustc_hir::{ClosureKind, CoroutineDesugaring, CoroutineKind, Expr, ExprKind,
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
 use rustc_span::Symbol;
-use serde::Deserialize;
 
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_def_id, handler_closures, implemented_trait_item};
@@ -145,14 +144,6 @@ const GPU_RENDER: &[&str] = &[
     "render",
 ];
 
-/// The `dylint.toml` `[waterui-lints]` table.
-#[derive(Default, Deserialize)]
-struct Config {
-    /// Extra blocking-call def paths — `"a::b::c"` exact, `"a::b::*"` prefix.
-    #[serde(default)]
-    blocking_in_ui_context_paths: Vec<String>,
-}
-
 /// A def-path pattern: `a::b::c` matches that item exactly; a trailing `::*`
 /// makes it a prefix (`std::net::*` covers `std::net::tcp::TcpStream::connect`).
 struct PathPattern {
@@ -273,7 +264,7 @@ pub(crate) struct BlockingInUiContext {
 
 impl Default for BlockingInUiContext {
     fn default() -> Self {
-        let config: Config = dylint_linting::config_or_default(env!("CARGO_PKG_NAME"));
+        let config = crate::config::config();
         Self {
             handlers: FxHashSet::default(),
             sleep: PathPattern::parse(SLEEP_PATH),
