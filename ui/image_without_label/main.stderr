@@ -1,0 +1,43 @@
+warning: this image has no accessibility label
+  --> $DIR/main.rs:12:13
+   |
+LL |     let _ = photo(Url::parse("https://water-rs.dev/a.png").unwrap());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
+   = note: `#[warn(image_without_label)]` on by default
+
+warning: this image has no accessibility label
+  --> $DIR/main.rs:14:13
+   |
+LL |     let _ = Photo::new(Url::parse("https://water-rs.dev/b.png").unwrap()).padding();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
+
+warning: this image has no accessibility label
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = Image::new(vec![0; 4], 1, 1);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
+
+warning: this image has no accessibility label
+  --> $DIR/main.rs:18:13
+   |
+LL |     let _ = Svg::new("M3 12h18");
+   |             ^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
+
+warning: this image has no accessibility label
+  --> $DIR/main.rs:20:13
+   |
+LL |     let _ = photo(Url::parse("https://water-rs.dev/c.png").unwrap()).a11y_hidden(false);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
+
+warning: 5 warnings emitted
+
