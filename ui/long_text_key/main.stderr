@@ -1,0 +1,47 @@
+warning: this text key is 15 words; keys longer than 12 words break every translation on a copy edit
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = text!("This is a long sentence that has more than twelve words in it for sure");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use a short catalog key such as `"$about_blurb"` and put the prose in `i18n/<locale>.toml`
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(long_text_key)]
+   |         ^^^^^^^^^^^^^
+
+warning: this text key is 15 words; keys longer than 12 words break every translation on a copy edit
+  --> $DIR/main.rs:19:9
+   |
+LL |         Text::localized("This is a long sentence that has more than twelve words in it for sure");
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use a short catalog key such as `"$about_blurb"` and put the prose in `i18n/<locale>.toml`
+
+warning: this text key is 14 words; keys longer than 12 words break every translation on a copy edit
+  --> $DIR/main.rs:21:13
+   |
+LL |       let _ = text!(
+   |  _____________^
+LL | |         "Hello {name} this sentence with a slot is also longer than twelve words total",
+LL | |         name = name.clone()
+LL | |     );
+   | |_____^
+   |
+   = help: use a short catalog key such as `"$about_blurb"` and put the prose in `i18n/<locale>.toml`
+
+warning: this text key is 15 words; keys longer than 12 words break every translation on a copy edit
+  --> $DIR/main.rs:26:13
+   |
+LL |       let _ = Text::localized_or(
+   |  _____________^
+LL | |         "This is a long sentence that has more than twelve words in it for sure",
+LL | |         "fallback",
+LL | |     );
+   | |_____^
+   |
+   = help: use a short catalog key such as `"$about_blurb"` and put the prose in `i18n/<locale>.toml`
+
+warning: 4 warnings emitted
+

@@ -58,6 +58,10 @@ name = "localized_concat"
 path = "ui/localized_concat/main.rs"
 
 [[example]]
+name = "long_text_key"
+path = "ui/long_text_key/main.rs"
+
+[[example]]
 name = "manual_identifiable"
 path = "ui/manual_identifiable/main.rs"
 
