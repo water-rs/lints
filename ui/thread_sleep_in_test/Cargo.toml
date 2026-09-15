@@ -1,0 +1,19 @@
+[package]
+name = "thread_sleep_in_test"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+waterui-testing = "0.4.1"
+
+# `#[waterui::test]`/`#[waterui::bench]` bodies exist only under `--test`
+# compilation (rustc strips `#[test]` items otherwise), so the fixture's only
+# target is a test target: `cargo dylint` lints it through `cargo check
+# --tests`.
+[[test]]
+name = "thread_sleep_in_test"
+path = "main.rs"
+
+[workspace]

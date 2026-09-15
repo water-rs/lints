@@ -21,6 +21,7 @@ toml = "1.1"
 dylint_testing = "6.0"
 nami = "0.11.2"
 waterui = { version = "0.4.1", default-features = false }
+waterui-testing = "0.4.1"
 
 [[example]]
 name = "blocking_in_ui_context"
@@ -141,6 +142,10 @@ path = "ui/tappable_without_role/main.rs"
 [[example]]
 name = "task_handle_dropped"
 path = "ui/task_handle_dropped/main.rs"
+
+[[example]]
+name = "thread_sleep_in_test"
+path = "ui/thread_sleep_in_test/main.rs"
 
 [[example]]
 name = "verbatim_text_literal"
