@@ -99,6 +99,7 @@ mod handler_captures_binding;
 mod hardcoded_theme_value;
 mod if_else_view;
 mod imports;
+mod localized_concat;
 mod manual_identifiable;
 mod manual_signal_combinator;
 mod manual_text_map;
@@ -138,6 +139,7 @@ const LINTS: &[&LintInfo] = &[
     &handler_captures_binding::LINT_INFO,
     &hardcoded_theme_value::LINT_INFO,
     &if_else_view::LINT_INFO,
+    &localized_concat::LINT_INFO,
     &manual_identifiable::LINT_INFO,
     &manual_signal_combinator::LINT_INFO,
     &manual_text_map::LINT_INFO,
@@ -179,6 +181,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(handler_captures_binding::HandlerCapturesBinding));
     lint_store.register_late_pass(|_| Box::new(hardcoded_theme_value::HardcodedThemeValue));
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
+    lint_store.register_late_pass(|_| Box::new(localized_concat::LocalizedConcat));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(manual_signal_combinator::ManualSignalCombinator));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
