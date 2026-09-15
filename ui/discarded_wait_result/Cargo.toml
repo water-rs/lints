@@ -1,0 +1,18 @@
+[package]
+name = "discarded_wait_result"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+waterui-testing = "0.4.1"
+
+# `#[waterui::test]` bodies exist only under `--test` compilation (rustc
+# strips `#[test]` items otherwise), so the fixture's only target is a test
+# target: `cargo dylint` lints it through `cargo check --tests`.
+[[test]]
+name = "discarded_wait_result"
+path = "main.rs"
+
+[workspace]
