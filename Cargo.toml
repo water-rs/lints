@@ -118,6 +118,10 @@ name = "signal_get_in_view"
 path = "ui/signal_get_in_view/main.rs"
 
 [[example]]
+name = "spacer_in_zstack"
+path = "ui/spacer_in_zstack/main.rs"
+
+[[example]]
 name = "state_created_in_rebuilt_scope"
 path = "ui/state_created_in_rebuilt_scope/main.rs"
 

@@ -1,0 +1,35 @@
+warning: `spacer()` has no axis inside a `zstack`
+  --> $DIR/main.rs:10:32
+   |
+LL |     let _ = zstack((text("a"), spacer()));
+   |                                ^^^^^^^^
+   |
+   = help: a spacer expands along the stack axis and a Z stack has none, so this child is inert; position the layer with `.alignment(..)` on the `zstack`, or use `absolute((..))` for an edge-anchored overlay
+   = note: `#[warn(spacer_in_zstack)]` on by default
+
+warning: `spacer()` has no axis inside a `zstack`
+  --> $DIR/main.rs:12:21
+   |
+LL |     let _ = zstack((spacer(), text("a"), spacer_min(8.0)));
+   |                     ^^^^^^^^
+   |
+   = help: a spacer expands along the stack axis and a Z stack has none, so this child is inert; position the layer with `.alignment(..)` on the `zstack`, or use `absolute((..))` for an edge-anchored overlay
+
+warning: `spacer()` has no axis inside a `zstack`
+  --> $DIR/main.rs:12:42
+   |
+LL |     let _ = zstack((spacer(), text("a"), spacer_min(8.0)));
+   |                                          ^^^^^^^^^^^^^^^
+   |
+   = help: a spacer expands along the stack axis and a Z stack has none, so this child is inert; position the layer with `.alignment(..)` on the `zstack`, or use `absolute((..))` for an edge-anchored overlay
+
+warning: `spacer()` has no axis inside a `zstack`
+  --> $DIR/main.rs:14:56
+   |
+LL |     let _ = ZStack::new(Alignment::Center, (text("a"), spacer()));
+   |                                                        ^^^^^^^^
+   |
+   = help: a spacer expands along the stack axis and a Z stack has none, so this child is inert; position the layer with `.alignment(..)` on the `zstack`, or use `absolute((..))` for an edge-anchored overlay
+
+warning: 4 warnings emitted
+
