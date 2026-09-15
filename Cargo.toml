@@ -58,6 +58,10 @@ name = "manual_identifiable"
 path = "ui/manual_identifiable/main.rs"
 
 [[example]]
+name = "manual_signal_combinator"
+path = "ui/manual_signal_combinator/main.rs"
+
+[[example]]
 name = "manual_text_map"
 path = "ui/manual_text_map/main.rs"
 

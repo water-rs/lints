@@ -71,6 +71,14 @@ LL -     let _ = text("a").opacity(mapped.map(|b| if b { 1.0 } else { 0.0 }));
 LL +     let _ = text("a").visible(mapped);
    |
 
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:20:31
+   |
+LL |     let _ = text("a").opacity(mapped.map(|b| if b { 1.0 } else { 0.0 }));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `mapped.select(1.0, 0.0)`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:23:23
    |
@@ -82,6 +90,12 @@ help: use `.visible(..)`, which also hides the view from screen readers and taps
 LL -     let _ = text("a").opacity(swapped.map(|b| if b { 0.0 } else { 1.0 }));
 LL +     let _ = text("a").visible(swapped.not());
    |
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:23:31
+   |
+LL |     let _ = text("a").opacity(swapped.map(|b| if b { 0.0 } else { 1.0 }));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `swapped.select(0.0, 1.0)`
 
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:28:23
@@ -107,5 +121,11 @@ LL -     let _ = text("a").opacity(reused.select(1.0, 0.0));
 LL +     let _ = text("a").visible(reused.clone());
    |
 
-warning: 9 warnings emitted
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:40:31
+   |
+LL |     let _ = text("a").opacity(flag.map(|b| if b { 0.8 } else { 0.2 }));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.select(0.8, 0.2)`
+
+warning: 12 warnings emitted
 
