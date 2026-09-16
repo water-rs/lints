@@ -19,15 +19,6 @@ LL |     let _ = text("a").on_tap(move || flag.set(true));
    |
    = help: inject it with `.state(&flag)` on the view and take `State(flag): State<Binding<T>>` as a handler parameter, so the handler can be a named function
 
-warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:18:23
-   |
-LL |     let _ = text("a").on_tap(move || flag.set(true));
-   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
-   = note: `#[warn(tappable_without_role)]` on by default
-
 warning: this handler captures a reactive handle instead of taking it as `State<T>`
   --> $DIR/main.rs:22:36
    |
@@ -60,5 +51,5 @@ LL |     let _ = button("async").action_async(move || {
    |
    = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
 
-warning: 6 warnings emitted
+warning: 5 warnings emitted
 

@@ -1,14 +1,18 @@
 warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:12:23
+  --> $DIR/main.rs:15:23
    |
 LL |     let _ = text("a").on_tap(|| {});
    |                       ^^^^^^^^^^^^^
    |
    = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
-   = note: `#[warn(tappable_without_role)]` on by default
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(tappable_without_role)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
 
 warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:14:44
+  --> $DIR/main.rs:17:44
    |
 LL |     let _ = hstack((text("a"), text("b"))).on_tap_gesture(|| {});
    |                                            ^^^^^^^^^^^^^^^^^^^^^
@@ -16,7 +20,7 @@ LL |     let _ = hstack((text("a"), text("b"))).on_tap_gesture(|| {});
    = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
 
 warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:16:33
+  --> $DIR/main.rs:19:33
    |
 LL |     let _ = text("a").padding().on_tap(|| {});
    |                                 ^^^^^^^^^^^^^
@@ -24,7 +28,7 @@ LL |     let _ = text("a").padding().on_tap(|| {});
    = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
 
 warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:18:23
+  --> $DIR/main.rs:21:23
    |
 LL |     let _ = text("a").gesture(TapGesture::new(), || {});
    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32,7 +36,7 @@ LL |     let _ = text("a").gesture(TapGesture::new(), || {});
    = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
 
 warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:20:23
+  --> $DIR/main.rs:23:23
    |
 LL |     let _ = text("a").on_tap(|| {}).a11y_hidden(true);
    |                       ^^^^^^^^^^^^^

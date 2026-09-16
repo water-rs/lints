@@ -47,7 +47,7 @@ declare_waterui_lint! {
     /// // or, when the image is decorative: .a11y_hidden(true)
     /// ```
     pub IMAGE_WITHOUT_LABEL,
-    suspicious,
+    a11y,
     "this image has no accessibility label"
 }
 

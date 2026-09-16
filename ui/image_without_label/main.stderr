@@ -1,14 +1,18 @@
 warning: this image has no accessibility label
-  --> $DIR/main.rs:12:13
+  --> $DIR/main.rs:15:13
    |
 LL |     let _ = photo(Url::parse("https://water-rs.dev/a.png").unwrap());
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
-   = note: `#[warn(image_without_label)]` on by default
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(image_without_label)]
+   |         ^^^^^^^^^^^^^^^^^^^
 
 warning: this image has no accessibility label
-  --> $DIR/main.rs:14:13
+  --> $DIR/main.rs:17:13
    |
 LL |     let _ = Photo::new(Url::parse("https://water-rs.dev/b.png").unwrap()).padding();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16,7 +20,7 @@ LL |     let _ = Photo::new(Url::parse("https://water-rs.dev/b.png").unwrap()).p
    = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
 
 warning: this image has no accessibility label
-  --> $DIR/main.rs:16:13
+  --> $DIR/main.rs:19:13
    |
 LL |     let _ = Image::new(vec![0; 4], 1, 1);
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -24,7 +28,7 @@ LL |     let _ = Image::new(vec![0; 4], 1, 1);
    = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
 
 warning: this image has no accessibility label
-  --> $DIR/main.rs:18:13
+  --> $DIR/main.rs:21:13
    |
 LL |     let _ = Svg::new("M3 12h18");
    |             ^^^^^^^^^^^^^^^^^^^^
@@ -32,7 +36,7 @@ LL |     let _ = Svg::new("M3 12h18");
    = help: add `.a11y_label(..)` naming what the image shows, or `.a11y_hidden(true)` when it is decorative; a label set by an ancestor is the case to `#[allow]`
 
 warning: this image has no accessibility label
-  --> $DIR/main.rs:20:13
+  --> $DIR/main.rs:23:13
    |
 LL |     let _ = photo(Url::parse("https://water-rs.dev/c.png").unwrap()).a11y_hidden(false);
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

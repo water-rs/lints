@@ -1,7 +1,10 @@
 //! `empty_label_literal` fixture: an empty or whitespace-only string
-//! literal in an `IntoLabel` parameter or `.a11y_label(..)` errors; a
+//! literal in an `IntoLabel` parameter or `.a11y_label(..)` warns; a
 //! non-empty label, a non-literal label, and an `IntoText` position stay
 //! silent.
+
+#![allow(unknown_lints)]
+#![warn(empty_label_literal)]
 
 use waterui::Str;
 use waterui::prelude::*;

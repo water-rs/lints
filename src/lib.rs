@@ -20,7 +20,9 @@ use rustc_lint::{Lint, LintId, LintStore};
 /// A `waterui` lint group. Each lint names its group in its
 /// `declare_waterui_lint!` invocation, and the group fixes the lint's default
 /// level: `correctness` lints deny, `suspicious` and `style` lints warn, and
-/// `pedantic` lints are allow-by-default opt-ins.
+/// `pedantic` and `a11y` lints are allow-by-default opt-ins — `a11y` holds the
+/// lints whose checked property is the accessibility surface, which a
+/// style-focused run opts into rather than absorbs.
 ///
 /// Group names are plain identifiers (`waterui_style`), not tool-scoped
 /// (`waterui::style`): rustc rejects a scoped name whose tool the linted crate
@@ -31,14 +33,16 @@ pub(crate) enum Group {
     Suspicious,
     Style,
     Pedantic,
+    A11y,
 }
 
 impl Group {
-    const ALL: [Self; 4] = [
+    const ALL: [Self; 5] = [
         Self::Correctness,
         Self::Suspicious,
         Self::Style,
         Self::Pedantic,
+        Self::A11y,
     ];
 
     fn name(self) -> &'static str {
@@ -47,6 +51,7 @@ impl Group {
             Self::Suspicious => "waterui_suspicious",
             Self::Style => "waterui_style",
             Self::Pedantic => "waterui_pedantic",
+            Self::A11y => "waterui_a11y",
         }
     }
 }
@@ -60,8 +65,9 @@ pub(crate) struct LintInfo {
 }
 
 /// Declares a `waterui` lint and its group membership in one declaration.
-/// `$group` is `correctness`, `suspicious`, `style`, or `pedantic` and sets
-/// the lint's default level (`Deny`, `Warn`, `Warn`, `Allow` respectively).
+/// `$group` is `correctness`, `suspicious`, `style`, `pedantic`, or `a11y` and
+/// sets the lint's default level (`Deny`, `Warn`, `Warn`, `Allow`, `Allow`
+/// respectively).
 macro_rules! declare_waterui_lint {
     ($(#[$attr:meta])* $vis:vis $NAME:ident, correctness, $desc:literal) => {
         rustc_session::declare_lint! { $(#[$attr])* $vis $NAME, Deny, $desc }
@@ -82,6 +88,11 @@ macro_rules! declare_waterui_lint {
         rustc_session::declare_lint! { $(#[$attr])* $vis $NAME, Allow, $desc }
         pub(crate) static LINT_INFO: $crate::LintInfo =
             $crate::LintInfo { lint: $NAME, group: $crate::Group::Pedantic };
+    };
+    ($(#[$attr:meta])* $vis:vis $NAME:ident, a11y, $desc:literal) => {
+        rustc_session::declare_lint! { $(#[$attr])* $vis $NAME, Allow, $desc }
+        pub(crate) static LINT_INFO: $crate::LintInfo =
+            $crate::LintInfo { lint: $NAME, group: $crate::Group::A11y };
     };
 }
 
