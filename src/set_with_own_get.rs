@@ -7,14 +7,15 @@ use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_errors::Applicability;
 use rustc_hir::def::Res;
-use rustc_hir::{BinOpKind, BorrowKind, Expr, ExprKind, LangItem, Mutability, Node, QPath, UnOp};
+use rustc_hir::{BinOpKind, Expr, ExprKind, LangItem, Node, QPath, UnOp};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::adjustment::{Adjust, AutoBorrow, AutoBorrowMutability};
-use rustc_middle::ty::{Ty, TyKind, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::{TypeVisitableExt, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Pos, SyntaxContext};
 
-use crate::binding::{BINDING, BINDING_SET, extend_accepts, named_op_assign};
+use crate::binding::{
+    BINDING_SET, binding_value_ty, coerced_operand, extend_accepts, named_op_assign,
+};
 use crate::carriers::strip_wraps;
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
@@ -112,21 +113,6 @@ fn own_gets<'tcx>(
     gets
 }
 
-/// The `T` in `Binding<T>` for a `set` receiver — `None` for receivers that
-/// are not a `Binding` (e.g. a `CustomBinding` impl), which have none of the
-/// methods the suggestions name.
-fn binding_value_ty<'tcx>(cx: &LateContext<'tcx>, receiver: &Expr<'tcx>) -> Option<Ty<'tcx>> {
-    let TyKind::Adt(adt, args) = *cx
-        .typeck_results()
-        .expr_ty_adjusted(receiver)
-        .peel_refs()
-        .kind()
-    else {
-        return None;
-    };
-    def_path_eq(cx, adt.did(), BINDING).then(|| args.type_at(0))
-}
-
 /// The compound-assignment lang item behind a binary operator — the trait
 /// `*b.get_mut() op= rhs` needs `T` to implement.
 fn op_assign_lang_item(op: BinOpKind) -> Option<LangItem> {
@@ -182,59 +168,6 @@ fn in_postfix_position(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
     }
 }
 
-/// `rhs` spelled so that a generic parameter sees the type the operator
-/// saw: the source itself when no coercion applied, `&*x` when the operand
-/// was reborrowed through `n` derefs (`&String` → `&str`), and `None` for
-/// any other adjustment, which the named methods cannot reproduce.
-fn coerced_operand(typeck: &TypeckResults<'_>, rhs: &Expr<'_>, src: &str) -> Option<String> {
-    let adjustments = typeck.expr_adjustments(rhs);
-    // No adjustment, or a reborrow that lands on the same type (`&str` from
-    // a `&str` literal): the source already has the operator's type.
-    if adjustments.is_empty() || typeck.expr_ty(rhs) == typeck.expr_ty_adjusted(rhs) {
-        return Some(src.to_owned());
-    }
-    let [derefs @ .., borrow] = adjustments else {
-        return None;
-    };
-    if !matches!(
-        borrow.kind,
-        Adjust::Borrow(AutoBorrow::Ref(AutoBorrowMutability::Not))
-    ) || !derefs
-        .iter()
-        .all(|adjustment| matches!(adjustment.kind, Adjust::Deref(_)))
-    {
-        return None;
-    }
-    // `&*(&x)` is `&x` with one deref fewer.
-    let (stars, inner) = match rhs.kind {
-        ExprKind::AddrOf(BorrowKind::Ref, Mutability::Not, inner) => (
-            derefs.len().checked_sub(1)?,
-            snippet_opt_expr(inner, src, rhs)?,
-        ),
-        _ => (derefs.len(), src.to_owned()),
-    };
-    let inner = if matches!(
-        rhs.kind,
-        ExprKind::Path(_) | ExprKind::Field(..) | ExprKind::AddrOf(..)
-    ) {
-        inner
-    } else {
-        format!("({inner})")
-    };
-    Some(format!("&{}{inner}", "*".repeat(stars)))
-}
-
-/// The source of `inner`, an operand nested in `outer` whose source is
-/// `outer_src` — sliced rather than re-read so a macro-mapped span cannot
-/// point elsewhere.
-fn snippet_opt_expr(inner: &Expr<'_>, outer_src: &str, outer: &Expr<'_>) -> Option<String> {
-    let (lo, hi) = (
-        (inner.span.lo() - outer.span.lo()).to_usize(),
-        (inner.span.hi() - outer.span.lo()).to_usize(),
-    );
-    outer_src.get(lo..hi).map(str::to_owned)
-}
-
 /// `(suggestion, label, applicability)` for the whole `set` call, or `None`
 /// when the receiver is not a `Binding` or the source text cannot be read —
 /// the diagnostic then falls back to `HELP`.
@@ -247,7 +180,7 @@ fn suggestion<'tcx>(
     gets: &[&'tcx Expr<'tcx>],
 ) -> Option<(String, &'static str, Applicability)> {
     let typeck = cx.typeck_results();
-    let value_ty = binding_value_ty(cx, receiver)?;
+    let value_ty = binding_value_ty(cx, typeck, receiver)?;
 
     // `b.set(b.get() op rhs)`. The left operand must be exactly the binding's
     // own `get()` (parens/`&`/`.clone()` peeled) and `rhs` must not read the

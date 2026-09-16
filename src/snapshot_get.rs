@@ -2,11 +2,21 @@
 //! that resolves to one of `SNAPSHOT_GETS` freezes the signal into a plain
 //! value at the point of the call.
 
+use std::ops::ControlFlow;
+
+use clippy_utils::eq_expr_value;
 use clippy_utils::res::MaybeQPath;
+use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::LateContext;
 use rustc_middle::ty::TypeckResults;
+use rustc_span::SyntaxContext;
+
+use crate::binding::BINDING_GET_MUT;
+use crate::carriers::strip_wraps;
+use crate::def_path::def_path_eq;
+use crate::param_bounds::{call_def_id, implemented_trait_item};
 
 /// Def paths of the snapshot reads this lint tracks: the `Signal` trait's
 /// `get` (reached through `Computed`, `Map`, `WithMetadata`, `SignalExt`
@@ -59,4 +69,38 @@ pub(crate) fn get_receiver<'tcx>(expr: &'tcx Expr<'tcx>) -> Option<&'tcx Expr<'t
         ExprKind::Call(_, [receiver]) => Some(receiver),
         _ => None,
     }
+}
+
+/// Whether `expr` reads `binding` back — a snapshot `.get()` or a
+/// `b.get_mut()` guard — nested closures included, with carriers stripped on
+/// the read's receiver so `&b`, `b.clone()`, `state.count` match. A read a
+/// macro wrote (`text!`'s subscription plumbing) is not the user's.
+pub(crate) fn reads_binding<'tcx>(
+    cx: &LateContext<'tcx>,
+    ctxt: SyntaxContext,
+    binding: &'tcx Expr<'tcx>,
+    expr: &'tcx Expr<'tcx>,
+) -> bool {
+    for_each_expr(cx, expr, |e| -> ControlFlow<(), Descend> {
+        if e.span.from_expansion() {
+            return ControlFlow::Continue(Descend::No);
+        }
+        // `e` may live in a nested body; resolve its reads through the
+        // typeck of the body that owns it.
+        let typeck = cx.tcx.typeck(cx.tcx.hir_enclosing_body_owner(e.hir_id));
+        let is_read = is_snapshot_get_in(cx, typeck, e)
+            || call_def_id(typeck, e).is_some_and(|did| {
+                def_path_eq(cx, implemented_trait_item(cx.tcx, did), BINDING_GET_MUT)
+            });
+        let receiver = if is_read { get_receiver(e) } else { None };
+        match receiver {
+            Some(receiver)
+                if eq_expr_value(cx, ctxt, strip_wraps(cx, typeck, receiver), binding) =>
+            {
+                ControlFlow::Break(())
+            }
+            _ => ControlFlow::Continue(Descend::Yes),
+        }
+    })
+    .is_some()
 }
