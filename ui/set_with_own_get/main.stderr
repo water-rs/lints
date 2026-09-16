@@ -91,5 +91,19 @@ LL |     state.count.set(state.count.get() + 1);
    |     |               the value read here is stale by the time `set` runs
    |     help: mutate the binding in place through the named method: `state.count.add_assign(1)`
 
-warning: 10 warnings emitted
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:68:5
+   |
+LL |     *count.get_mut() += 1;
+   |     ^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.add_assign(1)`
+   |
+   = note: `#[warn(manual_binding_mutation)]` on by default
+
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:70:5
+   |
+LL |     count.with_mut(|v| *v += 1);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.add_assign(1)`
+
+warning: 12 warnings emitted
 

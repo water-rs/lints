@@ -76,6 +76,10 @@ name = "long_text_key"
 path = "ui/long_text_key/main.rs"
 
 [[example]]
+name = "manual_binding_mutation"
+path = "ui/manual_binding_mutation/main.rs"
+
+[[example]]
 name = "manual_identifiable"
 path = "ui/manual_identifiable/main.rs"
 

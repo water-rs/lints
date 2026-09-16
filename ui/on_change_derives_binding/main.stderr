@@ -27,6 +27,14 @@ LL | ||     });
    |
    = help: derive it once — `let label = count.map(|v| Str::from(v.to_string().to_uppercase()));` — and read the `Computed` where `label` was read
 
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:22:9
+   |
+LL |         label.set(Str::from(v.to_string().to_uppercase()))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `label.set_from(v.to_string().to_uppercase())`
+   |
+   = note: `#[warn(manual_binding_mutation)]` on by default
+
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:27:13
    |
@@ -37,5 +45,5 @@ LL |     let _ = text("a").on_change(&flag, move |v| other.set(!v));
    |
    = help: derive it once — `let other = flag.map(|v| !v);` — and read the `Computed` where `other` was read
 
-warning: 3 warnings emitted
+warning: 4 warnings emitted
 

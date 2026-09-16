@@ -1,0 +1,156 @@
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:55:5
+   |
+LL |     title.set(Str::from_static("untitled"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `title.set_from("untitled")`
+   |
+   = note: `#[warn(manual_binding_mutation)]` on by default
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:57:5
+   |
+LL |     name.set("Ada".to_string());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:59:5
+   |
+LL |     name.set(String::from("Ada"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:61:5
+   |
+LL |     name.set("Ada".into());
+   |     ^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:63:5
+   |
+LL |     name.set(Into::into("Ada"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:65:5
+   |
+LL |     name.set(From::from("Ada"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:67:5
+   |
+LL |     name.set("Ada".to_owned());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.set_from("Ada")`
+
+warning: this mutation restates `Binding::set_from`
+  --> $DIR/main.rs:71:5
+   |
+LL |     title.set(Str::from_static(sm));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `title.set_from(&*sm)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:73:5
+   |
+LL |     items.with_mut(|v| v.push(7));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `items.append(7)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:75:5
+   |
+LL |     items.with_mut(|v| v.extend([7]));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `items.append(7)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:77:5
+   |
+LL |     items.with_mut(|v| v.extend(core::iter::once(7)));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `items.append(7)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:79:5
+   |
+LL |     items.with_mut(|v| v.extend(Some(7)));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `items.append(7)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:81:5
+   |
+LL |     name.with_mut(|v| v.push_str("?!"));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.append("?!")`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:83:5
+   |
+LL |     name.with_mut(|v| v.push_str(&s));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.append(&*s)`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:85:5
+   |
+LL |     name.with_mut(|v| v.push('!'));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.append('!')`
+
+warning: this mutation restates `Binding::toggle`
+  --> $DIR/main.rs:87:5
+   |
+LL |     flag.with_mut(|v| *v = !*v);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `flag.toggle()`
+
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:89:5
+   |
+LL |     count.with_mut(|v| *v += 1);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.add_assign(1)`
+
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:91:5
+   |
+LL |     *count.get_mut() += 1;
+   |     ^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.add_assign(1)`
+
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:93:5
+   |
+LL |     meters.with_mut(|v| *v = *v + Meters(1.0));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `meters.add_assign(Meters(1.0))`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:95:5
+   |
+LL |     name.with_mut(|v| *v = v.clone() + "!");
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `name.append("!")`
+
+warning: this mutation restates `Binding::append`
+  --> $DIR/main.rs:97:5
+   |
+LL |     meters.with_mut(|v| *v += Centimeters(1.0));
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `meters.append(Centimeters(1.0))`
+
+warning: this mutation restates `Binding::set`
+  --> $DIR/main.rs:99:5
+   |
+LL |     count.with_mut(|v| *v = 9);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.set(9)`
+
+warning: this mutation restates `Binding::set`
+  --> $DIR/main.rs:101:5
+   |
+LL |     *count.get_mut() = 9;
+   |     ^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.set(9)`
+
+warning: this mutation restates `Binding::add_assign`
+  --> $DIR/main.rs:103:5
+   |
+LL | /     count.with_mut(|v| {
+LL | |         *v += 1;
+LL | |     });
+   | |______^ help: use the named method: `count.add_assign(1)`
+
+warning: this mutation restates `Binding::set`
+  --> $DIR/main.rs:111:9
+   |
+LL |         count.with_mut(|v| *v = 0)
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.set(0)`
+
+warning: 25 warnings emitted
+
