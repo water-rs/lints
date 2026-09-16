@@ -132,6 +132,7 @@ mod positional_state_ambiguity;
 mod qualified_waterui_path;
 mod redundant_anyview;
 mod row_builder;
+mod s_macro_in_text;
 mod set_with_own_get;
 mod signal_get_in_view;
 mod snapshot_get;
@@ -180,6 +181,7 @@ const LINTS: &[&LintInfo] = &[
     &positional_state_ambiguity::LINT_INFO,
     &qualified_waterui_path::LINT_INFO,
     &redundant_anyview::LINT_INFO,
+    &s_macro_in_text::LINT_INFO,
     &set_with_own_get::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
     &spacer_in_zstack::LINT_INFO,
@@ -242,6 +244,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store
         .register_late_pass(|_| Box::new(qualified_waterui_path::QualifiedWateruiPath::default()));
     lint_store.register_late_pass(|_| Box::new(redundant_anyview::RedundantAnyview));
+    lint_store.register_late_pass(|_| Box::new(s_macro_in_text::SMacroInText::default()));
     lint_store.register_late_pass(|_| Box::new(set_with_own_get::SetWithOwnGet));
 
     // `format!(..)` loses its template when lowered to HIR; the early

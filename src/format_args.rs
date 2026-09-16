@@ -424,3 +424,89 @@ pub(crate) fn parse_text_call(src: &str) -> Option<TextCall> {
         bindings,
     })
 }
+
+/// An `s!("lit", expr*, name = expr*)` invocation's pieces, parsed back from
+/// source for the `s_macro_in_text` rewrite — a proc macro leaves no
+/// `format_args!` node. `template` is the format literal's cooked text with
+/// the format escapes (`{{`/`}}`) intact, so its literal runs copy into a
+/// `text!` template verbatim; `positional` and `named` carry each
+/// argument's source verbatim.
+pub(crate) struct SCall {
+    /// The format literal's cooked text, format escapes intact.
+    pub(crate) template: String,
+    /// Positional argument sources, in order.
+    pub(crate) positional: Vec<String>,
+    /// `name = expr` pairs, in order.
+    pub(crate) named: Vec<(String, String)>,
+}
+
+/// Parse `s!(..)`'s source into its parts — `None` unless the tokens are
+/// `ident ! delim literal , args.. delim` with a string literal first.
+pub(crate) fn parse_s_call(src: &str) -> Option<SCall> {
+    let toks = tokens(src);
+    // `s ! ( ... )` — find the bang, then the opening delimiter.
+    let bang = toks
+        .iter()
+        .position(|(kind, _)| matches!(kind, TokenKind::Bang))?;
+    let open = toks.get(bang + 1)?;
+    if !matches!(
+        open.0,
+        TokenKind::OpenParen | TokenKind::OpenBrace | TokenKind::OpenBracket
+    ) {
+        return None;
+    }
+    // Split the depth-1 tokens on commas — each segment is one argument.
+    let mut args: Vec<&str> = Vec::new();
+    let mut depth = 1usize;
+    let mut start = open.1.end;
+    let mut index = bang + 2;
+    while let Some((kind, range)) = toks.get(index) {
+        match kind {
+            TokenKind::OpenParen | TokenKind::OpenBrace | TokenKind::OpenBracket => depth += 1,
+            TokenKind::CloseParen | TokenKind::CloseBrace | TokenKind::CloseBracket => {
+                depth -= 1;
+                if depth == 0 {
+                    let arg = src[start..range.start].trim();
+                    if !arg.is_empty() {
+                        args.push(arg);
+                    }
+                    break;
+                }
+            }
+            TokenKind::Comma if depth == 1 => {
+                let arg = src[start..range.start].trim();
+                if !arg.is_empty() {
+                    args.push(arg);
+                }
+                start = range.end;
+            }
+            _ => {}
+        }
+        index += 1;
+    }
+    if depth != 0 {
+        return None;
+    }
+    // The first argument is the format literal; the rest are positional
+    // expressions or `name = expr` pairs (`s!` itself forbids mixing them).
+    let (literal, rest) = args.split_first()?;
+    let mut call = SCall {
+        template: unescape_str(literal)?,
+        positional: Vec::new(),
+        named: Vec::new(),
+    };
+    for arg in rest {
+        let arg_tokens = tokens(arg);
+        if let Some((TokenKind::Ident, name)) = arg_tokens.first()
+            && let Some((TokenKind::Eq, eq)) = arg_tokens.get(1)
+        {
+            call.named.push((
+                arg[name.clone()].to_owned(),
+                arg[eq.end..].trim().to_owned(),
+            ));
+        } else {
+            call.positional.push((*arg).to_owned());
+        }
+    }
+    Some(call)
+}
