@@ -1,25 +1,34 @@
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:17:5
+  --> $DIR/main.rs:41:5
    |
 LL |     count.set(count.get() + 1);
    |     ^^^^^^^^^^-----------^^^^^
    |     |         |
    |     |         the value read here is stale by the time `set` runs
-   |     help: mutate the binding in place through `get_mut`: `*count.get_mut() += 1`
+   |     help: mutate the binding in place through the named method: `count.add_assign(1)`
    |
    = note: `#[warn(set_with_own_get)]` on by default
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:19:5
+  --> $DIR/main.rs:43:5
    |
 LL |     count.set(count.get() * 2);
    |     ^^^^^^^^^^-----------^^^^^
    |     |         |
    |     |         the value read here is stale by the time `set` runs
-   |     help: mutate the binding in place through `get_mut`: `*count.get_mut() *= 2`
+   |     help: mutate the binding in place through the named method: `count.mul_assign(2)`
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:21:5
+  --> $DIR/main.rs:45:5
+   |
+LL |     ratio.set(ratio.get() * 0.5);
+   |     ^^^^^^^^^^-----------^^^^^^^
+   |     |         |
+   |     |         the value read here is stale by the time `set` runs
+   |     help: mutate the binding in place through the named method: `ratio.mul_assign(0.5)`
+
+warning: this `set` recomputes the binding from its own `get()` snapshot
+  --> $DIR/main.rs:47:5
    |
 LL |     flag.set(!flag.get());
    |     ^^^^^^^^^^----------^
@@ -28,16 +37,34 @@ LL |     flag.set(!flag.get());
    |     help: toggle the binding instead: `flag.toggle()`
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:23:5
+  --> $DIR/main.rs:49:5
    |
 LL |     name.set(name.get() + "!");
    |     ^^^^^^^^^----------^^^^^^^
    |     |        |
    |     |        the value read here is stale by the time `set` runs
-   |     help: mutate the binding in place through `get_mut`: `*name.get_mut() += "!"`
+   |     help: append to the binding in place: `name.append("!")`
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:25:5
+  --> $DIR/main.rs:52:5
+   |
+LL |     name.set(name.get() + &suffix);
+   |     ^^^^^^^^^----------^^^^^^^^^^^
+   |     |        |
+   |     |        the value read here is stale by the time `set` runs
+   |     help: append to the binding in place: `name.append(&*suffix)`
+
+warning: this `set` recomputes the binding from its own `get()` snapshot
+  --> $DIR/main.rs:55:5
+   |
+LL |     meters.set(meters.get() + 1.0);
+   |     ^^^^^^^^^^^------------^^^^^^^
+   |     |          |
+   |     |          the value read here is stale by the time `set` runs
+   |     help: mutate the binding in place through `get_mut`: `*meters.get_mut() += 1.0`
+
+warning: this `set` recomputes the binding from its own `get()` snapshot
+  --> $DIR/main.rs:57:5
    |
 LL |     count.set(count.get().max(0) + 1);
    |     ^^^^^^^^^^-----------^^^^^^^^^^^^
@@ -46,7 +73,7 @@ LL |     count.set(count.get().max(0) + 1);
    |     help: mutate the binding in place through `with_mut`: `count.with_mut(|v| *v = (*v).max(0) + 1)`
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:27:5
+  --> $DIR/main.rs:59:5
    |
 LL |     count.set(if count.get() > 3 { 0 } else { count.get() });
    |     ^^^^^^^^^^^^^-----------^^^^^^^^^^^^^^^^^^-----------^^^
@@ -56,13 +83,13 @@ LL |     count.set(if count.get() > 3 { 0 } else { count.get() });
    |     help: mutate the binding in place through `with_mut`: `count.with_mut(|v| *v = if *v > 3 { 0 } else { *v })`
 
 warning: this `set` recomputes the binding from its own `get()` snapshot
-  --> $DIR/main.rs:29:5
+  --> $DIR/main.rs:61:5
    |
 LL |     state.count.set(state.count.get() + 1);
    |     ^^^^^^^^^^^^^^^^-----------------^^^^^
    |     |               |
    |     |               the value read here is stale by the time `set` runs
-   |     help: mutate the binding in place through `get_mut`: `*state.count.get_mut() += 1`
+   |     help: mutate the binding in place through the named method: `state.count.add_assign(1)`
 
-warning: 7 warnings emitted
+warning: 10 warnings emitted
 

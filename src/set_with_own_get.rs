@@ -7,13 +7,14 @@ use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_errors::Applicability;
 use rustc_hir::def::Res;
-use rustc_hir::{BinOpKind, Expr, ExprKind, LangItem, Node, QPath, UnOp};
+use rustc_hir::{BinOpKind, BorrowKind, Expr, ExprKind, LangItem, Mutability, Node, QPath, UnOp};
 use rustc_lint::{LateContext, LateLintPass};
+use rustc_middle::ty::adjustment::{Adjust, AutoBorrow, AutoBorrowMutability};
 use rustc_middle::ty::{Ty, TyKind, TypeVisitableExt, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Pos, SyntaxContext};
 
-use crate::binding::{BINDING, BINDING_SET};
+use crate::binding::{BINDING, BINDING_SET, extend_accepts, named_op_assign};
 use crate::carriers::strip_wraps;
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
@@ -31,20 +32,25 @@ declare_waterui_lint! {
     ///
     /// The `.get()` snapshots the value once, outside any subscription; by the
     /// time `set` runs the read may already be stale, and the write notifies
-    /// watchers a second time. Mutating in place — `*count.get_mut() += 1`,
-    /// `flag.toggle()`, or `count.with_mut(|v| *v += 1)` — keeps the read and
-    /// the write in one step.
+    /// watchers a second time. `Binding` names the in-place mutation:
+    /// `count.add_assign(1)` (and the other `<op>_assign` methods, for
+    /// `T: Op<Output = T> + Clone`), `name.append("!")` (for
+    /// `T: Extend<E>`), `flag.toggle()`. Where none of those fits, the
+    /// deref-assign `*count.get_mut() op= x` or `count.with_mut(|v| ..)`
+    /// still keeps the read and the write in one step.
     ///
     /// ### Example
     ///
     /// ```rust,ignore
     /// count.set(count.get() + 1);
+    /// name.set(name.get() + "!");
     /// ```
     ///
     /// Use instead:
     ///
     /// ```rust,ignore
-    /// *count.get_mut() += 1;
+    /// count.add_assign(1);
+    /// name.append("!");
     /// ```
     pub SET_WITH_OWN_GET,
     style,
@@ -60,8 +66,7 @@ const SET_PATHS: &[&[&str]] = &[BINDING_SET, &["nami_core", "CustomBinding", "se
 
 const MESSAGE: &str = "this `set` recomputes the binding from its own `get()` snapshot";
 const GET_LABEL: &str = "the value read here is stale by the time `set` runs";
-const HELP: &str =
-    "mutate in place with `*b.get_mut() op= x`, `b.toggle()`, or `b.with_mut(|v| ..)`";
+const HELP: &str = "mutate in place with `b.<op>_assign(x)`, `b.append(x)`, `b.toggle()`, `*b.get_mut() op= x`, or `b.with_mut(|v| ..)`";
 
 /// Whether `expr` is a snapshot `.get()` whose receiver is the same binding
 /// as `binding` — the `set` receiver, compared with carriers stripped on
@@ -177,6 +182,59 @@ fn in_postfix_position(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
     }
 }
 
+/// `rhs` spelled so that a generic parameter sees the type the operator
+/// saw: the source itself when no coercion applied, `&*x` when the operand
+/// was reborrowed through `n` derefs (`&String` → `&str`), and `None` for
+/// any other adjustment, which the named methods cannot reproduce.
+fn coerced_operand(typeck: &TypeckResults<'_>, rhs: &Expr<'_>, src: &str) -> Option<String> {
+    let adjustments = typeck.expr_adjustments(rhs);
+    // No adjustment, or a reborrow that lands on the same type (`&str` from
+    // a `&str` literal): the source already has the operator's type.
+    if adjustments.is_empty() || typeck.expr_ty(rhs) == typeck.expr_ty_adjusted(rhs) {
+        return Some(src.to_owned());
+    }
+    let [derefs @ .., borrow] = adjustments else {
+        return None;
+    };
+    if !matches!(
+        borrow.kind,
+        Adjust::Borrow(AutoBorrow::Ref(AutoBorrowMutability::Not))
+    ) || !derefs
+        .iter()
+        .all(|adjustment| matches!(adjustment.kind, Adjust::Deref(_)))
+    {
+        return None;
+    }
+    // `&*(&x)` is `&x` with one deref fewer.
+    let (stars, inner) = match rhs.kind {
+        ExprKind::AddrOf(BorrowKind::Ref, Mutability::Not, inner) => (
+            derefs.len().checked_sub(1)?,
+            snippet_opt_expr(inner, src, rhs)?,
+        ),
+        _ => (derefs.len(), src.to_owned()),
+    };
+    let inner = if matches!(
+        rhs.kind,
+        ExprKind::Path(_) | ExprKind::Field(..) | ExprKind::AddrOf(..)
+    ) {
+        inner
+    } else {
+        format!("({inner})")
+    };
+    Some(format!("&{}{inner}", "*".repeat(stars)))
+}
+
+/// The source of `inner`, an operand nested in `outer` whose source is
+/// `outer_src` — sliced rather than re-read so a macro-mapped span cannot
+/// point elsewhere.
+fn snippet_opt_expr(inner: &Expr<'_>, outer_src: &str, outer: &Expr<'_>) -> Option<String> {
+    let (lo, hi) = (
+        (inner.span.lo() - outer.span.lo()).to_usize(),
+        (inner.span.hi() - outer.span.lo()).to_usize(),
+    );
+    outer_src.get(lo..hi).map(str::to_owned)
+}
+
 /// `(suggestion, label, applicability)` for the whole `set` call, or `None`
 /// when the receiver is not a `Binding` or the source text cannot be read —
 /// the diagnostic then falls back to `HELP`.
@@ -191,17 +249,43 @@ fn suggestion<'tcx>(
     let typeck = cx.typeck_results();
     let value_ty = binding_value_ty(cx, receiver)?;
 
-    // `b.set(b.get() op rhs)` → `*b.get_mut() op= rhs`. The left operand must
-    // be exactly the binding's own `get()` (parens/`&`/`.clone()` peeled) and
-    // `rhs` must not read the binding again — a second read would observe the
-    // live guard, not the snapshot.
+    // `b.set(b.get() op rhs)`. The left operand must be exactly the binding's
+    // own `get()` (parens/`&`/`.clone()` peeled) and `rhs` must not read the
+    // binding again — a second read would observe the live guard, not the
+    // snapshot. The named method comes first: `b.<op>_assign(rhs)` when `rhs`
+    // is a `T`, `b.append(rhs)` when `T: Extend<R>`, and the deref-assign
+    // through `get_mut` for a `T` that only implements the `OpAssign` trait.
     if let ExprKind::Binary(op, lhs, rhs) = strip_wraps(cx, typeck, arg).kind
         && let Some(item) = op_assign_lang_item(op.node)
         && is_own_get(cx, typeck, ctxt, binding, strip_wraps(cx, typeck, lhs))
         && own_gets(cx, ctxt, binding, rhs).is_empty()
     {
         let (b, rhs_src) = (snippet_opt(cx, binding.span)?, snippet_opt(cx, rhs.span)?);
-        let rhs_ty = typeck.expr_ty(rhs);
+        // The operator's operand type: `name.get() + &other` adds a `&str`,
+        // which is what `Extend` is asked about. The named methods take a
+        // generic argument, so a coercion the operator applied has to be
+        // written out — `&*other` — for the rewrite to type-check.
+        let rhs_ty = typeck.expr_ty_adjusted(rhs);
+        let operand = coerced_operand(typeck, rhs, &rhs_src);
+        if let Some(method) = named_op_assign(cx, value_ty, op.node, rhs_ty)
+            && let Some(operand) = &operand
+        {
+            return Some((
+                format!("{b}.{method}({operand})"),
+                "mutate the binding in place through the named method",
+                Applicability::MachineApplicable,
+            ));
+        }
+        if op.node == BinOpKind::Add
+            && extend_accepts(cx, value_ty, rhs_ty)
+            && let Some(operand) = &operand
+        {
+            return Some((
+                format!("{b}.append({operand})"),
+                "append to the binding in place",
+                Applicability::MachineApplicable,
+            ));
+        }
         let applicable = !value_ty.has_infer()
             && !rhs_ty.has_infer()
             && cx
