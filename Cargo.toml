@@ -96,6 +96,10 @@ name = "needless_anyview"
 path = "ui/needless_anyview/main.rs"
 
 [[example]]
+name = "needless_list_snapshot"
+path = "ui/needless_list_snapshot/main.rs"
+
+[[example]]
 name = "non_reactive_ui_state"
 path = "ui/non_reactive_ui_state/main.rs"
 
