@@ -3,6 +3,9 @@
 //! chain carries no `.a11y_role`/`.a11y_label` warns; a role or label
 //! anywhere in the chain — below or above the tap — stays silent.
 
+#![allow(unknown_lints)]
+#![warn(tappable_without_role)]
+
 use waterui::accessibility::AccessibilityRole;
 use waterui::gesture::TapGesture;
 use waterui::prelude::*;

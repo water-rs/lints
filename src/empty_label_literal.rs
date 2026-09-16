@@ -36,7 +36,7 @@ declare_waterui_lint! {
     /// button("Save")
     /// ```
     pub EMPTY_LABEL_LITERAL,
-    correctness,
+    a11y,
     "an empty string literal passed as a control's mandatory label"
 }
 

@@ -71,30 +71,5 @@ LL |     let _ = NavigationLink::new("a", || navigation("b", text("c"))).on_tap(
    |
    = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
 
-warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:38:35
-   |
-LL |     let _ = button("a").padding().on_tap(|| {});
-   |                                   ^^^^^^^^^^^^^
-   |
-   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
-   = note: `#[warn(tappable_without_role)]` on by default
-
-warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:40:23
-   |
-LL |     let _ = text("a").on_tap(|| {});
-   |                       ^^^^^^^^^^^^^
-   |
-   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
-
-warning: a tap gesture on a view with no accessibility role or label
-  --> $DIR/main.rs:45:34
-   |
-LL |     let _ = hstack((text("a"),)).on_tap(|| {});
-   |                                  ^^^^^^^^^^^^^
-   |
-   = help: assistive technology and `waterui-testing` queries cannot find this tappable region; add `.a11y_role(AccessibilityRole::Button)` and `.a11y_label(..)`, or use `button(..)`
-
-warning: 12 warnings emitted
+warning: 9 warnings emitted
 

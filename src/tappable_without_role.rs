@@ -43,7 +43,7 @@ declare_waterui_lint! {
     /// // or: button("Open").action(|| open())
     /// ```
     pub TAPPABLE_WITHOUT_ROLE,
-    suspicious,
+    a11y,
     "a tap gesture on a view with no accessibility role or label"
 }
 

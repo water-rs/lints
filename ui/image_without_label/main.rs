@@ -3,6 +3,9 @@
 //! or `.a11y_hidden(true)` anywhere in the chain, and a value bound to a
 //! name by `let`, stay silent.
 
+#![allow(unknown_lints)]
+#![warn(image_without_label)]
+
 use waterui::media::{Image, Photo, Url, photo::photo};
 use waterui::prelude::*;
 use waterui::svg::Svg;
