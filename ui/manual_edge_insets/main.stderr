@@ -1,0 +1,88 @@
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:21:36
+   |
+LL |     let _ = text("a").padding_with(EdgeInsets::all(16.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^ help: pass the value directly: `16.0`
+   |
+   = note: `#[warn(manual_edge_insets)]` on by default
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:24:36
+   |
+LL |     let _ = text("b").padding_with(EdgeInsets::symmetric(0.0, 12.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `padding_horizontal`
+   |
+LL -     let _ = text("b").padding_with(EdgeInsets::symmetric(0.0, 12.0));
+LL +     let _ = text("b").padding_horizontal(12.0);
+   |
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:26:36
+   |
+LL |     let _ = text("c").padding_with(EdgeInsets::symmetric(8.0, 0.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `padding_vertical`
+   |
+LL -     let _ = text("c").padding_with(EdgeInsets::symmetric(8.0, 0.0));
+LL +     let _ = text("c").padding_vertical(8.0);
+   |
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:28:36
+   |
+LL |     let _ = text("d").padding_with(EdgeInsets::symmetric(8.0, 16.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `(vertical, horizontal)` pair: `(8.0, 16.0)`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:30:36
+   |
+LL |     let _ = text("e").padding_with(EdgeInsets::new(1.0, 2.0, 3.0, 4.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `[top, bottom, leading, trailing]` array: `[1.0, 2.0, 3.0, 4.0]`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:32:36
+   |
+LL |     let _ = text("f").padding_with(EdgeInsets::all(PAD));
+   |                                    ^^^^^^^^^^^^^^^^^^^^ help: pass the value directly: `PAD`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:35:36
+   |
+LL |     let _ = text("g").padding_with(EdgeInsets::symmetric(PAD, 16.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `(vertical, horizontal)` pair: `(PAD, 16.0f32)`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:38:36
+   |
+LL |     let _ = text("h").padding_with(EdgeInsets::new(PAD, 2.0, 3.0, 4.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `[top, bottom, leading, trailing]` array: `[PAD, 2.0, 3.0, 4.0]`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:41:36
+   |
+LL |     let _ = text("i").padding_with(EdgeInsets::symmetric(p, 16.0));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `(vertical, horizontal)` pair: `(p, 16.0)`
+
+warning: this parameter takes `impl IntoComputed<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:43:36
+   |
+LL |     let _ = text("j").padding_with(EdgeInsets::symmetric(PAD, PAD));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `(vertical, horizontal)` pair: `(PAD, PAD)`
+
+warning: this parameter takes `impl Into<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:46:11
+   |
+LL |     takes(EdgeInsets::all(4.0));
+   |           ^^^^^^^^^^^^^^^^^^^^ help: pass the value directly: `4.0`
+
+warning: this parameter takes `impl Into<EdgeInsets>`; pass the insets directly
+  --> $DIR/main.rs:49:11
+   |
+LL |     takes(EdgeInsets::symmetric(PAD, 16.0));
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a `(vertical, horizontal)` pair: `(PAD, 16.0)`
+
+warning: 12 warnings emitted
+

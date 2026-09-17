@@ -130,6 +130,7 @@ mod long_text_key;
 mod manual_binding_mutation;
 mod manual_color_erasure;
 mod manual_computed;
+mod manual_edge_insets;
 mod manual_identifiable;
 mod manual_list_mutation;
 mod manual_muted_foreground;
@@ -202,6 +203,7 @@ const LINTS: &[&LintInfo] = &[
     &manual_binding_mutation::LINT_INFO,
     &manual_color_erasure::LINT_INFO,
     &manual_computed::LINT_INFO,
+    &manual_edge_insets::LINT_INFO,
     &manual_identifiable::LINT_INFO,
     &manual_list_mutation::LINT_INFO,
     &manual_muted_foreground::LINT_INFO,
@@ -290,6 +292,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store
         .register_late_pass(|_| Box::new(manual_color_erasure::ManualColorErasure::default()));
     lint_store.register_late_pass(|_| Box::new(manual_computed::ManualComputed));
+    lint_store.register_late_pass(|_| Box::new(manual_edge_insets::ManualEdgeInsets));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(manual_list_mutation::ManualListMutation));
     lint_store.register_late_pass(|_| Box::new(manual_muted_foreground::ManualMutedForeground));

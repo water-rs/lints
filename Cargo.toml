@@ -112,6 +112,10 @@ name = "manual_computed"
 path = "ui/manual_computed/main.rs"
 
 [[example]]
+name = "manual_edge_insets"
+path = "ui/manual_edge_insets/main.rs"
+
+[[example]]
 name = "manual_identifiable"
 path = "ui/manual_identifiable/main.rs"
 
