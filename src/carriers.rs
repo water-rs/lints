@@ -37,8 +37,7 @@ pub(crate) const INTO: &[&str] = &["core", "convert", "Into", "into"];
 pub(crate) const TEXT_VERBATIM: &[&str] = &["waterui_text", "text", "Text", "verbatim"];
 
 /// String-shaped types a `From`/`Into` conversion may produce.
-pub(crate) const STRING_TYS: &[&[&str]] =
-    &[&["alloc", "string", "String"], &["waterui_str", "Str"]];
+pub(crate) const STRING_TYS: &[&[&str]] = &[&["alloc", "string", "String"], &["suiteki", "Str"]];
 
 /// `String` / `Str` / `&str` — the string shape a `From`/`Into` conversion
 /// or a `.to_string()`/`.clone()` result must have to count as text.

@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "normalized_radius_overflow"
 path = "main.rs"
-
-[workspace]

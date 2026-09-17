@@ -15,5 +15,3 @@ waterui-testing = "0.4.1"
 [[test]]
 name = "thread_sleep_in_test"
 path = "main.rs"
-
-[workspace]

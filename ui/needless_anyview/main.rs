@@ -166,9 +166,8 @@ fn main() {
     let v: AnyView = text("a").anyview();
     let _ = scroll(AnyView::new(v));
 
-    // Silent: `.overlay`'s `Layer` parameter carries no `View` bound — the
-    // bound lives on `impl View for Overlay` — so the call cannot be told
-    // apart from `Vec::push` by the parameter's declared bounds.
+    // Fires: `.overlay` takes `impl View` on its parameter, so the erasure
+    // is visible at the call site.
     let _ = text("a").overlay(AnyView::new(text("b")));
     // Silent: a struct field initializer.
     let holder = Holder {

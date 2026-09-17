@@ -559,7 +559,7 @@ LL |     let _ = scroll(AnyView::new(v));
    |                    ^^^^^^^^^^^^^^^ help: drop the second wrapper: `v`
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:172:31
+  --> $DIR/main.rs:171:31
    |
 LL |     let _ = text("a").overlay(AnyView::new(text("b")));
    |                               ^^^^^^^^^^^^^^^^^^^^^^^
@@ -570,8 +570,14 @@ LL -     let _ = text("a").overlay(AnyView::new(text("b")));
 LL +     let _ = text("a").overlay(text("b").anyview());
    |
 
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:171:31
+   |
+LL |     let _ = text("a").overlay(AnyView::new(text("b")));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("b")`
+
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:175:15
+  --> $DIR/main.rs:174:15
    |
 LL |         view: AnyView::new(text("a")),
    |               ^^^^^^^^^^^^^^^^^^^^^^^
@@ -583,7 +589,7 @@ LL +         view: text("a").anyview(),
    |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:179:36
+  --> $DIR/main.rs:178:36
    |
 LL |     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
    |                                    ^^^^^^^^^^^^^^^^^^^^^^^
@@ -595,7 +601,7 @@ LL +     let views: Vec<AnyView> = vec![text("a").anyview(), AnyView::new(text("
    |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:179:61
+  --> $DIR/main.rs:178:61
    |
 LL |     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
    |                                                             ^^^^^^^^^^^^^^^^^^^^^^^
@@ -607,7 +613,7 @@ LL +     let views: Vec<AnyView> = vec![AnyView::new(text("a")), text("b").anyvi
    |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:189:13
+  --> $DIR/main.rs:188:13
    |
 LL |     consume(AnyView::new(text("a")));
    |             ^^^^^^^^^^^^^^^^^^^^^^^
@@ -619,7 +625,7 @@ LL +     consume(text("a").anyview());
    |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:192:23
+  --> $DIR/main.rs:191:23
    |
 LL |     let _v: AnyView = AnyView::new(text("a"));
    |                       ^^^^^^^^^^^^^^^^^^^^^^^
@@ -631,7 +637,7 @@ LL +     let _v: AnyView = text("a").anyview();
    |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
-  --> $DIR/main.rs:193:14
+  --> $DIR/main.rs:192:14
    |
 LL |     let _v = AnyView::new(text("a"));
    |              ^^^^^^^^^^^^^^^^^^^^^^^
@@ -642,5 +648,5 @@ LL -     let _v = AnyView::new(text("a"));
 LL +     let _v = text("a").anyview();
    |
 
-warning: 57 warnings emitted
+warning: 58 warnings emitted
 

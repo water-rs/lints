@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "needless_signal_clone"
 path = "main.rs"
-
-[workspace]

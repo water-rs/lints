@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "handler_captures_binding"
 path = "main.rs"
-
-[workspace]

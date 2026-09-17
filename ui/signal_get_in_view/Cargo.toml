@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "signal_get_in_view"
 path = "main.rs"
-
-[workspace]

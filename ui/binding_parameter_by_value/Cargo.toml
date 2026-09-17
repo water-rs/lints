@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "binding_parameter_by_value"
 path = "main.rs"
-
-[workspace]
