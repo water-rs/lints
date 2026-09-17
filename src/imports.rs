@@ -64,6 +64,18 @@ fn params_bind(tcx: TyCtxt<'_>, body: BodyId, name: Symbol, ns: Namespace) -> bo
             .any(|param| pat_binds(param.pat, name))
 }
 
+/// Whether `name` is in the extern prelude — the `--extern` table of
+/// nameable crates; `tcx.crates()` would include transitive dependencies
+/// the crate cannot name.
+pub(crate) fn extern_nameable(cx: &LateContext<'_>, name: &str) -> bool {
+    cx.tcx
+        .sess
+        .opts
+        .externs
+        .get(name)
+        .is_some_and(|entry| entry.add_prelude)
+}
+
 /// What a bare name would resolve to at the flagged position — decides the
 /// shape and applicability of the fix.
 pub(crate) enum Bare {

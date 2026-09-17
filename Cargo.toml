@@ -168,6 +168,10 @@ name = "needless_signal_clone"
 path = "ui/needless_signal_clone/main.rs"
 
 [[example]]
+name = "needless_state_wrapper"
+path = "ui/needless_state_wrapper/main.rs"
+
+[[example]]
 name = "non_reactive_ui_state"
 path = "ui/non_reactive_ui_state/main.rs"
 

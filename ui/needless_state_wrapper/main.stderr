@@ -1,0 +1,139 @@
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:47:52
+   |
+LL |     let _ = button("save").action(|State(manager): State<SnackbarManager>| {
+   |                                                    ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(needless_state_wrapper)]` on by default
+help: extract `SnackbarManager` directly
+   |
+LL -     let _ = button("save").action(|State(manager): State<SnackbarManager>| {
+LL +     let _ = button("save").action(|manager: SnackbarManager| {
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:52:48
+   |
+LL |     let _ = button("back").action(|State(nav): State<Navigator<Route>>| drop(nav));
+   |                                                ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: extract `Navigator<Route>` directly
+   |
+LL -     let _ = button("back").action(|State(nav): State<Navigator<Route>>| drop(nav));
+LL +     let _ = button("back").action(|nav: Navigator<Route>| drop(nav));
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:55:51
+   |
+LL |     let _ = button("save").action(|State(editor): State<Editor>| editor.save());
+   |                                                   ^^^^^^^^^^^^^
+   |
+   = note: add `#[state]` to `T`
+help: mark `Editor` `#[state]` and extract it directly
+   |
+LL + #[state]
+LL | /// A local state type — the fix marks it `#[state]`.
+LL | #[derive(Clone)]
+...
+LL |     // Fires — `Editor` is a local `Clone` struct; the fix adds `#[state]`.
+LL ~     let _ = button("save").action(|editor: Editor| editor.save());
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:58:42
+   |
+LL |     let _ = env::use_env(|State(editor): State<Editor>| {
+   |                                          ^^^^^^^^^^^^^
+   |
+   = note: add `#[state]` to `T`
+help: mark `Editor` `#[state]` and extract it directly
+   |
+LL + #[state]
+LL | /// A local state type — the fix marks it `#[state]`.
+LL | #[derive(Clone)]
+...
+LL |     // Fires — `use_env` takes the same extractor parameters.
+LL ~     let _ = env::use_env(|editor: Editor| {
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:64:39
+   |
+LL |     let _ = button("save").action(|s: State<Editor>| s.0.save());
+   |                                       ^^^^^^^^^^^^^
+   |
+   = note: add `#[state]` to `T`
+help: mark `Editor` `#[state]` and extract it directly
+   |
+LL + #[state]
+LL | /// A local state type — the fix marks it `#[state]`.
+LL | #[derive(Clone)]
+...
+LL |     // Fires — a `s: State<T>` parameter rewrites every `s.0` use to `s`.
+LL ~     let _ = button("save").action(|s: Editor| s.save());
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:67:49
+   |
+LL |     let _ = button("mode").action(|State(mode): State<Mode>| {
+   |                                                 ^^^^^^^^^^^
+   |
+   = note: add `#[state]` to `T`
+help: mark `Mode` `#[state]` and extract it directly
+   |
+LL + #[state]
+LL | /// A local enum — `#[state]` applies to enums the same way.
+LL | #[derive(Clone)]
+...
+LL |     // Fires — `Mode` is a local `Clone` enum; the fix adds `#[state]`.
+LL ~     let _ = button("mode").action(|mode: Mode| {
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:73:49
+   |
+LL |     let _ = button("mut").action(|State(mut m): State<SnackbarManager>| {
+   |                                                 ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: extract `SnackbarManager` directly
+   |
+LL -     let _ = button("mut").action(|State(mut m): State<SnackbarManager>| {
+LL +     let _ = button("mut").action(|mut m: SnackbarManager| {
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:79:47
+   |
+LL |     let _ = button("store").action(|State(s): State<Store>| {
+   |                                               ^^^^^^^^^^^^
+   |
+help: extract `Store` directly
+   |
+LL -     let _ = button("store").action(|State(s): State<Store>| {
+LL +     let _ = button("store").action(|s: Store| {
+   |
+
+warning: `State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly
+  --> $DIR/main.rs:136:48
+   |
+LL |         let _ = button("in").action(|State(l): State<Local>| {
+   |                                                ^^^^^^^^^^^^
+   |
+   = note: add `#[state]` to `T`
+help: mark `Local` `#[state]` and extract it directly
+   |
+LL ~     use waterui::component::button;
+LL +     use waterui::state;
+LL |
+LL ~     #[state]
+LL ~     /// Local to `inner` — the fix adds `#[state]` and the macro import.
+LL |     #[derive(Clone)]
+...
+LL |     pub fn run() {
+LL ~         let _ = button("in").action(|l: Local| {
+   |
+
+warning: 9 warnings emitted
+
