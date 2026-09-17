@@ -1,0 +1,119 @@
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:33:20
+   |
+LL |        let animated = Binding::f64(4.0)
+   |   ____________________^                -
+   |  |_____________________________________|
+LL | ||         .map(|v| v as f32)
+   | ||__________________________^ help: remove the `.map(..)` conversion
+   |  |__________________________|
+   |
+   |
+   = note: `#[warn(needless_signal_cast)]` on by default
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:40:31
+   |
+LL |     let _ = text("a").opacity(Binding::f64(0.5).map(|v| v as f32));
+   |                               ^^^^^^^^^^^^^^^^^------------------
+   |                                                |
+   |                                                help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:44:31
+   |
+LL |     let _ = text("a").opacity(level_from.map(f32::from));
+   |                               ^^^^^^^^^^---------------
+   |                                         |
+   |                                         help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:49:31
+   |
+LL |     let _ = text("a").opacity(level_call.map(|v| -> f32 { f32::from(v) }));
+   |                               ^^^^^^^^^^---------------------------------
+   |                                         |
+   |                                         help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:53:31
+   |
+LL |     let _ = text("a").opacity(level_into.map(|v| -> f32 { v.into() }));
+   |                               ^^^^^^^^^^-----------------------------
+   |                                         |
+   |                                         help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:57:31
+   |
+LL |     let _ = text("a").opacity(level_prim.map(|v| v.to_f32().unwrap()));
+   |                               ^^^^^^^^^^-----------------------------
+   |                                         |
+   |                                         help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:60:31
+   |
+LL |     let _ = text("a").opacity(Binding::f64(0.7).map(|v| v as f32).cached());
+   |                               ^^^^^^^^^^^^^^^^^------------------
+   |                                                |
+   |                                                help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:61:31
+   |
+LL |     let _ = text("a").opacity(Binding::f64(0.8).map(|v| v as f32).computed());
+   |                               ^^^^^^^^^^^^^^^^^------------------
+   |                                                |
+   |                                                help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:65:18
+   |
+LL |     let shared = Binding::f64(0.9).map(|v| v as f32);
+   |                  ^^^^^^^^^^^^^^^^^------------------
+   |                                   |
+   |                                   help: remove the `.map(..)` conversion
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:72:31
+   |
+LL |     let _ = text("a").opacity(b.map(|v| v as f32));
+   |                               ^------------------
+   |                                |
+   |                                help: replace the `.map(..)` conversion with `.clone()`: `.clone()`
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:78:13
+   |
+LL |     let y = b2.map(|v| v as f32);
+   |             ^^------------------
+   |               |
+   |               help: replace the `.map(..)` conversion with `.clone()`: `.clone()`
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:86:35
+   |
+LL |         let _ = text("a").opacity(b3.map(|v| v as f32));
+   |                                   ^^------------------
+   |                                     |
+   |                                     help: replace the `.map(..)` conversion with `.clone()`: `.clone()`
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:93:31
+   |
+LL |     let _ = text("a").opacity(knob.level.map(f32::from));
+   |                               ^^^^^^^^^^---------------
+   |                                         |
+   |                                         help: replace the `.map(..)` conversion with `.clone()`: `.clone()`
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:97:31
+   |
+LL |     let _ = text("a").opacity(Binding::f64(1.1).map(/* keep me */ |v| v as f32));
+   |                               ^^^^^^^^^^^^^^^^^--------------------------------
+   |                                                |
+   |                                                help: remove the `.map(..)` conversion
+
+warning: 14 warnings emitted
+

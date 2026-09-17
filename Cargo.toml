@@ -20,6 +20,7 @@ toml = "1.1"
 [dev-dependencies]
 dylint_testing = "6.0"
 nami = "0.11.2"
+num-traits = "0.2.19"
 waterui = { version = "0.4.1", default-features = false, features = ["media", "gpu"] }
 waterui-testing = "0.4.1"
 
@@ -126,6 +127,10 @@ path = "ui/needless_anyview/main.rs"
 [[example]]
 name = "needless_list_snapshot"
 path = "ui/needless_list_snapshot/main.rs"
+
+[[example]]
+name = "needless_signal_cast"
+path = "ui/needless_signal_cast/main.rs"
 
 [[example]]
 name = "needless_signal_clone"

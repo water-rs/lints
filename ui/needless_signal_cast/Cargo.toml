@@ -1,0 +1,15 @@
+[package]
+name = "needless_signal_cast"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+num-traits = "0.2.19"
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "needless_signal_cast"
+path = "main.rs"
+
+[workspace]

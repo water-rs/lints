@@ -4,7 +4,6 @@ use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::eq_expr_value;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::source::snippet_with_applicability;
-use clippy_utils::span_contains_comment;
 use clippy_utils::visitors::{Descend, for_each_expr, is_local_used};
 use rustc_errors::Applicability;
 use rustc_hir::{Block, BlockCheckMode, Expr, ExprKind, HirId, Node, PatKind, Stmt, StmtKind};
@@ -13,6 +12,7 @@ use rustc_middle::ty::TypeckResults;
 use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 
+use crate::applicability::comment_guard;
 use crate::carriers::body_expr;
 use crate::def_path::def_path_eq;
 use crate::list::{replace_call, snapshot_receiver};
@@ -271,14 +271,6 @@ fn method_call_text<'hir>(
     let prefix = if let_underscore { "let _ = " } else { "" };
     let semi = if semi { ";" } else { "" };
     format!("{prefix}{receiver}.{name}({args}){semi}")
-}
-
-/// A comment inside the span a suggestion replaces would be deleted by the
-/// fix — downgrade to `MaybeIncorrect`.
-fn comment_guard(cx: &LateContext<'_>, span: Span, applicability: &mut Applicability) {
-    if *applicability == Applicability::MachineApplicable && span_contains_comment(cx, span) {
-        *applicability = Applicability::MaybeIncorrect;
-    }
 }
 
 /// Emits the `List::<name>` round-trip diagnostic on `span` with the
