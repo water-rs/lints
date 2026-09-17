@@ -32,6 +32,10 @@ name = "collection_item_snapshot"
 path = "ui/collection_item_snapshot/main.rs"
 
 [[example]]
+name = "default_binding_constructor"
+path = "ui/default_binding_constructor/main.rs"
+
+[[example]]
 name = "discarded_wait_result"
 path = "ui/discarded_wait_result/main.rs"
 

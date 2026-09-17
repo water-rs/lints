@@ -103,6 +103,7 @@ mod carriers;
 mod collection_item_snapshot;
 mod config;
 mod def_path;
+mod default_binding_constructor;
 mod discarded_call;
 mod discarded_wait_result;
 mod empty_label_literal;
@@ -158,6 +159,7 @@ const LINTS: &[&LintInfo] = &[
     &blocking_in_ui_context::LINT_INFO,
     &blocking_in_ui_context::thread_sleep::LINT_INFO,
     &collection_item_snapshot::LINT_INFO,
+    &default_binding_constructor::LINT_INFO,
     &discarded_wait_result::LINT_INFO,
     &empty_label_literal::LINT_INFO,
     &fixed_children_in_vec::LINT_INFO,
@@ -216,6 +218,8 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store
         .register_late_pass(|_| Box::new(blocking_in_ui_context::BlockingInUiContext::default()));
     lint_store.register_late_pass(|_| Box::new(collection_item_snapshot::CollectionItemSnapshot));
+    lint_store
+        .register_late_pass(|_| Box::new(default_binding_constructor::DefaultBindingConstructor));
     lint_store.register_late_pass(|_| Box::new(discarded_wait_result::DiscardedWaitResult));
     lint_store.register_late_pass(|_| Box::new(empty_label_literal::EmptyLabelLiteral));
     lint_store.register_late_pass(|_| Box::new(fixed_children_in_vec::FixedChildrenInVec));

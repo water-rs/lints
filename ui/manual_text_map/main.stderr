@@ -100,6 +100,19 @@ LL -     let total: Binding<i32> = binding(42);
 LL +     let total = Binding::i32(42);
    |
 
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:60:32
+   |
+LL |     let log: Binding<String> = binding(String::new());
+   |                                ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<String>::default()`
+   |
+LL -     let log: Binding<String> = binding(String::new());
+LL +     let log = Binding::<String>::default();
+   |
+
 warning: this `clone` is redundant: `map` takes `&self`
   --> $DIR/main.rs:64:26
    |
@@ -389,5 +402,5 @@ LL -     let _ = Model { count: binding(9) }.badge();
 LL +     let _ = Model { count: Binding::i32(9) }.badge();
    |
 
-warning: 32 warnings emitted
+warning: 33 warnings emitted
 

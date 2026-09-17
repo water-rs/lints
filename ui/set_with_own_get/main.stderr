@@ -23,6 +23,19 @@ LL -     let flag: Binding<bool> = binding(false);
 LL +     let flag = Binding::bool(false);
    |
 
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:31:33
+   |
+LL |     let name: Binding<String> = binding(String::new());
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<String>::default()`
+   |
+LL -     let name: Binding<String> = binding(String::new());
+LL +     let name = Binding::<String>::default();
+   |
+
 warning: this binding has a dedicated constructor
   --> $DIR/main.rs:33:31
    |
@@ -166,5 +179,5 @@ warning: this mutation restates `Binding::add_assign`
 LL |     count.with_mut(|v| *v += 1);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.add_assign(1)`
 
-warning: 17 warnings emitted
+warning: 18 warnings emitted
 

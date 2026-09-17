@@ -34,6 +34,19 @@ LL |         let draft: Binding<String> = binding(String::new());
    = help: own the state one level up — in the enclosing body or the component — and move it into the closure
    = note: `#[warn(state_created_in_rebuilt_scope)]` on by default
 
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:31:38
+   |
+LL |         let draft: Binding<String> = binding(String::new());
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<String>::default()`
+   |
+LL -         let draft: Binding<String> = binding(String::new());
+LL +         let draft = Binding::<String>::default();
+   |
+
 warning: reactive state created inside a scope that is rebuilt on every change
   --> $DIR/main.rs:43:17
    |
@@ -113,6 +126,18 @@ LL -         let seen: Binding<bool> = Binding::container(false);
 LL +         let seen = Binding::bool(false);
    |
 
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:82:34
+   |
+LL |     let draft: Binding<String> = binding(String::new());
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let draft: Binding<String> = binding(String::new());
+LL +     let draft = Binding::<String>::default();
+   |
+
 warning: this binding has a dedicated constructor
   --> $DIR/main.rs:98:39
    |
@@ -125,5 +150,5 @@ LL -                 let _: Binding<i32> = binding(0);
 LL +                 let _ = Binding::i32(0);
    |
 
-warning: 11 warnings emitted
+warning: 13 warnings emitted
 

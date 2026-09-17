@@ -1,0 +1,232 @@
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:26:21
+   |
+LL |     let _arg_path = binding(WindowState::default());
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<WindowState>::default()`
+   |
+LL -     let _arg_path = binding(WindowState::default());
+LL +     let _arg_path = Binding::<WindowState>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:30:22
+   |
+LL |     let _turbofish = binding::<WindowState>(WindowState::default());
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<WindowState>::default()`
+   |
+LL -     let _turbofish = binding::<WindowState>(WindowState::default());
+LL +     let _turbofish = Binding::<WindowState>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:33:22
+   |
+LL |     let _qualified = binding::<WindowState>(<WindowState as Default>::default());
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<WindowState>::default()`
+   |
+LL -     let _qualified = binding::<WindowState>(<WindowState as Default>::default());
+LL +     let _qualified = Binding::<WindowState>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:36:34
+   |
+LL |     let _name: Binding<String> = binding(String::new());
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let _name: Binding<String> = binding(String::new());
+LL +     let _name = Binding::<String>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:38:18
+   |
+LL |     let _items = Binding::container(Vec::<Item>::new());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<Vec::<Item>>::default()`
+   |
+LL -     let _items = Binding::container(Vec::<Item>::new());
+LL +     let _items = Binding::<Vec::<Item>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:41:36
+   |
+LL |     let _vec: Binding<Vec<Item>> = binding(vec![]);
+   |                                    ^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<Vec<Item>>::default()`
+   |
+LL -     let _vec: Binding<Vec<Item>> = binding(vec![]);
+LL +     let _vec = Binding::<Vec<Item>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:44:38
+   |
+LL |     let _none: Binding<Option<u8>> = binding(None::<u8>);
+   |                                      ^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<Option<u8>>::default()`
+   |
+LL -     let _none: Binding<Option<u8>> = binding(None::<u8>);
+LL +     let _none = Binding::<Option<u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:47:46
+   |
+LL |     let _map: Binding<HashMap<String, u8>> = Binding::container(HashMap::new());
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<HashMap<String, u8>>::default()`
+   |
+LL -     let _map: Binding<HashMap<String, u8>> = Binding::container(HashMap::new());
+LL +     let _map = Binding::<HashMap<String, u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:49:18
+   |
+LL |     let _deque = Binding::container(VecDeque::<u8>::new());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<VecDeque::<u8>>::default()`
+   |
+LL -     let _deque = Binding::container(VecDeque::<u8>::new());
+LL +     let _deque = Binding::<VecDeque::<u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:50:16
+   |
+LL |     let _set = Binding::container(HashSet::<u8>::new());
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<HashSet::<u8>>::default()`
+   |
+LL -     let _set = Binding::container(HashSet::<u8>::new());
+LL +     let _set = Binding::<HashSet::<u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:51:22
+   |
+LL |     let _btree_map = Binding::container(BTreeMap::<u8, u8>::new());
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<BTreeMap::<u8, u8>>::default()`
+   |
+LL -     let _btree_map = Binding::container(BTreeMap::<u8, u8>::new());
+LL +     let _btree_map = Binding::<BTreeMap::<u8, u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:52:22
+   |
+LL |     let _btree_set = Binding::container(BTreeSet::<u8>::new());
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<BTreeSet::<u8>>::default()`
+   |
+LL -     let _btree_set = Binding::container(BTreeSet::<u8>::new());
+LL +     let _btree_set = Binding::<BTreeSet::<u8>>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:56:24
+   |
+LL |     let _vec_default = binding(Vec::default());
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::default()`
+   |
+LL -     let _vec_default = binding(Vec::default());
+LL +     let _vec_default = Binding::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:60:30
+   |
+LL |     let _container_default = Binding::<String>::container(Default::default());
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let _container_default = Binding::<String>::container(Default::default());
+LL +     let _container_default = Binding::<String>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:63:18
+   |
+LL |     let _infer = Binding::<_>::container(String::new());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let _infer = Binding::<_>::container(String::new());
+LL +     let _infer = Binding::<String>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:73:24
+   |
+LL |     let _mac = seeded!(binding(String::new()));
+   |                        ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let _mac = seeded!(binding(String::new()));
+LL +     let _mac = seeded!(Binding::<String>::default());
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:83:21
+   |
+LL |     let _mac_seed = Binding::container(def_string!());
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::default()`
+   |
+LL -     let _mac_seed = Binding::container(def_string!());
+LL +     let _mac_seed = Binding::default();
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:86:31
+   |
+LL |     let _zero: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let _zero: Binding<i32> = binding(0);
+LL +     let _zero = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:88:32
+   |
+LL |     let _flag: Binding<bool> = binding(false);
+   |                                ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let _flag: Binding<bool> = binding(false);
+LL +     let _flag = Binding::bool(false);
+   |
+
+warning: 19 warnings emitted
+
