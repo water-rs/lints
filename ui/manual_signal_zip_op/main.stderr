@@ -1,0 +1,76 @@
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:15:17
+   |
+LL |         let _ = count.zip(&self.factor).map(|(x, y)| x * y);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.clone() * self.factor.clone()`
+   |
+   = note: `#[warn(manual_signal_zip_op)]` on by default
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:28:13
+   |
+LL |     let _ = flag.zip(&other_flag).map(|(x, y)| x && y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `flag.and(&other_flag)`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:30:13
+   |
+LL |     let _ = flag.zip(&other_flag).map(|(x, y)| x || y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `flag.or(&other_flag)`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:32:13
+   |
+LL |     let _ = count.zip(&other).map(|(x, y)| x + y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.clone() + other.clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:34:13
+   |
+LL |     let _ = count.zip(&other.clone()).map(|(x, y)| x + y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.clone() + other.clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:37:13
+   |
+LL |     let _ = count.map(|v| v).zip(&other).map(|(x, y)| x - y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.map(|v| v) - other.clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:39:13
+   |
+LL |     let _ = count.zip(&other).map(|t| t.0 + t.1);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.clone() + other.clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:44:13
+   |
+LL |     let _ = flag.zip(borrowed_flag).map(|(x, y)| x && y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `flag.and(borrowed_flag)`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:45:13
+   |
+LL |     let _ = count.zip(borrowed_count).map(|(x, y)| x + y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.clone() + (*borrowed_count).clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:48:13
+   |
+LL |     let _ = borrowed_count.zip(&count).map(|(x, y)| x + y);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `(*borrowed_count).clone() + count.clone()`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:51:13
+   |
+LL |     let _ = count.zip(&other).map(|(x, y)| x + y).map(|v| v * 2);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `(count.clone() + other.clone())`
+
+warning: this `zip`/`map` pair is a named signal operation
+  --> $DIR/main.rs:54:20
+   |
+LL |     let _ = base - count.zip(&other).map(|(x, y)| x - y);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `(count.clone() - other.clone())`
+
+warning: 12 warnings emitted
+
