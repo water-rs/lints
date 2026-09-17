@@ -128,5 +128,115 @@ LL |         // Fires: `Srgb` is not in scope — the suggestion imports it.
 LL ~         let _ = text("r").foreground(Srgb::new(0.5, 0.5, 0.5));
    |
 
-warning: 16 warnings emitted
+warning: color components written as literals; write the color as `Srgb::from_hex("#1A80E6")`
+  --> $DIR/main.rs:23:46
+   |
+LL |     let _ = text("f").foreground(Color::from(Srgb::new(0.1, 0.5, 0.9)));
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 128, 230)
+   = note: `#[warn(literal_color_components)]` on by default
+help: write it as a hex literal
+   |
+LL -     let _ = text("f").foreground(Color::from(Srgb::new(0.1, 0.5, 0.9)));
+LL +     let _ = text("f").foreground(Color::from(Srgb::from_hex("#1A80E6")));
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#FF0000")`
+  --> $DIR/main.rs:25:36
+   |
+LL |     let _ = Border::new(Color::new(Srgb::new_u8(255, 0, 0)), 2.0);
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let _ = Border::new(Color::new(Srgb::new_u8(255, 0, 0)), 2.0);
+LL +     let _ = Border::new(Color::new(Srgb::from_hex("#FF0000")), 2.0);
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#1A334D")`
+  --> $DIR/main.rs:27:46
+   |
+LL |     let _ = text("g").foreground(Color::from(Srgb::new(0.1, 0.2, 0.3).with_opacity(0.4)));
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 51, 77)
+   = help: this color is built from literals 4 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#1A334D")`
+help: write it as a hex literal
+   |
+LL -     let _ = text("g").foreground(Color::from(Srgb::new(0.1, 0.2, 0.3).with_opacity(0.4)));
+LL +     let _ = text("g").foreground(Color::from(Srgb::from_hex("#1A334D").with_opacity(0.4)));
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#1A334D")`
+  --> $DIR/main.rs:49:34
+   |
+LL |     let _ = text("k").foreground(Color::srgb_f32(0.1, 0.2, 0.3).with_headroom(1.5));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 51, 77)
+   = help: this color is built from literals 4 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#1A334D")`
+help: write it as a hex literal
+   |
+LL -     let _ = text("k").foreground(Color::srgb_f32(0.1, 0.2, 0.3).with_headroom(1.5));
+LL +     let _ = text("k").foreground(Color::srgb_hex("#1A334D").with_headroom(1.5));
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#1A334D")`
+  --> $DIR/main.rs:53:34
+   |
+LL |     let _ = text("k").foreground(Color::srgb_f32(0.1, 0.2, 0.3).with_opacity(0.5f64));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 51, 77)
+   = help: this color is built from literals 4 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#1A334D")`
+help: write it as a hex literal
+   |
+LL -     let _ = text("k").foreground(Color::srgb_f32(0.1, 0.2, 0.3).with_opacity(0.5f64));
+LL +     let _ = text("k").foreground(Color::srgb_hex("#1A334D").with_opacity(0.5f64));
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#1A334D")`
+  --> $DIR/main.rs:56:11
+   |
+LL |     paint(Color::srgb_f32(0.1, 0.2, 0.3));
+   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 51, 77)
+   = help: this color is built from literals 4 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#1A334D")`
+help: write it as a hex literal
+   |
+LL -     paint(Color::srgb_f32(0.1, 0.2, 0.3));
+LL +     paint(Color::srgb_hex("#1A334D"));
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#334D66")`
+  --> $DIR/main.rs:58:20
+   |
+LL |     let c: Color = Color::srgb_f32(0.2, 0.3, 0.4);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (51, 77, 102)
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#334D66")`
+help: write it as a hex literal
+   |
+LL -     let c: Color = Color::srgb_f32(0.2, 0.3, 0.4);
+LL +     let c: Color = Color::srgb_hex("#334D66");
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#334D66")`
+  --> $DIR/main.rs:62:17
+   |
+LL |     let mixed = Color::srgb_f32(0.2, 0.3, 0.4);
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (51, 77, 102)
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#334D66")`
+help: write it as a hex literal
+   |
+LL -     let mixed = Color::srgb_f32(0.2, 0.3, 0.4);
+LL +     let mixed = Color::srgb_hex("#334D66");
+   |
+
+warning: 24 warnings emitted
 

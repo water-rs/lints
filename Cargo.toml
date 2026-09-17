@@ -77,6 +77,10 @@ name = "list_in_scroll"
 path = "ui/list_in_scroll/main.rs"
 
 [[example]]
+name = "literal_color_components"
+path = "ui/literal_color_components/main.rs"
+
+[[example]]
 name = "localized_concat"
 path = "ui/localized_concat/main.rs"
 
