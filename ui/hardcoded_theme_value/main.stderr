@@ -98,5 +98,43 @@ LL |         text("a").size(13.0)
    |
    = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
 
-warning: 11 warnings emitted
+warning: color components written as literals; write the color as `Srgb::from_hex("#1A4DE6")`
+  --> $DIR/main.rs:15:21
+   |
+LL | const BRAND: Srgb = Srgb::new(0.1, 0.3, 0.9);
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (26, 77, 230)
+   = note: `#[warn(literal_color_components)]` on by default
+help: write it as a hex literal
+   |
+LL - const BRAND: Srgb = Srgb::new(0.1, 0.3, 0.9);
+LL + const BRAND: Srgb = Srgb::from_hex("#1A4DE6");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#333333")`
+  --> $DIR/main.rs:24:30
+   |
+LL |         text("a").foreground(Srgb::new(0.2, 0.2, 0.2)),
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -         text("a").foreground(Srgb::new(0.2, 0.2, 0.2)),
+LL +         text("a").foreground(Srgb::from_hex("#333333")),
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#010203")`
+  --> $DIR/main.rs:55:5
+   |
+LL |     Color::srgb(1, 2, 3)
+   |     ^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     Color::srgb(1, 2, 3)
+LL +     Color::srgb_hex("#010203")
+   |
+
+warning: 14 warnings emitted
 

@@ -103,6 +103,7 @@ mod binding;
 mod blocking_in_ui_context;
 mod carriers;
 mod collection_item_snapshot;
+mod color;
 mod config;
 mod def_path;
 mod default_binding_constructor;
@@ -119,6 +120,7 @@ mod image_without_label;
 mod imports;
 mod list;
 mod list_in_scroll;
+mod literal_color_components;
 mod localized_concat;
 mod long_text_key;
 mod manual_binding_mutation;
@@ -181,6 +183,7 @@ const LINTS: &[&LintInfo] = &[
     &if_else_view::LINT_INFO,
     &image_without_label::LINT_INFO,
     &list_in_scroll::LINT_INFO,
+    &literal_color_components::LINT_INFO,
     &localized_concat::LINT_INFO,
     &long_text_key::LINT_INFO,
     &manual_binding_mutation::LINT_INFO,
@@ -245,6 +248,9 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(if_else_view::IfElseView::default()));
     lint_store.register_late_pass(|_| Box::new(image_without_label::ImageWithoutLabel));
     lint_store.register_late_pass(|_| Box::new(list_in_scroll::ListInScroll));
+    lint_store.register_late_pass(|_| {
+        Box::new(literal_color_components::LiteralColorComponents::default())
+    });
     lint_store.register_late_pass(|_| Box::new(localized_concat::LocalizedConcat));
 
     // `text!` lowers its key into `format!` bytecode on HIR; the early pass

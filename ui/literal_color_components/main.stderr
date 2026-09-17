@@ -1,0 +1,192 @@
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:60:34
+   |
+LL |     let _ = text("a").foreground(Color::srgb(244, 67, 54));
+   |                                  -----------^^^^^^^^^^^^^
+   |                                  |
+   |                                  help: use `Srgb::new_u8`: `Srgb::new_u8`
+   |
+   = note: `#[warn(manual_color_erasure)]` on by default
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#F44336")`
+  --> $DIR/main.rs:8:19
+   |
+LL | const RED: Srgb = Srgb::new_u8(244, 67, 54);
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 5 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F44336")`
+   = note: `#[warn(literal_color_components)]` on by default
+help: write it as a hex literal
+   |
+LL - const RED: Srgb = Srgb::new_u8(244, 67, 54);
+LL + const RED: Srgb = Srgb::from_hex("#F44336");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#000000")`
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = Srgb::new(0.0, 0.0, 0.0);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new(0.0, 0.0, 0.0);
+LL +     let _ = Srgb::from_hex("#000000");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#F44336")`
+  --> $DIR/main.rs:18:13
+   |
+LL |     let _ = Srgb::new_u8(244, 67, 54);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 5 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F44336")`
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new_u8(244, 67, 54);
+LL +     let _ = Srgb::from_hex("#F44336");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#F44336")`
+  --> $DIR/main.rs:20:13
+   |
+LL |     let _ = Srgb::from_u32(16007990);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 5 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F44336")`
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::from_u32(16007990);
+LL +     let _ = Srgb::from_hex("#F44336");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#F54236")`
+  --> $DIR/main.rs:22:13
+   |
+LL |     let _ = Srgb::new(0.96, 0.26, 0.21);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (245, 66, 54)
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F54236")`
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new(0.96, 0.26, 0.21);
+LL +     let _ = Srgb::from_hex("#F54236");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#F44336")`
+  --> $DIR/main.rs:24:13
+   |
+LL |     let _ = Srgb::new_u8(244u16 as u8, 67, 54);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 5 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F44336")`
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new_u8(244u16 as u8, 67, 54);
+LL +     let _ = Srgb::from_hex("#F44336");
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#FFFFFF")`
+  --> $DIR/main.rs:26:20
+   |
+LL |     let _: Color = Color::srgb(255, 255, 255);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#FFFFFF")`
+help: write it as a hex literal
+   |
+LL -     let _: Color = Color::srgb(255, 255, 255);
+LL +     let _: Color = Color::srgb_hex("#FFFFFF");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#FFFFFF")`
+  --> $DIR/main.rs:28:13
+   |
+LL |     let _ = Srgb::new_u8(255, 255, 255);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#FFFFFF")`
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new_u8(255, 255, 255);
+LL +     let _ = Srgb::from_hex("#FFFFFF");
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#F54236")`
+  --> $DIR/main.rs:30:20
+   |
+LL |     let _: Color = Color::srgb_f32(0.96, 0.26, 0.21);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the components round to (245, 66, 54)
+   = help: this color is built from literals 2 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F54236")`
+help: write it as a hex literal
+   |
+LL -     let _: Color = Color::srgb_f32(0.96, 0.26, 0.21);
+LL +     let _: Color = Color::srgb_hex("#F54236");
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#F44336")`
+  --> $DIR/main.rs:32:20
+   |
+LL |     let _: Color = Color::srgb_u32(16007990);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: this color is built from literals 5 times in this crate; name it once — `const NAME: Srgb = Srgb::from_hex("#F44336")`
+help: write it as a hex literal
+   |
+LL -     let _: Color = Color::srgb_u32(16007990);
+LL +     let _: Color = Color::srgb_hex("#F44336");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#2C0000")`
+  --> $DIR/main.rs:34:13
+   |
+LL |     let _ = Srgb::new_u8(300u16 as u8, 0, 0);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new_u8(300u16 as u8, 0, 0);
+LL +     let _ = Srgb::from_hex("#2C0000");
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#FF0000")`
+  --> $DIR/main.rs:36:13
+   |
+LL |     let _ = Srgb::new_u8(-1i8 as u8, 0, 0);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let _ = Srgb::new_u8(-1i8 as u8, 0, 0);
+LL +     let _ = Srgb::from_hex("#FF0000");
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#010203")`
+  --> $DIR/main.rs:40:49
+   |
+LL |     let c: Color = <Color as Into<Color>>::into(Color::srgb(1, 2, 3));
+   |                                                 ^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let c: Color = <Color as Into<Color>>::into(Color::srgb(1, 2, 3));
+LL +     let c: Color = <Color as Into<Color>>::into(Color::srgb_hex("#010203"));
+   |
+
+warning: color components written as literals; write the color as `Srgb::from_hex("#091423")`
+  --> $DIR/main.rs:44:34
+   |
+LL |     let _ = text("b").foreground(Srgb::new_u8(9, 20, 35));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -     let _ = text("b").foreground(Srgb::new_u8(9, 20, 35));
+LL +     let _ = text("b").foreground(Srgb::from_hex("#091423"));
+   |
+
+warning: 15 warnings emitted
+
