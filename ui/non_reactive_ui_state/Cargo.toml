@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "non_reactive_ui_state"
 path = "main.rs"
-
-[workspace]

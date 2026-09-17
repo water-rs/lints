@@ -81,7 +81,7 @@ const SUGGESTION_LABEL: &str = "use the named method";
 
 /// `Str::from_static` — the verbatim `Str` conversion `set` callers spell
 /// where `set_from` takes the `&'static str` directly.
-const STR_FROM_STATIC: &[&str] = &["waterui_str", "Str", "from_static"];
+const STR_FROM_STATIC: &[&str] = &["suiteki", "Str", "from_static"];
 
 /// `Vec::push` — `v.push(x)` restates `extend(once(x))`.
 const VEC_PUSH: &[&str] = &["alloc", "vec", "Vec", "push"];

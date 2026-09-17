@@ -55,7 +55,7 @@ const MESSAGE: &str =
 const SUGGESTION: &str = "pass the literal itself — `&'static str` is looked up in the catalog";
 
 /// `Str::from_static` — stores the literal verbatim without allocation.
-const FROM_STATIC: &[&str] = &["waterui_str", "Str", "from_static"];
+const FROM_STATIC: &[&str] = &["suiteki", "Str", "from_static"];
 
 declare_lint_pass!(VerbatimTextLiteral => [VERBATIM_TEXT_LITERAL]);
 

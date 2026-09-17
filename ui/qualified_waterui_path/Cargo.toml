@@ -11,5 +11,3 @@ nami = "0.11.2"
 [[bin]]
 name = "qualified_waterui_path"
 path = "main.rs"
-
-[workspace]

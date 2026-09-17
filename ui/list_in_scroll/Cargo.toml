@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "list_in_scroll"
 path = "main.rs"
-
-[workspace]

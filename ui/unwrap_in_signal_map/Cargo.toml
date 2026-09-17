@@ -14,5 +14,3 @@ waterui-testing = "0.4.1"
 [[test]]
 name = "unwrap_in_signal_map"
 path = "main.rs"
-
-[workspace]

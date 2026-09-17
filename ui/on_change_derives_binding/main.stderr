@@ -38,8 +38,8 @@ LL +     let doubled = Binding::i32(0);
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:17:13
    |
-LL |     let _ = text("a").on_change(&count, move |v| doubled.set(v * 2));
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------------------------^
+LL |     let _ = text("a").on_change(&count, move |v: i32| doubled.set(v * 2));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^--------------------------------^
    |                                         |
    |                                         `doubled` lags the source by one update and is a second source of truth
    |
@@ -53,7 +53,7 @@ LL | #![warn(on_change_derives_binding)]
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:21:13
    |
-LL |        let _ = text("a").on_change(&count, move |v| {
+LL |        let _ = text("a").on_change(&count, move |v: i32| {
    |   _____________^                           -
    |  |_________________________________________|
 LL | ||         label.set(Str::from(v.to_string().to_uppercase()))
@@ -87,8 +87,8 @@ LL +     let other = Binding::bool(false);
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:27:13
    |
-LL |     let _ = text("a").on_change(&flag, move |v| other.set(!v));
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^----------------------^
+LL |     let _ = text("a").on_change(&flag, move |v: bool| other.set(!v));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^----------------------------^
    |                                        |
    |                                        `other` lags the source by one update and is a second source of truth
    |

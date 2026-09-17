@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "blocking_in_ui_context"
 path = "main.rs"
-
-[workspace]

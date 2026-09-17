@@ -188,11 +188,12 @@ impl IfElseView {
     /// stay silent.
     fn is_view_ty<'a>(&self, cx: &LateContext<'a>, ty: Ty<'a>) -> bool {
         let candidate = match ty.kind() {
-            TyKind::Adt(adt, _) => cx
-                .tcx
-                .crate_name(adt.did().krate)
-                .as_str()
-                .starts_with("waterui"),
+            // `Str` moved from `waterui-str` to the `suiteki` crate; it is
+            // still the framework's string view.
+            TyKind::Adt(adt, _) => {
+                let name = cx.tcx.crate_name(adt.did().krate);
+                name.as_str().starts_with("waterui") || name.as_str() == "suiteki"
+            }
             _ => ty.is_opaque(),
         };
         candidate

@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "state_created_in_rebuilt_scope"
 path = "main.rs"
-
-[workspace]

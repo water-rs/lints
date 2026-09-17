@@ -10,5 +10,3 @@ waterui = { version = "0.4.1", default-features = false }
 [[bin]]
 name = "anyview_new_in_free_fn"
 path = "main.rs"
-
-[workspace]

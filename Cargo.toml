@@ -11,6 +11,9 @@ publish = false
 name = "waterui_lints"
 crate-type = ["cdylib"]
 
+[workspace]
+members = ["ui/*"]
+
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
 dylint_linting = "6.0"
@@ -246,3 +249,65 @@ path = "ui/watch_over_collection/main.rs"
 
 [package.metadata.rust-analyzer]
 rustc_private = true
+
+# The queued lints target sugar that exists on waterui's `dev` branch but not
+# in the crates.io 0.4.1 release (`ViewExt::muted`, the `EdgeInsets` `From`
+# impls and `padding_horizontal`/`padding_vertical`, the alignment token
+# methods, `#[state]`). `dev` still declares 0.4.1, so the `waterui = "0.4.1"`
+# requirements above are satisfied by the patch unchanged, and every
+# `waterui-*` member this graph resolves comes from that one commit so the
+# graph carries exactly one copy of each — a registry crate beside its git
+# twin would compile duplicate `View`/`Resolvable` types. Drop the entries
+# once the release that carries the sugar is on crates.io. The satellite and
+# third-party pins above the framework block are the framework's own: the
+# pinned revision was built with these forks, and dropping them here would
+# run the fixtures through different code than the framework runs — git
+# dependencies do not carry their own patch table, so they are repeated
+# here.
+[patch.crates-io]
+vello = { git = "https://github.com/lexoliu/vello", rev = "5e5f538556be16527f67379b105af82f408b747d" }
+vello_hybrid = { git = "https://github.com/lexoliu/vello", rev = "d68d9e9825bcd1ffee762323881c13a2e7a3f639" }
+vello_common = { git = "https://github.com/lexoliu/vello", rev = "d68d9e9825bcd1ffee762323881c13a2e7a3f639" }
+vello_sparse_shaders = { git = "https://github.com/lexoliu/vello", rev = "d68d9e9825bcd1ffee762323881c13a2e7a3f639" }
+glifo = { git = "https://github.com/lexoliu/vello", rev = "d68d9e9825bcd1ffee762323881c13a2e7a3f639" }
+
+# Same-wave satellites waterui `dev` redirects to git revisions; the revs are
+# copied verbatim from that revision's own `[patch.crates-io]` table. The
+# satellites that table also pins but this graph never resolves under the
+# `media` + `gpu` features (`waterui-barcode`, `waterui-canvas`,
+# `waterui-chart`, `waterui-map-gpu`, `waterui-particle`, `waterui-video-gpu`)
+# are omitted, as are `xcb` — `xcap` here already takes registry 1.7.1, so the
+# 1.7.0 pin cannot apply — and `block`, which no requirement names.
+hydrolysis = { git = "https://github.com/water-rs/hydrolysis", rev = "eef0d71a9514d791204db96e1037ab116ab15146" }
+hydrolysis-m3 = { git = "https://github.com/water-rs/hydrolysis-m3", rev = "024135222165863b9aa36cca2f04d91d229cc599" }
+waterui-image = { git = "https://github.com/water-rs/image", rev = "45522b7e4d4620f05a90511e1454a1a24fa31610" }
+waterui-svg = { git = "https://github.com/water-rs/svg", rev = "d6b1b067874404f5200de4d967e06fee6378fc69" }
+
+waterui = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-macros = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-planner = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-backend-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-controls = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-dylib = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-form = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-graphics = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-icon = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-inspector-protocol = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-internal = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-layout = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-locale = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-macros = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-map = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-media = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-navigation = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-preview-protocol = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-shape = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-testing = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-text = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-url = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-video = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-watcher-set = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-webview = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
