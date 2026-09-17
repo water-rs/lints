@@ -6,6 +6,19 @@ LL |     let _v: AnyView = AnyView::new(AnyView::new(text("a")));
    |
    = note: `#[warn(redundant_anyview)]` on by default
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:7:36
+   |
+LL |     let _v: AnyView = AnyView::new(AnyView::new(text("a")));
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(anyview_new_in_free_fn)]` on by default
+help: use the postfix `.anyview()`
+   |
+LL -     let _v: AnyView = AnyView::new(AnyView::new(text("a")));
+LL +     let _v: AnyView = AnyView::new(text("a").anyview());
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:7:36
    |
@@ -50,5 +63,17 @@ LL +         false => b,
 LL ~     };
    |
 
-warning: 6 warnings emitted
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:33:23
+   |
+LL |     let _v: AnyView = AnyView::new(text("a"));
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _v: AnyView = AnyView::new(text("a"));
+LL +     let _v: AnyView = text("a").anyview();
+   |
+
+warning: 8 warnings emitted
 

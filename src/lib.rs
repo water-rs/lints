@@ -97,6 +97,7 @@ macro_rules! declare_waterui_lint {
 }
 
 mod anyview;
+mod anyview_new_in_free_fn;
 mod binding;
 mod blocking_in_ui_context;
 mod carriers;
@@ -156,6 +157,7 @@ mod watch_ignores_value;
 mod watch_over_collection;
 
 const LINTS: &[&LintInfo] = &[
+    &anyview_new_in_free_fn::LINT_INFO,
     &blocking_in_ui_context::LINT_INFO,
     &blocking_in_ui_context::thread_sleep::LINT_INFO,
     &collection_item_snapshot::LINT_INFO,
@@ -215,6 +217,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     dylint_linting::init_config(sess);
 
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
+    lint_store.register_late_pass(|_| Box::new(anyview_new_in_free_fn::AnyviewNewInFreeFn));
     lint_store
         .register_late_pass(|_| Box::new(blocking_in_ui_context::BlockingInUiContext::default()));
     lint_store.register_late_pass(|_| Box::new(collection_item_snapshot::CollectionItemSnapshot));

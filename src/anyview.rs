@@ -11,10 +11,11 @@ use rustc_middle::ty::{Ty, TypeckResults};
 pub(crate) const ANYVIEW: &[&str] = &["waterui_core", "components", "anyview", "AnyView"];
 
 /// `AnyView::new` — an inherent associated function on `AnyView`.
-const ANYVIEW_NEW: &[&str] = &["waterui_core", "components", "anyview", "AnyView", "new"];
+pub(crate) const ANYVIEW_NEW: &[&str] =
+    &["waterui_core", "components", "anyview", "AnyView", "new"];
 
 /// `ViewExt::anyview` — the extension method producing `AnyView`.
-const ANYVIEW_EXT: &[&str] = &["waterui_internal", "view", "ViewExt", "anyview"];
+pub(crate) const ANYVIEW_EXT: &[&str] = &["waterui_internal", "view", "ViewExt", "anyview"];
 
 /// The erasure-producing calls, by defining-crate path.
 const ERASURE_CALLS: &[&[&str]] = &[ANYVIEW_NEW, ANYVIEW_EXT];
