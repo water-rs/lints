@@ -1,0 +1,18 @@
+[package]
+name = "unwrap_in_signal_map"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+waterui-testing = "0.4.1"
+
+# `#[cfg(test)]` items and `#[waterui::test]` bodies exist only under `--test`
+# compilation (rustc strips them otherwise), so the fixture's only target is
+# a test target: `cargo dylint` lints it through `cargo check --tests`.
+[[test]]
+name = "unwrap_in_signal_map"
+path = "main.rs"
+
+[workspace]

@@ -1,0 +1,83 @@
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:51:13
+   |
+LL |     let _ = maybe.map(|v| v.unwrap());
+   |             ^^^^^^^^^^^^^^----------^
+   |                           |
+   |                           the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+   = note: `#[warn(unwrap_in_signal_map)]` on by default
+
+warning: this signal panics whenever its source is `Err`
+  --> $DIR/main.rs:53:13
+   |
+LL |     let _ = res.map(|r| r.expect("loaded"));
+   |             ^^^^^^^^^^^^------------------^
+   |                         |
+   |                         the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:55:13
+   |
+LL |     let _ = maybe.map(|v| unsafe { v.unwrap_unchecked() });
+   |             ^^^^^^^^^^^^^^^^^^^^^^^--------------------^^^
+   |                                    |
+   |                                    the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:57:13
+   |
+LL |     let _ = maybe.zip(&flag).map(|(a, _)| a.unwrap());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^----------^
+   |                                           |
+   |                                           the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:59:13
+   |
+LL |     let _ = state.map(|s| s.user.as_ref().unwrap().name.clone());
+   |             ^^^^^^^^^^^^^^------------------------^^^^^^^^^^^^^^
+   |                           |
+   |                           the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:61:13
+   |
+LL |     let _ = nested.map(|v| v.map(|x| x.unwrap()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^----------^^
+   |                                      |
+   |                                      the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:63:13
+   |
+LL |     let _ = maybe.map(|v| format!("{}", v.unwrap()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^----------^^
+   |                                         |
+   |                                         the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: this signal panics whenever its source is `None`
+  --> $DIR/main.rs:69:30
+   |
+LL |     let _ = num.map(move |n| inner_sig.map(move |w| w.unwrap() + n));
+   |                              ^^^^^^^^^^^^^^^^^^^^^^^----------^^^^^
+   |                                                     |
+   |                                                     the panic happens here
+   |
+   = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
+
+warning: 8 warnings emitted
+

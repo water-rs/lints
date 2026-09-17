@@ -150,6 +150,7 @@ mod text_key;
 mod thread_sleep;
 mod thread_sleep_in_test;
 mod typed_binding_constructor;
+mod unwrap_in_signal_map;
 mod verbatim_text_literal;
 mod watch;
 mod watch_for_reactive_value;
@@ -202,6 +203,7 @@ const LINTS: &[&LintInfo] = &[
     &task_handle_dropped::LINT_INFO,
     &thread_sleep_in_test::LINT_INFO,
     &typed_binding_constructor::LINT_INFO,
+    &unwrap_in_signal_map::LINT_INFO,
     &verbatim_text_literal::LINT_INFO,
     &watch_for_reactive_value::LINT_INFO,
     &watch_ignores_value::LINT_INFO,
@@ -305,6 +307,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(task_handle_dropped::TaskHandleDropped));
     lint_store.register_late_pass(|_| Box::new(thread_sleep_in_test::ThreadSleepInTest::default()));
     lint_store.register_late_pass(|_| Box::new(typed_binding_constructor::TypedBindingConstructor));
+    lint_store.register_late_pass(|_| Box::new(unwrap_in_signal_map::UnwrapInSignalMap::default()));
     lint_store.register_late_pass(|_| Box::new(verbatim_text_literal::VerbatimTextLiteral));
     lint_store.register_late_pass(|_| Box::new(watch_for_reactive_value::WatchForReactiveValue));
     lint_store.register_late_pass(|_| Box::new(watch_ignores_value::WatchIgnoresValue));
