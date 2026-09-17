@@ -3997,6 +3997,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "manual_muted_foreground"
+version = "0.0.0"
+dependencies = [
+ "waterui",
+]
+
+[[package]]
 name = "manual_signal_combinator"
 version = "0.0.0"
 dependencies = [
