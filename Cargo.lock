@@ -7412,6 +7412,7 @@ dependencies = [
  "dylint_linting",
  "dylint_testing",
  "nami",
+ "num-traits",
  "serde",
  "toml",
  "waterui",

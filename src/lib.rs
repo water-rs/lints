@@ -98,6 +98,7 @@ macro_rules! declare_waterui_lint {
 
 mod anyview;
 mod anyview_new_in_free_fn;
+mod applicability;
 mod binding;
 mod blocking_in_ui_context;
 mod carriers;
@@ -131,6 +132,7 @@ mod manual_text_map;
 mod missing_translation;
 mod needless_anyview;
 mod needless_list_snapshot;
+mod needless_signal_cast;
 mod needless_signal_clone;
 mod non_reactive_ui_state;
 mod normalized_radius_overflow;
@@ -193,6 +195,7 @@ const LINTS: &[&LintInfo] = &[
     &missing_translation::orphan::LINT_INFO,
     &needless_anyview::LINT_INFO,
     &needless_list_snapshot::LINT_INFO,
+    &needless_signal_cast::LINT_INFO,
     &needless_signal_clone::LINT_INFO,
     &non_reactive_ui_state::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
@@ -266,6 +269,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(manual_signal_zip_op::ManualSignalZipOp));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
     lint_store.register_late_pass(|_| Box::new(needless_list_snapshot::NeedlessListSnapshot));
+    lint_store.register_late_pass(|_| Box::new(needless_signal_cast::NeedlessSignalCast));
     lint_store.register_late_pass(|_| Box::new(needless_signal_clone::NeedlessSignalClone));
     lint_store.register_late_pass(|_| Box::new(non_reactive_ui_state::NonReactiveUiState));
     lint_store
