@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:14:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:15:31
+   |
+LL |     let flag: Binding<bool> = binding(true);
+   |                               ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(true);
+LL +     let flag = Binding::bool(true);
+   |
+
 warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
   --> $DIR/main.rs:19:13
    |
@@ -83,5 +108,5 @@ LL | |     });
    |
    = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
 
-warning: 8 warnings emitted
+warning: 10 warnings emitted
 

@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:35:30
+   |
+LL |     let fade: Binding<f32> = binding(0.5_f32);
+   |                              ^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::f32`
+   |
+LL -     let fade: Binding<f32> = binding(0.5_f32);
+LL +     let fade = Binding::f32(0.5);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:36:31
+   |
+LL |     let count: Binding<i32> = binding(3_i32);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3_i32);
+LL +     let count = Binding::i32(3);
+   |
+
 error: `.get()` reads the signal once; the view will never update
   --> $DIR/main.rs:40:35
    |
@@ -121,5 +146,5 @@ LL |     let _ = AnyViewBuilder::new(builder.get());
    |
    = help: pass the signal itself so the view can subscribe to updates
 
-error: aborting due to 13 previous errors
+error: aborting due to 13 previous errors; 2 warnings emitted
 

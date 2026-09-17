@@ -1,3 +1,40 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:12:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let value: Binding<f64> = binding(0.0);
+   |                               ^^^^^^^^^^^^
+   |
+help: use `Binding::f64`
+   |
+LL -     let value: Binding<f64> = binding(0.0);
+LL +     let value = Binding::f64(0.0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:14:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
 warning: a tap gesture on a `Button` competes with the control's own activation
   --> $DIR/main.rs:18:25
    |
@@ -71,5 +108,5 @@ LL |     let _ = NavigationLink::new("a", || navigation("b", text("c"))).on_tap(
    |
    = help: the control already activates on tap and the accessibility tree would carry two activations for one element; use `.action(..)` (or the control's own change handler) instead
 
-warning: 9 warnings emitted
+warning: 12 warnings emitted
 

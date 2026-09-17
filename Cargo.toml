@@ -168,6 +168,10 @@ name = "thread_sleep_in_test"
 path = "ui/thread_sleep_in_test/main.rs"
 
 [[example]]
+name = "typed_binding_constructor"
+path = "ui/typed_binding_constructor/main.rs"
+
+[[example]]
 name = "verbatim_text_literal"
 path = "ui/verbatim_text_literal/main.rs"
 

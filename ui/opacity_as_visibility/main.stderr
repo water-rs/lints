@@ -23,6 +23,19 @@ LL -     let _ = text("a").opacity(0);
 LL +     let _ = text("a").visible(false);
    |
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:10:32
+   |
+LL |     let shown: Binding<bool> = binding(true);
+   |                                ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let shown: Binding<bool> = binding(true);
+LL +     let shown = Binding::bool(true);
+   |
+
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:11:23
    |
@@ -33,6 +46,18 @@ help: use `.visible(..)`, which also hides the view from screen readers and taps
    |
 LL -     let _ = text("a").opacity(shown.select(1.0, 0.0));
 LL +     let _ = text("a").visible(shown);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:33
+   |
+LL |     let hidden: Binding<bool> = binding(true);
+   |                                 ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let hidden: Binding<bool> = binding(true);
+LL +     let hidden = Binding::bool(true);
    |
 
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
@@ -47,6 +72,18 @@ LL -     let _ = text("a").opacity(hidden.select(0.0, 1.0));
 LL +     let _ = text("a").visible(hidden.not());
    |
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:16:37
+   |
+LL |     let int_select: Binding<bool> = binding(true);
+   |                                     ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let int_select: Binding<bool> = binding(true);
+LL +     let int_select = Binding::bool(true);
+   |
+
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:17:23
    |
@@ -57,6 +94,18 @@ help: use `.visible(..)`, which also hides the view from screen readers and taps
    |
 LL -     let _ = text("a").opacity(int_select.select(1, 0));
 LL +     let _ = text("a").visible(int_select);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:19:33
+   |
+LL |     let mapped: Binding<bool> = binding(true);
+   |                                 ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let mapped: Binding<bool> = binding(true);
+LL +     let mapped = Binding::bool(true);
    |
 
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
@@ -79,6 +128,18 @@ LL |     let _ = text("a").opacity(mapped.map(|b| if b { 1.0 } else { 0.0 }));
    |
    = note: `#[warn(manual_signal_combinator)]` on by default
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:22:34
+   |
+LL |     let swapped: Binding<bool> = binding(true);
+   |                                  ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let swapped: Binding<bool> = binding(true);
+LL +     let swapped = Binding::bool(true);
+   |
+
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:23:23
    |
@@ -97,6 +158,18 @@ warning: this `map` closure is a named `SignalExt` combinator
 LL |     let _ = text("a").opacity(swapped.map(|b| if b { 0.0 } else { 1.0 }));
    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `swapped.select(0.0, 1.0)`
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:15
+   |
+LL |         flag: binding(true),
+   |               ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -         flag: binding(true),
+LL +         flag: Binding::bool(true),
+   |
+
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
   --> $DIR/main.rs:28:23
    |
@@ -107,6 +180,18 @@ help: use `.visible(..)`, which also hides the view from screen readers and taps
    |
 LL -     let _ = text("a").opacity(holder.flag.select(1.0, 0.0));
 LL +     let _ = text("a").visible(holder.flag.clone());
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:30:33
+   |
+LL |     let reused: Binding<bool> = binding(true);
+   |                                 ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let reused: Binding<bool> = binding(true);
+LL +     let reused = Binding::bool(true);
    |
 
 warning: `.opacity(0.0)` hides the view visually but leaves it in the accessibility tree and hit-testing
@@ -121,11 +206,23 @@ LL -     let _ = text("a").opacity(reused.select(1.0, 0.0));
 LL +     let _ = text("a").visible(reused.clone());
    |
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:34:31
+   |
+LL |     let flag: Binding<bool> = binding(true);
+   |                               ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(true);
+LL +     let flag = Binding::bool(true);
+   |
+
 warning: this `map` closure is a named `SignalExt` combinator
   --> $DIR/main.rs:40:31
    |
 LL |     let _ = text("a").opacity(flag.map(|b| if b { 0.8 } else { 0.2 }));
    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.select(0.8, 0.2)`
 
-warning: 12 warnings emitted
+warning: 20 warnings emitted
 

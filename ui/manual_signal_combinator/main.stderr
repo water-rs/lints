@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:12:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
 warning: this `map` closure is a named `SignalExt` combinator
   --> $DIR/main.rs:19:13
    |
@@ -82,5 +107,5 @@ LL | |         !v
 LL | |     });
    | |______^ help: use the combinator: `flag.not()`
 
-warning: 13 warnings emitted
+warning: 15 warnings emitted
 

@@ -6,7 +6,7 @@ use clippy_utils::ty::{implements_trait, make_normalized_projection};
 use rustc_hir::{BinOpKind, BorrowKind, Expr, ExprKind, LangItem, Mutability};
 use rustc_lint::LateContext;
 use rustc_middle::ty::adjustment::{Adjust, AutoBorrow, AutoBorrowMutability};
-use rustc_middle::ty::{Ty, TyKind, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::{FloatTy, IntTy, Ty, TyKind, TypeVisitableExt, TypeckResults, UintTy};
 use rustc_span::{Pos, sym};
 
 /// `nami`'s `Binding<T>` — the writable signal handle.
@@ -163,4 +163,45 @@ pub(crate) fn extend_accepts<'tcx>(
     };
     implements_trait(cx, value_ty, extend, &[ele_ty.into()])
         && implements_trait(cx, value_ty, clone, &[])
+}
+
+/// The dedicated `Binding::<t>` constructor `nami` gives a primitive `T` —
+/// `typed_binding_constructor`'s rewrite and the shape
+/// `default_binding_constructor` leaves to it; `None` for a type `nami`
+/// gives no such constructor.
+pub(crate) fn dedicated_ctor(ty: Ty<'_>) -> Option<&'static str> {
+    Some(match *ty.kind() {
+        TyKind::Uint(UintTy::U32) => "u32",
+        TyKind::Uint(UintTy::U64) => "u64",
+        TyKind::Uint(UintTy::Usize) => "usize",
+        TyKind::Int(IntTy::I32) => "i32",
+        TyKind::Int(IntTy::I64) => "i64",
+        TyKind::Int(IntTy::Isize) => "isize",
+        TyKind::Float(FloatTy::F32) => "f32",
+        TyKind::Float(FloatTy::F64) => "f64",
+        TyKind::Bool => "bool",
+        _ => return None,
+    })
+}
+
+/// The crate root a suggestion can spell `Binding` through — `waterui` when
+/// the linted crate can name it, `nami` when only it is a direct dependency,
+/// `None` when neither is in the extern prelude (e.g. linting `nami` itself).
+/// `sess.opts.externs` is the extern-prelude population — the `--extern`
+/// table of nameable crates; `tcx.crates()` would include transitive
+/// dependencies the crate cannot name.
+pub(crate) fn binding_krate(cx: &LateContext<'_>) -> Option<&'static str> {
+    let nameable = |name: &str| {
+        cx.tcx
+            .sess
+            .opts
+            .externs
+            .get(name)
+            .is_some_and(|entry| entry.add_prelude)
+    };
+    if nameable("waterui") {
+        Some("waterui")
+    } else {
+        nameable("nami").then_some("nami")
+    }
 }

@@ -1,3 +1,40 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:12:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:16:33
+   |
+LL |     let doubled: Binding<i32> = binding(0);
+   |                                 ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let doubled: Binding<i32> = binding(0);
+LL +     let doubled = Binding::i32(0);
+   |
+
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:17:13
    |
@@ -35,6 +72,18 @@ LL |         label.set(Str::from(v.to_string().to_uppercase()))
    |
    = note: `#[warn(manual_binding_mutation)]` on by default
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:32
+   |
+LL |     let other: Binding<bool> = binding(false);
+   |                                ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let other: Binding<bool> = binding(false);
+LL +     let other = Binding::bool(false);
+   |
+
 warning: this `on_change` copies a derived value into a second binding
   --> $DIR/main.rs:27:13
    |
@@ -45,5 +94,29 @@ LL |     let _ = text("a").on_change(&flag, move |v| other.set(!v));
    |
    = help: derive it once — `let other = flag.map(|v| !v);` — and read the `Computed` where `other` was read
 
-warning: 4 warnings emitted
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:30:32
+   |
+LL |     let copied: Binding<i32> = binding(0);
+   |                                ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let copied: Binding<i32> = binding(0);
+LL +     let copied = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:37:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: 10 warnings emitted
 

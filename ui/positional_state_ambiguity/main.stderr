@@ -1,3 +1,40 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:18:27
+   |
+LL |     let a: Binding<i32> = binding(0);
+   |                           ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let a: Binding<i32> = binding(0);
+LL +     let a = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:19:27
+   |
+LL |     let b: Binding<i32> = binding(1);
+   |                           ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let b: Binding<i32> = binding(1);
+LL +     let b = Binding::i32(1);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:20:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
 warning: two `State<waterui::Binding<i32>>` parameters bind to `.state(..)` calls by position
   --> $DIR/main.rs:25:55
    |
@@ -34,5 +71,5 @@ LL |              State(y): State<Binding<i32>>| {
    |
    = help: put both values in one `Clone` struct and inject it once with `.state(&app)`; take `State(app): State<App>`
 
-warning: 3 warnings emitted
+warning: 6 warnings emitted
 

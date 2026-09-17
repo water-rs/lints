@@ -147,6 +147,19 @@ LL |         // Fires — `self_id` on a single-field local struct.
 LL ~         let _ = single;
    |
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:228:36
+   |
+LL |         let signal: Binding<i32> = binding(3);
+   |                                    ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -         let signal: Binding<i32> = binding(3);
+LL +         let signal = Binding::i32(3);
+   |
+
 warning: `Identifiable` can be derived — mark `token` with `#[id]` and drop the impl
   --> $DIR/main.rs:264:5
    |
@@ -166,5 +179,5 @@ LL ~         #[id]
 LL ~         token: String,
    |
 
-warning: 9 warnings emitted
+warning: 10 warnings emitted
 

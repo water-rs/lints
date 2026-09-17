@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:25:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
 warning: reactive state created inside a scope that is rebuilt on every change
   --> $DIR/main.rs:31:38
    |
@@ -54,6 +79,18 @@ note: the lint level is defined here
 LL | #![warn(state_created_in_row_builder)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:69:39
+   |
+LL |         let selected: Binding<bool> = binding(false);
+   |                                       ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -         let selected: Binding<bool> = binding(false);
+LL +         let selected = Binding::bool(false);
+   |
+
 warning: reactive state created inside a row builder
   --> $DIR/main.rs:77:35
    |
@@ -64,5 +101,29 @@ LL |         let seen: Binding<bool> = Binding::container(false);
    |
    = help: row-local state is recreated when the row is rebuilt; if it must survive, keep it on the item and pass it in
 
-warning: 6 warnings emitted
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:77:35
+   |
+LL |         let seen: Binding<bool> = Binding::container(false);
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -         let seen: Binding<bool> = Binding::container(false);
+LL +         let seen = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:98:39
+   |
+LL |                 let _: Binding<i32> = binding(0);
+   |                                       ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -                 let _: Binding<i32> = binding(0);
+LL +                 let _ = Binding::i32(0);
+   |
+
+warning: 11 warnings emitted
 
