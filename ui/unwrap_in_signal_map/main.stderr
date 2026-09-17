@@ -59,6 +59,17 @@ LL |     let _ = nested.map(|v| v.map(|x| x.unwrap()));
    |
    = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
 
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:63:13
+   |
+LL |     let _ = maybe.map(|v| format!("{}", v.unwrap()));
+   |             ^^^^^^^^^^^^^^-------------------------^
+   |                           |
+   |                           the string is built by hand here
+   |
+   = help: use `s!("{arg0}", arg0 = &maybe.map(|v| v.unwrap()))` — `s!` subscribes to its placeholders the way `format!` captures names
+   = note: `#[warn(manual_string_signal)]` on by default
+
 warning: this signal panics whenever its source is `None`
   --> $DIR/main.rs:63:13
    |
@@ -79,5 +90,5 @@ LL |     let _ = num.map(move |n| inner_sig.map(move |w| w.unwrap() + n));
    |
    = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
 
-warning: 8 warnings emitted
+warning: 9 warnings emitted
 

@@ -1,0 +1,189 @@
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:15:5
+   |
+LL | /     if count == 0 {
+LL | |         Str::from("none")
+LL | |     } else if count < 10_000 {
+LL | |         Str::from(count.to_string())
+LL | |     } else {
+LL | |         Str::from(format!("{}k", count / 1000))
+LL | |     }
+   | |_____^
+   |
+   = note: `#[warn(if_else_view)]` on by default
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::reactive::s;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL | fn count_label(count: i32) -> Str {
+LL ~     when(count == 0, || Str::from("none")).or(count < 10_000, || Str::from(count.to_string())).otherwise(|| Str::from(format!("{}k", count / 1000)))
+   |
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:45:18
+   |
+LL |         Str::from(count.to_string())
+   |         ---------------------------- the string is built by hand here
+...
+LL |     let _label = count.map(count_label);
+   |                  ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use `s!` — `s!("{k}k", k = &count.map(|c| c / 1000))`
+   = help: a branch condition becomes a signal too — `count.equal_to(0).select(..)` / `count.ge(10_000)` — so the decision is a signal instead of a re-run closure
+   = note: `#[warn(manual_string_signal)]` on by default
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:48:16
+   |
+LL |         label: count.map(|c| format!("{c} items")).computed(),
+   |                ^^^^^^^^^^^^^^--------------------^
+   |                              |
+   |                              the string is built by hand here
+   |
+   = help: use `s!("{count} items")` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:52:16
+   |
+LL |     handle.set(name.map(|n| Str::from(format!("@{n}"))).get());
+   |                ^^^^^^^^^^^^^--------------------------^
+   |                             |
+   |                             the string is built by hand here
+   |
+   = help: use `s!("@{name}")` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:54:13
+   |
+LL |       let _ = first
+   |  _____________^
+LL | |         .zip(&last)
+LL | |         .map(|(a, b)| a.to_string() + " / " + &b.to_string());
+   | |_______________________--------------------------------------^
+   |                         |
+   |                         the string is built by hand here
+   |
+   = help: use `s!("{first} / {last}")` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:58:13
+   |
+LL |       let _ = icount.map(|c| {
+   |  _____________^
+LL | |         let mut s = String::from("n=");
+LL | |         s.push_str(&c.to_string());
+   | |         -------------------------- the string is built by hand here
+LL | |         s
+LL | |     });
+   | |______^
+   |
+   = help: use `s!` — `s!("{k}k", k = &icount.map(|c| c / 1000))`
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:64:13
+   |
+LL |       let _ = icount.map(|c| {
+   |  _____________^
+LL | |         let mut s = String::new();
+LL | |         s += &c.to_string();
+   | |         ------------------- the string is built by hand here
+LL | |         s
+LL | |     });
+   | |______^
+   |
+   = help: use `s!` — `s!("{k}k", k = &icount.map(|c| c / 1000))`
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:70:13
+   |
+LL |       let _ = map(icount.clone(), |c| {
+   |  _____________^
+LL | |         if c == 0 {
+LL | |             String::new()
+LL | |         } else {
+LL | |             format!("{c} items")
+   | |             -------------------- the string is built by hand here
+LL | |         }
+LL | |     });
+   | |______^
+   |
+   = help: use `s!` — `s!("{k}k", k = &icount.clone().map(|c| c / 1000))`
+   = help: a branch condition becomes a signal too — `icount.clone().equal_to(0).select(..)` / `icount.clone().ge(10_000)` — so the decision is a signal instead of a re-run closure
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:80:13
+   |
+LL |     let _ = count.map(move |c| format!("{c}/{total}"));
+   |             ^^^^^^^^^^^^^^^^^^^----------------------^
+   |                                |
+   |                                the string is built by hand here
+   |
+   = help: use `s!("{count}/{total}", count = &count, total = &constant(total))` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:83:13
+   |
+LL |     let _ = count.map(move |c| format!("{}/{}", c, total));
+   |             ^^^^^^^^^^^^^^^^^^^--------------------------^
+   |                                |
+   |                                the string is built by hand here
+   |
+   = help: use `s!("{count}/{total}", count = &count, total = &constant(total))` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:85:13
+   |
+LL |     let _ = pair.map(|t| format!("{}", t.0));
+   |             ^^^^^^^^^^^^^------------------^
+   |                          |
+   |                          the string is built by hand here
+   |
+   = help: use `s!("{arg0}", arg0 = &pair.map(|t| t.0))` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:87:13
+   |
+LL |       let _ = name.map(|mut v: String| {
+   |  _____________^
+LL | |         v += "!";
+   | |         -------- the string is built by hand here
+LL | |         v
+LL | |     });
+   | |______^
+   |
+   = help: use `s!` — `s!("{k}k", k = &name.map(|c| c / 1000))`
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:94:18
+   |
+LL |     let _ = text(count.map(|c| format!("{c}")).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(manual_text_map)]` on by default
+help: write it as `text!`
+   |
+LL -     let _ = text(count.map(|c| format!("{c}")).computed());
+LL +     let _ = text!("{count}");
+   |
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:96:19
+   |
+LL |     let summary = name.map(|n| format!("{n}!"));
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: write the text position as `text!("{name}!")` — `summary` and the `let` both go away
+   = note: `summary` only carries a `format!` into a text position
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:118:13
+   |
+LL |     let _ = flag.map(|f| if f { "on" } else { "off" });
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.select("on", "off")`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
+warning: 15 warnings emitted
+

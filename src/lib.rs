@@ -132,6 +132,7 @@ mod manual_identifiable;
 mod manual_list_mutation;
 mod manual_signal_combinator;
 mod manual_signal_zip_op;
+mod manual_string_signal;
 mod manual_text_map;
 mod missing_translation;
 mod needless_anyview;
@@ -146,11 +147,13 @@ mod opacity_as_visibility;
 mod param_bounds;
 mod positional_state_ambiguity;
 mod qualified_waterui_path;
+mod receiver;
 mod redundant_anyview;
 mod row_builder;
 mod s_macro_in_text;
 mod set_with_own_get;
 mod signal_get_in_view;
+mod signal_map;
 mod snapshot_get;
 mod spacer_in_zstack;
 mod state_created_in_rebuilt_scope;
@@ -196,6 +199,7 @@ const LINTS: &[&LintInfo] = &[
     &manual_list_mutation::LINT_INFO,
     &manual_signal_combinator::LINT_INFO,
     &manual_signal_zip_op::LINT_INFO,
+    &manual_string_signal::LINT_INFO,
     &manual_text_map::LINT_INFO,
     &missing_translation::LINT_INFO,
     &missing_translation::orphan::LINT_INFO,
@@ -318,6 +322,14 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass({
         let format_args = format_args.clone();
         move |_| Box::new(manual_text_map::ManualTextMap::new(format_args.clone()))
+    });
+    lint_store.register_late_pass({
+        let format_args = format_args.clone();
+        move |_| {
+            Box::new(manual_string_signal::ManualStringSignal::new(
+                format_args.clone(),
+            ))
+        }
     });
     lint_store.register_late_pass({
         let text_keys = text_keys.clone();

@@ -8,7 +8,7 @@ use rustc_lint::LateContext;
 use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_span::{ExpnId, sym};
 
-use crate::param_bounds::call_args;
+use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 
 /// `ToOwned::to_owned` — `text!` wraps every captured slot value in
 /// `(<expr>).to_owned()`, which is also how a `text!` alias binding is
@@ -60,10 +60,28 @@ pub(crate) fn is_call_to<'hir>(
     expr: &Expr<'hir>,
     paths: &[&[&'static str]],
 ) -> bool {
-    crate::param_bounds::call_def_id(typeck, expr).is_some_and(|did| {
+    call_def_id(typeck, expr).is_some_and(|did| {
         paths
             .iter()
             .any(|p| crate::def_path::def_path_eq(cx, did, p))
+    })
+}
+
+/// [`is_call_to`] with trait-impl normalization: a `Str::from(..)`-style
+/// path call resolves to the impl's method, whose def path is
+/// `<impl From<..> for Str>::from` — [`implemented_trait_item`] maps it back
+/// onto `core::convert::From::from` so the trait path matches.
+pub(crate) fn resolves_to<'hir>(
+    cx: &LateContext<'_>,
+    typeck: &TypeckResults<'hir>,
+    expr: &Expr<'hir>,
+    paths: &[&[&'static str]],
+) -> bool {
+    call_def_id(typeck, expr).is_some_and(|did| {
+        let item = implemented_trait_item(cx.tcx, did);
+        paths
+            .iter()
+            .any(|path| crate::def_path::def_path_eq(cx, item, path))
     })
 }
 
@@ -146,6 +164,38 @@ pub(crate) fn strip_wraps<'hir>(
                 [first, ..] => *first,
                 [] => return expr,
             },
+            _ => return expr,
+        };
+    }
+}
+
+/// `format!(..).into()`, `String::from(format!(..))`, `{ format!(..) }` —
+/// tail conversions/blocks around a produced string are transparent to the
+/// lints that inspect how a `String`/`Str` value was built.
+pub(crate) fn strip_tail<'hir>(
+    cx: &LateContext<'_>,
+    typeck: &TypeckResults<'hir>,
+    mut expr: &'hir Expr<'hir>,
+) -> &'hir Expr<'hir> {
+    loop {
+        expr = match expr.kind {
+            ExprKind::DropTemps(inner) => inner,
+            ExprKind::Block(
+                Block {
+                    stmts: [],
+                    expr: Some(inner),
+                    ..
+                },
+                _,
+            ) => inner,
+            _ if resolves_to(cx, typeck, expr, &[INTO, FROM])
+                && is_string_ty(cx, typeck.expr_ty(expr)) =>
+            {
+                match call_args(expr).as_slice() {
+                    [first, ..] => *first,
+                    [] => return expr,
+                }
+            }
             _ => return expr,
         };
     }
