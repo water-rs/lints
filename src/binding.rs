@@ -42,6 +42,11 @@ pub(crate) const GENERIC_CTORS: &[&[&str]] = &[
     &["nami", "reactive_core", "binding", "Binding", "container"],
 ];
 
+/// `nami`'s `Computed<T>` — the boxed, read-only signal handle
+/// `SignalExt::computed` produces. `nami::reactive_core::signal::computed`
+/// is a private module, but `get_def_path` reports the defining path.
+pub(crate) const COMPUTED: &[&str] = &["nami", "reactive_core", "signal", "computed", "Computed"];
+
 /// The `T` in `Binding<T>` for a receiver expression under `typeck` —
 /// `None` for receivers that are not a `Binding` (a `CustomBinding` impl has
 /// none of the inherent methods the binding lints' suggestions name).
