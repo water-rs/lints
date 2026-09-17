@@ -9,14 +9,14 @@ use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
 use rustc_hir::def_id::DefId;
-use rustc_hir::{BinOpKind, Block, Expr, ExprKind, HirId, PatKind, UnOp};
+use rustc_hir::{BinOpKind, Expr, ExprKind, HirId, PatKind, UnOp};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{AssocContainer, FloatTy, Ty, TyKind, TypeVisitableExt, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Symbol, sym};
 use std::ops::ControlFlow;
 
-use crate::carriers::is_string_ty;
+use crate::carriers::{body_expr, is_string_ty};
 use crate::def_path::def_path_eq;
 use crate::param_bounds::implemented_trait_item;
 
@@ -100,25 +100,6 @@ fn free_of_param<'hir>(cx: &LateContext<'hir>, expr: &'hir Expr<'hir>, param: Hi
         }
     })
     .is_none()
-}
-
-/// The closure's body expression: a bare expression or a block with no
-/// statements and a tail — `{ !v }` matches `!v`.
-fn body_expr<'hir>(mut expr: &'hir Expr<'hir>) -> &'hir Expr<'hir> {
-    loop {
-        expr = match expr.kind {
-            ExprKind::DropTemps(inner) => inner,
-            ExprKind::Block(
-                Block {
-                    stmts: [],
-                    expr: Some(tail),
-                    ..
-                },
-                _,
-            ) => tail,
-            _ => return expr,
-        };
-    }
 }
 
 /// The self type of the inherent impl `did` is defined in — `Option<T>` for

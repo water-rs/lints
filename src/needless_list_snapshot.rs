@@ -10,8 +10,8 @@ use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Symbol, sym};
 
-use crate::def_path::def_path_eq;
 use crate::imports::{Bare, bare_status};
+use crate::list::snapshot_receiver;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -68,9 +68,6 @@ declare_waterui_lint! {
 
 declare_lint_pass!(NeedlessListSnapshot => [NEEDLESS_LIST_SNAPSHOT]);
 
-/// `nami::data::collection::List::snapshot` — the inherent `Vec<T>` clone.
-const LIST_SNAPSHOT: &[&str] = &["nami", "data", "collection", "List", "snapshot"];
-
 /// `nami_core::collection::Collection` — the trait `len`/`is_empty`/`get`
 /// come from. The `waterui` prelude does not re-export it.
 const COLLECTION: &str = "nami_core::collection::Collection";
@@ -79,22 +76,6 @@ const COLLECTION_USE: &str = "waterui::reactive::collection::Collection";
 const COPY_MESSAGE: &str = "this `snapshot` copies the list to read what `List` exposes directly";
 const ITER_MESSAGE: &str = "`List` iterates directly; `snapshot()` before the loop is spelled out";
 const SUGGESTION_LABEL: &str = "use the `List` method";
-
-/// `expr` is `x.snapshot()` resolving to `List::snapshot` — returns `x`.
-fn snapshot_receiver<'hir>(
-    cx: &LateContext<'hir>,
-    typeck: &TypeckResults<'hir>,
-    expr: &'hir Expr<'hir>,
-) -> Option<&'hir Expr<'hir>> {
-    let ExprKind::MethodCall(segment, receiver, [], _) = expr.kind else {
-        return None;
-    };
-    if expr.span.from_expansion() || segment.ident.name.as_str() != "snapshot" {
-        return None;
-    }
-    let did = typeck.type_dependent_def_id(expr.hir_id)?;
-    def_path_eq(cx, did, LIST_SNAPSHOT).then_some(receiver)
-}
 
 /// `ty` is `Option<&T>` over an element — the shape `Vec::get`/`Vec::first`
 /// hand `.cloned()`. A ranged `get` yields `Option<&[T]>`, which
