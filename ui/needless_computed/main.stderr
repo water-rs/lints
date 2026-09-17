@@ -1,0 +1,135 @@
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:36:32
+   |
+LL |     let _ = text("a").disabled(flag.not().computed());
+   |                                ^^^^^^^^^^-----------
+   |                                          |
+   |                                          help: drop the `.computed()`
+   |
+   = note: `#[warn(needless_computed)]` on by default
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:40:31
+   |
+LL |     let _ = text("a").opacity(flag.select(0.45, 1.0).computed());
+   |                               ^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                                                     |
+   |                                                     help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:50:39
+   |
+LL |     let unavailable = channel.map(|_| flag.not().computed());
+   |                                       ^^^^^^^^^^-----------
+   |                                                 |
+   |                                                 help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:56:22
+   |
+LL |     let boxed = Some(flag.not().computed());
+   |                      ^^^^^^^^^^-----------
+   |                                |
+   |                                help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:65:13
+   |
+LL |     let d = flag.not().computed();
+   |             ^^^^^^^^^^-----------
+   |                       |
+   |                       help: drop the `.computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:69:32
+   |
+LL |     let _ = text("a").disabled(Computed::new(flag.not()));
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `flag.not().computed()`
+   |
+   = note: `#[warn(manual_computed)]` on by default
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:69:32
+   |
+LL |     let _ = text("a").disabled(Computed::new(flag.not()));
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal directly: `flag.not()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:73:32
+   |
+LL |     let _ = text("a").disabled(IntoComputed::<bool>::into_computed(flag.not()));
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `flag.not().computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:73:32
+   |
+LL |     let _ = text("a").disabled(IntoComputed::<bool>::into_computed(flag.not()));
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal directly: `flag.not()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:77:18
+   |
+LL |     let shared = flag.not().computed();
+   |                  ^^^^^^^^^^-----------
+   |                            |
+   |                            help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:82:16
+   |
+LL |     let read = flag.not().computed();
+   |                ^^^^^^^^^^-----------
+   |                          |
+   |                          help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:108:13
+   |
+LL |     let _ = level.computed().get();
+   |             ^^^^^-----------
+   |                  |
+   |                  help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:113:32
+   |
+LL |     let _ = text("a").disabled(reused.computed());
+   |                                ^^^^^^-----------
+   |                                      |
+   |                                      help: replace the `.computed()` with `.clone()`: `.clone()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:120:32
+   |
+LL |     let _ = text("a").disabled(toggle.flag.computed());
+   |                                ^^^^^^^^^^^-----------
+   |                                           |
+   |                                           help: replace the `.computed()` with `.clone()`: `.clone()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:125:32
+   |
+LL |     let _ = text("a").disabled(sole.computed());
+   |                                ^^^^-----------
+   |                                    |
+   |                                    help: drop the `.computed()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:130:32
+   |
+LL |     let _ = text("a").disabled(SignalExt::computed(&x));
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal directly: `x.clone()`
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:135:9
+   |
+LL |            flag.not() /* why */
+   |   _________^         -
+   |  |___________________|
+LL | ||             .computed(),
+   | ||_______________________^ help: drop the `.computed()`
+   |  |_______________________|
+   |
+
+warning: 17 warnings emitted
+

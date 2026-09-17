@@ -4,18 +4,15 @@
 
 use clippy_utils::diagnostics::{span_lint, span_lint_and_sugg};
 use clippy_utils::is_expr_temporary_value;
-use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::sugg::Sugg;
-use clippy_utils::ty::{implements_trait, make_normalized_projection};
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{TyKind, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::TypeckResults;
 use rustc_session::declare_lint_pass;
-use rustc_span::sym;
 
-use crate::binding::COMPUTED;
 use crate::carriers::{CLONE, FROM, INTO};
+use crate::computed::{COMPUTED_NEW, INTO_COMPUTED, erases_signal};
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 
@@ -60,35 +57,12 @@ declare_lint_pass!(ManualComputed => [MANUAL_COMPUTED]);
 const MESSAGE: &str = "this erasure is `SignalExt::computed`";
 const HELP: &str = "use the method form";
 
-/// `Computed::new` — `nami::reactive_core::signal::computed::Computed::new`.
-const COMPUTED_NEW: &[&str] = &[
-    "nami",
-    "reactive_core",
-    "signal",
-    "computed",
-    "Computed",
-    "new",
-];
-
-/// `IntoComputed::into_computed` — the blanket trait form of the erasure.
-const INTO_COMPUTED: &[&str] = &[
-    "nami",
-    "reactive_core",
-    "signal",
-    "IntoComputed",
-    "into_computed",
-];
-
 /// Callees that hand-spell the `computed()` erasure: `Computed::new(e)`,
 /// `Computed::from(e)`/`From::from(e)`, `e.into()`/`Into::into(e)`, and
 /// `e.into_computed()`. In every shape `call_args(call)[0]` is the signal —
 /// the receiver for the method calls, the parameter for the associated
 /// functions.
 const ERASURES: &[&[&str]] = &[COMPUTED_NEW, FROM, INTO, INTO_COMPUTED];
-
-/// `nami_core::Signal` — the trait `e` must implement for `e.computed()` to
-/// exist (an `impl IntoComputed` parameter is not one).
-const SIGNAL: &str = "nami_core::Signal";
 
 /// `e` is `s.clone()` — `Clone::clone` in either spelling — over a place
 /// `s`: the clone exists only to hand the erasure an owned handle, which
@@ -134,37 +108,10 @@ impl<'tcx> LateLintPass<'tcx> for ManualComputed {
         if signal.span.from_expansion() {
             return;
         }
-        let TyKind::Adt(adt, args) = *typeck.expr_ty(expr).kind() else {
-            return;
-        };
-        if !def_path_eq(cx, adt.did(), COMPUTED) {
-            return;
-        }
-        // `e.computed()` yields `Computed<C::Output>` — the rewrite is the
-        // same erasure only when that `Output` is this `Computed`'s `T`.
         // `Computed::new` and `From<Binding<T>>` preserve `T` by signature;
         // `IntoComputed<Output>` is allowed to convert (`Output:
         // From<C::Output>`), which is what this check rejects.
-        let output = args.type_at(0);
-        let signal_ty = typeck.expr_ty_adjusted(signal);
-        if output.has_infer() || signal_ty.has_infer() {
-            return;
-        }
-        let Some(signal_trait) = lookup_path_str(cx.tcx, PathNS::Type, SIGNAL)
-            .first()
-            .copied()
-        else {
-            return;
-        };
-        if !implements_trait(cx, signal_ty, signal_trait, &[])
-            || make_normalized_projection(
-                cx.tcx,
-                cx.typing_env(),
-                signal_trait,
-                sym::Output,
-                [signal_ty],
-            ) != Some(output)
-        {
+        if !erases_signal(cx, typeck, expr, signal) {
             return;
         }
         let receiver = cloned_place(cx, typeck, signal).unwrap_or(signal);

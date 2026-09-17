@@ -105,6 +105,7 @@ mod blocking_in_ui_context;
 mod carriers;
 mod collection_item_snapshot;
 mod color;
+mod computed;
 mod computed_parameter;
 mod config;
 mod def_path;
@@ -136,6 +137,7 @@ mod manual_string_signal;
 mod manual_text_map;
 mod missing_translation;
 mod needless_anyview;
+mod needless_computed;
 mod needless_list_snapshot;
 mod needless_signal_cast;
 mod needless_signal_clone;
@@ -204,6 +206,7 @@ const LINTS: &[&LintInfo] = &[
     &missing_translation::LINT_INFO,
     &missing_translation::orphan::LINT_INFO,
     &needless_anyview::LINT_INFO,
+    &needless_computed::LINT_INFO,
     &needless_list_snapshot::LINT_INFO,
     &needless_signal_cast::LINT_INFO,
     &needless_signal_clone::LINT_INFO,
@@ -282,6 +285,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(manual_signal_combinator::ManualSignalCombinator));
     lint_store.register_late_pass(|_| Box::new(manual_signal_zip_op::ManualSignalZipOp));
     lint_store.register_late_pass(|_| Box::new(needless_anyview::NeedlessAnyview));
+    lint_store.register_late_pass(|_| Box::new(needless_computed::NeedlessComputed));
     lint_store.register_late_pass(|_| Box::new(needless_list_snapshot::NeedlessListSnapshot));
     lint_store.register_late_pass(|_| Box::new(needless_signal_cast::NeedlessSignalCast));
     lint_store.register_late_pass(|_| Box::new(needless_signal_clone::NeedlessSignalClone));

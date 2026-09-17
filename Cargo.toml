@@ -137,6 +137,10 @@ name = "needless_anyview"
 path = "ui/needless_anyview/main.rs"
 
 [[example]]
+name = "needless_computed"
+path = "ui/needless_computed/main.rs"
+
+[[example]]
 name = "needless_list_snapshot"
 path = "ui/needless_list_snapshot/main.rs"
 

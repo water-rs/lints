@@ -59,6 +59,16 @@ LL |     let _ = text("a").opacity(Binding::f64(0.7).map(|v| v as f32).cached())
    |                                                |
    |                                                help: remove the `.map(..)` conversion
 
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:61:31
+   |
+LL |     let _ = text("a").opacity(Binding::f64(0.8).map(|v| v as f32).computed());
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                                                                  |
+   |                                                                  help: drop the `.computed()`
+   |
+   = note: `#[warn(needless_computed)]` on by default
+
 warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
   --> $DIR/main.rs:61:31
    |
@@ -115,5 +125,5 @@ LL |     let _ = text("a").opacity(Binding::f64(1.1).map(/* keep me */ |v| v as 
    |                                                |
    |                                                help: remove the `.map(..)` conversion
 
-warning: 14 warnings emitted
+warning: 15 warnings emitted
 
