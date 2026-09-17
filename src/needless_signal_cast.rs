@@ -8,17 +8,17 @@ use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_errors::Applicability;
 use rustc_hir::def::{DefKind, Res};
-use rustc_hir::{Expr, ExprKind, HirId, LetStmt, Node, PatKind, UnOp};
+use rustc_hir::{Expr, ExprKind, HirId, LetStmt, Node, PatKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{FloatTy, Ty, TyKind, TypeVisitableExt, TypeckResults};
 use rustc_session::declare_lint_pass;
-use rustc_span::Span;
 use std::ops::ControlFlow;
 
 use crate::applicability::comment_guard;
-use crate::carriers::{CLONE, FROM, INTO, body_expr};
+use crate::carriers::{CLONE, FROM, INTO, body_expr, resolves_to};
 use crate::def_path::def_path_eq;
-use crate::param_bounds::{arg_has_bound, call_args, call_def_id, implemented_trait_item};
+use crate::param_bounds::{arg_has_bound, call_args, implemented_trait_item};
+use crate::receiver::receiver_needs_clone;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -117,21 +117,6 @@ const OPTION_UNWRAP: &[&str] = &["core", "option", "Option", "unwrap"];
 /// `ty` is `f32`.
 fn is_f32(ty: Ty<'_>) -> bool {
     matches!(ty.kind(), TyKind::Float(FloatTy::F32))
-}
-
-/// Whether `expr` resolves — through impl methods onto their trait items —
-/// to one of `paths`. `typeck` must be the `TypeckResults` of the body
-/// containing `expr`.
-fn resolves_to<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    expr: &Expr<'hir>,
-    paths: &[&[&'static str]],
-) -> bool {
-    call_def_id(typeck, expr).is_some_and(|did| {
-        let item = implemented_trait_item(cx.tcx, did);
-        paths.iter().any(|path| def_path_eq(cx, item, path))
-    })
 }
 
 /// Whether the closure-body `body` is `|v| <conversion to f32>` and nothing
@@ -302,83 +287,6 @@ fn let_only_feeds_f32_params<'tcx>(cx: &LateContext<'tcx>, local: &LetStmt<'tcx>
             matches!(sink(cx, use_expr), Sink::Arg(call, index) if reaches_f32_param(cx, call, index))
         })
         .then_some(uses.len())
-}
-
-/// Whether `expr` sits inside a loop (`for`/`while` desugar to
-/// `ExprKind::Loop`) that does not contain `binding_span` — a receiver local
-/// bound outside the loop is read again on the next iteration, which the
-/// source-position test below cannot see. Walks `expr`'s parents up to the
-/// enclosing body.
-fn in_repeating_loop(cx: &LateContext<'_>, expr: &Expr<'_>, binding_span: Span) -> bool {
-    let owner = cx
-        .tcx
-        .local_def_id_to_hir_id(cx.tcx.hir_enclosing_body_owner(expr.hir_id));
-    let mut id = expr.hir_id;
-    while id != owner {
-        match cx.tcx.parent_hir_node(id) {
-            Node::Expr(parent) => {
-                if let ExprKind::Loop(..) = parent.kind
-                    && !parent.span.contains(binding_span)
-                {
-                    return true;
-                }
-                id = parent.hir_id;
-            }
-            // Statements, the body's own block, and the `for`-desugar's
-            // `Some(pat) => ..` match arm sit between an expression and the
-            // loop around it.
-            Node::Stmt(stmt) => id = stmt.hir_id,
-            Node::LetStmt(stmt) => id = stmt.hir_id,
-            Node::Block(block) => id = block.hir_id,
-            Node::Arm(arm) => id = arm.hir_id,
-            _ => return false,
-        }
-    }
-    false
-}
-
-/// Whether deleting `.map(..)` would move `receiver` somewhere it must not
-/// go — only possible when the map call itself is the sink value (`direct`;
-/// a keeping adapter between them keeps the receiver borrowed). A place
-/// must not move when it is a field, index, or deref (the move would fail
-/// outright or partially move the owner), a non-local path such as a
-/// `static`, or a local read again — by a use after `expr` or by a loop
-/// iteration (`in_repeating_loop`). A local on its last use and rvalue
-/// receivers (calls, temporaries) keep the plain deletion.
-fn receiver_needs_clone<'tcx>(
-    cx: &LateContext<'tcx>,
-    expr: &'tcx Expr<'tcx>,
-    receiver: &Expr<'tcx>,
-    direct: bool,
-) -> bool {
-    if !direct {
-        return false;
-    }
-    match receiver.kind {
-        ExprKind::Field(..) | ExprKind::Index(..) | ExprKind::Unary(UnOp::Deref, _) => true,
-        ExprKind::Path(..) => match receiver.res_local_id() {
-            Some(local) => {
-                if in_repeating_loop(cx, expr, cx.tcx.hir_span(local)) {
-                    return true;
-                }
-                let body = cx
-                    .tcx
-                    .hir_body_owned_by(cx.tcx.hir_enclosing_body_owner(expr.hir_id));
-                for_each_expr(cx, body.value, |e| {
-                    if e.hir_id != receiver.hir_id
-                        && e.res_local_id() == Some(local)
-                        && e.span.lo() > expr.span.hi()
-                    {
-                        return ControlFlow::Break(());
-                    }
-                    ControlFlow::Continue(Descend::Yes)
-                })
-                .is_some()
-            }
-            None => true,
-        },
-        _ => false,
-    }
 }
 
 /// Flag `map_call` (`receiver.map(..)`): the suggestion replaces the

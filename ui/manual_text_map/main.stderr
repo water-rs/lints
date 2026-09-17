@@ -402,5 +402,38 @@ LL -     let _ = Model { count: binding(9) }.badge();
 LL +     let _ = Model { count: Binding::i32(9) }.badge();
    |
 
-warning: 33 warnings emitted
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:139:20
+   |
+LL |     let log_line = count.map(|c| format!("count = {c}")).computed();
+   |                    ^^^^^^^^^^^^^^----------------------^
+   |                                  |
+   |                                  the string is built by hand here
+   |
+   = help: use `s!("count = {count}")` — `s!` subscribes to its placeholders the way `format!` captures names
+   = note: `#[warn(manual_string_signal)]` on by default
+
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:142:44
+   |
+LL |     let _stored: Binding<String> = binding(name.map(|v| format!("{v}!")).computed().get());
+   |                                            ^^^^^^^^^^^^^---------------^
+   |                                                         |
+   |                                                         the string is built by hand here
+   |
+   = help: use `s!("{name}!")` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
+  --> $DIR/main.rs:154:18
+   |
+LL |     let _ = text(name.map(|v| Str::from(format!("<{v}>"))).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as `text!`
+   |
+LL -     let _ = text(name.map(|v| Str::from(format!("<{v}>"))).computed());
+LL +     let _ = text!("<{name}>");
+   |
+
+warning: 36 warnings emitted
 

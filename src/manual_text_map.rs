@@ -6,30 +6,32 @@ use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_c
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
-use clippy_utils::visitors::for_each_expr_without_closures;
 use rustc_ast::FormatArgs;
 use rustc_ast::format::{FormatArgsPiece, FormatCount};
-use rustc_data_structures::fx::{FxHashMap, FxHashSet};
+use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::def::{Namespace, Res};
 use rustc_hir::def_id::DefId;
 use rustc_hir::intravisit::{self, Visitor};
 use rustc_hir::{Block, Expr, ExprKind, HirId, LetStmt, Node, Pat, PatKind, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{TyCtxt, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::{TypeVisitableExt, TypeckResults};
 use rustc_session::impl_lint_pass;
-use rustc_span::symbol::{Ident, Symbol};
+use rustc_span::symbol::Symbol;
 use rustc_span::{ExpnKind, MacroKind, Span, sym};
 use std::cell::OnceCell;
-use std::ops::ControlFlow;
 
 use crate::carriers::{
-    CLONE, FROM, INTO, TO_OWNED, TO_STRING, is_call_to, is_string_ty, strip_wraps,
+    CLONE, TO_OWNED, TO_STRING, is_call_to, is_string_ty, strip_tail, strip_wraps,
 };
 use crate::def_path::def_path_eq;
 use crate::format_args::{escape_literal, parse_text_call, render_options};
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds_in, call_args};
+use crate::signal_map::{
+    Params, RESULT_ADAPTERS, alias_name, bare_path_ident, closure_parts, map_call, param_hir_id,
+    sources, touches_param, usable_ident,
+};
 use crate::snapshot_get::{get_receiver, is_snapshot_get_in};
 
 declare_waterui_lint! {
@@ -70,44 +72,6 @@ declare_waterui_lint! {
 const MESSAGE: &str = "`text!` already formats a signal — `.map(|v| format!(..))` throws away \
      format specs and the translatable sentence";
 
-/// `SignalExt::map` and `nami::reactive_core::map::map` — the two spellings
-/// of "transform this signal through a closure".
-const MAP_FNS: &[&[&str]] = &[
-    &["nami", "reactive_core", "ext", "SignalExt", "map"],
-    &["nami", "reactive_core", "map", "map"],
-];
-
-/// `SignalExt::zip` and `nami::zip` — both splice several signals into one;
-/// the lint flattens them into the map's signal sources.
-const ZIP_FNS: &[&[&str]] = &[
-    &["nami", "reactive_core", "ext", "SignalExt", "zip"],
-    &["nami", "reactive_core", "zip", "zip"],
-];
-
-/// Calls a map result may pass through on its way to a text position. They
-/// only rewrap the signal, so the analysis peels them and the fix drops them.
-const RESULT_ADAPTERS: &[&[&str]] = &[
-    &["nami", "reactive_core", "ext", "SignalExt", "computed"],
-    &["nami", "reactive_core", "ext", "SignalExt", "with"],
-    &["nami", "reactive_core", "ext", "SignalExt", "cached"],
-    &["nami", "reactive_core", "ext", "SignalExt", "distinct"],
-    &["nami", "reactive_core", "ext", "SignalExt", "inspect"],
-    &[
-        "nami",
-        "reactive_core",
-        "signal",
-        "IntoSignal",
-        "into_signal",
-    ],
-    &[
-        "nami",
-        "reactive_core",
-        "signal",
-        "IntoComputed",
-        "into_computed",
-    ],
-];
-
 /// `waterui_text::text::text` — the `text(..)` function; the only callee for
 /// which the whole call is replaced by `text!(..)`.
 const TEXT_FN: &[&str] = &["waterui_text", "text", "text"];
@@ -118,204 +82,6 @@ const LOCALIZED_WITH: &[&str] = &["waterui_text", "text", "Text", "localized_wit
 
 /// `use` text inserted when `text` isn't already in scope.
 const TEXT_USE: &str = "waterui::text";
-
-/// A candidate `text!` slot name must be a plain identifier — `text!`
-/// captures slots by name and parses `name = expr` bindings.
-fn usable_ident(ident: Ident) -> Option<Symbol> {
-    (!ident.is_reserved() && !ident.is_special()).then_some(ident.name)
-}
-
-/// `expr` is a bare identifier path (`count`, `selection`) — the shape a
-/// `text!` slot can capture by name. `self.count` has two segments and does
-/// not qualify.
-fn bare_path_ident(expr: &Expr<'_>) -> Option<Symbol> {
-    if let ExprKind::Path(QPath::Resolved(None, path)) = expr.kind
-        && let [segment] = path.segments
-    {
-        return usable_ident(segment.ident);
-    }
-    None
-}
-
-/// `sig.map(f)` / `nami::map(sig, f)` → `(receiver, closure)`.
-fn map_call<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    expr: &'hir Expr<'hir>,
-) -> Option<(&'hir Expr<'hir>, &'hir Expr<'hir>)> {
-    if !is_call_to(cx, typeck, expr, MAP_FNS) {
-        return None;
-    }
-    match call_args(expr).as_slice() {
-        [receiver, func] => Some((*receiver, *func)),
-        _ => None,
-    }
-}
-
-/// The parameter pattern, body, and body's `TypeckResults` of `|pat| body` —
-/// `map` closures take exactly one parameter. The closure is a nested body, so
-/// its expressions must be typed through `typeck_body`, not `cx`'s table.
-fn closure_parts<'hir>(
-    tcx: TyCtxt<'hir>,
-    func: &'hir Expr<'hir>,
-) -> Option<(&'hir Pat<'hir>, &'hir Expr<'hir>, &'hir TypeckResults<'hir>)> {
-    let mut func = func;
-    while let ExprKind::DropTemps(inner) = func.kind {
-        func = inner;
-    }
-    let ExprKind::Closure(closure) = func.kind else {
-        return None;
-    };
-    let body = tcx.hir_body(closure.body);
-    let [param] = body.params else {
-        return None;
-    };
-    Some((param.pat, body.value, tcx.typeck_body(closure.body)))
-}
-
-/// The signals the map reads: `zip(a, b)` / `a.zip(&b)` flatten to their
-/// arguments (recursively, for nested zips); anything else is the single
-/// source.
-fn sources<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    expr: &'hir Expr<'hir>,
-) -> Vec<&'hir Expr<'hir>> {
-    let expr = strip_wraps(cx, typeck, expr);
-    if is_call_to(cx, typeck, expr, ZIP_FNS) {
-        return call_args(expr)
-            .into_iter()
-            .flat_map(|arg| sources(cx, typeck, arg))
-            .collect();
-    }
-    vec![expr]
-}
-
-/// The bindings a map-closure parameter pattern makes, related to the
-/// signal sources it destructures.
-struct Params {
-    /// Whole-source bindings — `v` in `|v|`, `x`/`y` in `|(x, y)|` over
-    /// `zip(a, b)` — binding `HirId` → source index.
-    source_of: FxHashMap<HirId, usize>,
-    /// Every binding the pattern makes, partial destructures included.
-    all: FxHashSet<HirId>,
-    /// Binding name per source position — the `text!` slot name a non-bare
-    /// receiver aliases to.
-    names: Vec<Option<Symbol>>,
-    /// The pattern's own span — reused in the help alias.
-    span: Span,
-}
-
-/// Pattern positions in order — `|(x, (y, _))|` flattens to three slots;
-/// positions that are not a bare binding (`_`, literals, nested structs)
-/// record `None`.
-fn flatten_pat(pat: &Pat<'_>, slots: &mut Vec<Option<HirId>>, names: &mut Vec<Option<Symbol>>) {
-    match pat.kind {
-        PatKind::Binding(_, hir_id, ident, _) => {
-            slots.push(Some(hir_id));
-            names.push(usable_ident(ident));
-        }
-        PatKind::Tuple(subpats, _) | PatKind::TupleStruct(_, subpats, _) => {
-            for sub in subpats {
-                flatten_pat(sub, slots, names);
-            }
-        }
-        PatKind::Ref(inner, _, _) | PatKind::Box(inner) | PatKind::Deref(inner) => {
-            flatten_pat(inner, slots, names);
-        }
-        PatKind::Or([first, ..]) => flatten_pat(first, slots, names),
-        _ => {
-            slots.push(None);
-            names.push(None);
-        }
-    }
-}
-
-impl Params {
-    fn new(pat: &Pat<'_>, source_count: usize) -> Self {
-        let mut slots = Vec::new();
-        let mut names = Vec::new();
-        flatten_pat(pat, &mut slots, &mut names);
-        let mut source_of = FxHashMap::default();
-        // A binding names a whole source only when the pattern's arity
-        // matches the source count — `|(x, y)|` over `zip(a, b)`, `|v|` over
-        // a lone signal. Otherwise every binding is a partial destructure.
-        if slots.len() == source_count {
-            for (index, slot) in slots.into_iter().enumerate() {
-                if let Some(hir_id) = slot {
-                    source_of.insert(hir_id, index);
-                }
-            }
-        } else {
-            names = vec![None; source_count];
-        }
-        let mut all = FxHashSet::default();
-        pat.each_binding(|_, hir_id, _, _| {
-            all.insert(hir_id);
-        });
-        Self {
-            source_of,
-            all,
-            names,
-            span: pat.span,
-        }
-    }
-}
-
-/// A `path` expression resolving to one of `params` (`Res::Local`).
-fn param_hir_id(expr: &Expr<'_>, params: &FxHashSet<HirId>) -> Option<HirId> {
-    if let ExprKind::Path(QPath::Resolved(None, path)) = expr.kind
-        && let Res::Local(hir_id) = path.res
-        && params.contains(&hir_id)
-    {
-        return Some(hir_id);
-    }
-    None
-}
-
-/// Whether `expr` mentions any of `params`, not descending into closures.
-fn touches_param(expr: &Expr<'_>, params: &FxHashSet<HirId>) -> bool {
-    for_each_expr_without_closures(expr, |e| {
-        if param_hir_id(e, params).is_some() {
-            ControlFlow::Break(())
-        } else {
-            ControlFlow::Continue(())
-        }
-    })
-    .is_some()
-}
-
-/// `format!(..).into()`, `String::from(format!(..))`, `{ format!(..) }` —
-/// tail conversions/blocks around a mapped string are transparent to this
-/// lint.
-fn strip_tail<'hir>(
-    cx: &LateContext<'_>,
-    typeck: &TypeckResults<'hir>,
-    mut expr: &'hir Expr<'hir>,
-) -> &'hir Expr<'hir> {
-    loop {
-        expr = match expr.kind {
-            ExprKind::DropTemps(inner) => inner,
-            ExprKind::Block(
-                Block {
-                    stmts: [],
-                    expr: Some(inner),
-                    ..
-                },
-                _,
-            ) => inner,
-            _ if is_call_to(cx, typeck, expr, &[INTO, FROM])
-                && is_string_ty(cx, typeck.expr_ty(expr)) =>
-            {
-                match call_args(expr).as_slice() {
-                    [first, ..] => *first,
-                    [] => return expr,
-                }
-            }
-            _ => return expr,
-        };
-    }
-}
 
 /// The two `TypeckResults` the lint consults: the body holding the `map`
 /// call and the closure's own body, which is a nested body with a table of
@@ -689,21 +455,6 @@ impl<'hir> Namer<'hir> {
             self.slots[index] = Some(name);
         }
         self.slots[index].as_deref()
-    }
-}
-
-/// A name for an alias binding derived from the expression itself —
-/// `u.name` → `name`, `f(x)` → `arg{index}`.
-fn alias_name(expr: &Expr<'_>, index: usize) -> String {
-    match expr.kind {
-        ExprKind::Field(_, ident) => ident.to_string(),
-        ExprKind::Path(QPath::Resolved(None, path)) => path
-            .segments
-            .last()
-            .and_then(|segment| usable_ident(segment.ident))
-            .map(|name| name.to_string())
-            .unwrap_or_else(|| format!("arg{index}")),
-        _ => format!("arg{index}"),
     }
 }
 

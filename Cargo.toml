@@ -121,6 +121,10 @@ name = "manual_signal_zip_op"
 path = "ui/manual_signal_zip_op/main.rs"
 
 [[example]]
+name = "manual_string_signal"
+path = "ui/manual_string_signal/main.rs"
+
+[[example]]
 name = "manual_text_map"
 path = "ui/manual_text_map/main.rs"
 

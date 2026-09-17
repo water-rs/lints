@@ -148,4 +148,8 @@ fn main() {
     takes_string(name.map(|v| v.to_string()).computed().get());
     // Silent — already `text!`; the macro's own maps are not the user's.
     let _ = text!("{count}");
+
+    // Fires — a `Str::from` wrapper around `format!` still restates `s!`
+    // in a text position.
+    let _ = text(name.map(|v| Str::from(format!("<{v}>"))).computed());
 }
