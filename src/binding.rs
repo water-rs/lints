@@ -16,7 +16,7 @@ use rustc_middle::ty::{FloatTy, IntTy, Ty, TyKind, TypeVisitableExt, TypeckResul
 use rustc_span::symbol::Symbol;
 use rustc_span::{BytePos, Pos, Span, sym};
 
-use crate::imports::{Bare, bare_status, use_insertion};
+use crate::imports::{Bare, bare_status, extern_nameable, use_insertion};
 
 /// `nami`'s `Binding<T>` — the writable signal handle.
 pub(crate) const BINDING: &[&str] = &["nami", "reactive_core", "binding", "Binding"];
@@ -208,22 +208,11 @@ pub(crate) fn dedicated_ctor(ty: Ty<'_>) -> Option<&'static str> {
 /// The crate root a suggestion can spell `Binding` through — `waterui` when
 /// the linted crate can name it, `nami` when only it is a direct dependency,
 /// `None` when neither is in the extern prelude (e.g. linting `nami` itself).
-/// `sess.opts.externs` is the extern-prelude population — the `--extern`
-/// table of nameable crates; `tcx.crates()` would include transitive
-/// dependencies the crate cannot name.
 pub(crate) fn binding_krate(cx: &LateContext<'_>) -> Option<&'static str> {
-    let nameable = |name: &str| {
-        cx.tcx
-            .sess
-            .opts
-            .externs
-            .get(name)
-            .is_some_and(|entry| entry.add_prelude)
-    };
-    if nameable("waterui") {
+    if extern_nameable(cx, "waterui") {
         Some("waterui")
     } else {
-        nameable("nami").then_some("nami")
+        extern_nameable(cx, "nami").then_some("nami")
     }
 }
 

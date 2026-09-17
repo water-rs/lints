@@ -4425,6 +4425,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "needless_state_wrapper"
+version = "0.0.0"
+dependencies = [
+ "waterui",
+]
+
+[[package]]
 name = "new_debug_unreachable"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

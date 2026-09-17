@@ -144,6 +144,7 @@ mod needless_computed;
 mod needless_list_snapshot;
 mod needless_signal_cast;
 mod needless_signal_clone;
+mod needless_state_wrapper;
 mod non_reactive_ui_state;
 mod normalized_radius_overflow;
 mod on_change_derives_binding;
@@ -218,6 +219,7 @@ const LINTS: &[&LintInfo] = &[
     &needless_list_snapshot::LINT_INFO,
     &needless_signal_cast::LINT_INFO,
     &needless_signal_clone::LINT_INFO,
+    &needless_state_wrapper::LINT_INFO,
     &non_reactive_ui_state::LINT_INFO,
     &normalized_radius_overflow::LINT_INFO,
     &on_change_derives_binding::LINT_INFO,
@@ -303,6 +305,8 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(needless_list_snapshot::NeedlessListSnapshot));
     lint_store.register_late_pass(|_| Box::new(needless_signal_cast::NeedlessSignalCast));
     lint_store.register_late_pass(|_| Box::new(needless_signal_clone::NeedlessSignalClone));
+    lint_store
+        .register_late_pass(|_| Box::new(needless_state_wrapper::NeedlessStateWrapper::default()));
     lint_store.register_late_pass(|_| Box::new(non_reactive_ui_state::NonReactiveUiState));
     lint_store
         .register_late_pass(|_| Box::new(normalized_radius_overflow::NormalizedRadiusOverflow));
