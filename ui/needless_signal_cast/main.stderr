@@ -27,6 +27,14 @@ LL |     let _ = text("a").opacity(level_from.map(f32::from));
    |                                         |
    |                                         help: remove the `.map(..)` conversion
 
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:49:31
+   |
+LL |     let _ = text("a").opacity(level_call.map(|v| -> f32 { f32::from(v) }));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `level_call.map_into::<f32>()`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
 warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
   --> $DIR/main.rs:49:31
    |
@@ -34,6 +42,12 @@ LL |     let _ = text("a").opacity(level_call.map(|v| -> f32 { f32::from(v) }));
    |                               ^^^^^^^^^^---------------------------------
    |                                         |
    |                                         help: remove the `.map(..)` conversion
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:53:31
+   |
+LL |     let _ = text("a").opacity(level_into.map(|v| -> f32 { v.into() }));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `level_into.map_into::<f32>()`
 
 warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
   --> $DIR/main.rs:53:31
@@ -125,5 +139,5 @@ LL |     let _ = text("a").opacity(Binding::f64(1.1).map(/* keep me */ |v| v as 
    |                                                |
    |                                                help: remove the `.map(..)` conversion
 
-warning: 15 warnings emitted
+warning: 17 warnings emitted
 

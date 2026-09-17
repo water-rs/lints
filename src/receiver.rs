@@ -4,9 +4,12 @@
 //! borrowed — to whatever consumed the call's result.
 
 use clippy_utils::res::MaybeResPath;
+use clippy_utils::sugg::Sugg;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_hir::{Expr, ExprKind, Node, UnOp};
 use rustc_lint::LateContext;
+use rustc_middle::ty::adjustment::Adjust;
+use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_span::Span;
 use std::ops::ControlFlow;
 
@@ -85,5 +88,53 @@ pub(crate) fn receiver_needs_clone<'tcx>(
             None => true,
         },
         _ => false,
+    }
+}
+
+/// The number of leading `&`/`&mut` layers on `ty`. A spelled operand may
+/// carry references: `a.zip(borrowed)` with `borrowed: &B` types the
+/// argument as `&B` itself, and a receiver reached through autoderef
+/// (`borrowed.zip(..)`) reads as `&A`/`&&A`/….
+pub(crate) fn ref_depth(ty: Ty<'_>) -> usize {
+    let mut depth = 0;
+    let mut ty = ty;
+    while let TyKind::Ref(_, inner, _) = ty.kind() {
+        depth += 1;
+        ty = *inner;
+    }
+    depth
+}
+
+/// The `*`s `expr` needs spelled before `.clone()` to reach the owned
+/// value. Two sources count the same layers: `expr`'s own `&`/`&mut` type
+/// (`borrowed: &B` spelled verbatim — an argument receives no adjustments),
+/// and the `Deref` steps autoderef applied to reach the method's self type
+/// (`borrowed.zip(..)`/`b.map(..)` for `b: Rc<B>` — overloaded derefs
+/// included).
+pub(crate) fn deref_depth(typeck: &TypeckResults<'_>, expr: &Expr<'_>) -> usize {
+    let adjusted = typeck
+        .expr_adjustments(expr)
+        .iter()
+        .filter(|adjustment| matches!(adjustment.kind, Adjust::Deref(_)))
+        .count();
+    ref_depth(typeck.expr_ty(expr)).max(adjusted)
+}
+
+/// `expr` spelled where an owned value is needed — the receiver of a
+/// deleted `&self` segment, a by-value `a op b` operand: a place clones, a
+/// temporary moves, and a place reached through `&`/`Deref` dereferences
+/// back to the place first (`(*b).clone()` for `b: &B` or `b: Rc<B>`).
+pub(crate) fn owned_spelling(
+    typeck: &TypeckResults<'_>,
+    expr: &Expr<'_>,
+    sugg: Sugg<'_>,
+) -> String {
+    let depth = deref_depth(typeck, expr);
+    if depth > 0 {
+        format!("({}{}).clone()", "*".repeat(depth), sugg.maybe_paren())
+    } else if expr.is_syntactic_place_expr() {
+        format!("{}.clone()", sugg.maybe_paren())
+    } else {
+        sugg.maybe_paren().to_string()
     }
 }

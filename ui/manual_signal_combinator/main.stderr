@@ -1,5 +1,5 @@
 warning: this binding has a dedicated constructor
-  --> $DIR/main.rs:12:31
+  --> $DIR/main.rs:35:31
    |
 LL |     let count: Binding<i32> = binding(0);
    |                               ^^^^^^^^^^
@@ -12,7 +12,7 @@ LL +     let count = Binding::i32(0);
    |
 
 warning: this binding has a dedicated constructor
-  --> $DIR/main.rs:13:31
+  --> $DIR/main.rs:36:31
    |
 LL |     let flag: Binding<bool> = binding(false);
    |                               ^^^^^^^^^^^^^^
@@ -24,7 +24,7 @@ LL +     let flag = Binding::bool(false);
    |
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:19:13
+  --> $DIR/main.rs:42:13
    |
 LL |     let _ = flag.map(|v| !v);
    |             ^^^^^^^^^^^^^^^^ help: use the combinator: `flag.not()`
@@ -32,73 +32,73 @@ LL |     let _ = flag.map(|v| !v);
    = note: `#[warn(manual_signal_combinator)]` on by default
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:21:13
+  --> $DIR/main.rs:44:13
    |
 LL |     let _ = count.map(|v| v == 3);
    |             ^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.equal_to(3)`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:23:13
+  --> $DIR/main.rs:46:13
    |
 LL |     let _ = count.map(|v| v > 3);
    |             ^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.gt(3)`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:25:13
+  --> $DIR/main.rs:48:13
    |
 LL |     let _ = count.map(|v| v <= 3);
    |             ^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.le(3)`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:27:13
+  --> $DIR/main.rs:50:13
    |
 LL |     let _ = count.map(|v| -v);
    |             ^^^^^^^^^^^^^^^^^ help: use the combinator: `count.negate()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:29:13
+  --> $DIR/main.rs:52:13
    |
 LL |     let _ = name.map(|s| s.is_empty());
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `name.str_is_empty()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:31:13
+  --> $DIR/main.rs:54:13
    |
 LL |     let _ = name.map(|s| s.len());
    |             ^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `name.str_len()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:33:13
+  --> $DIR/main.rs:56:13
    |
 LL |     let _ = name.map(|s| s.contains("x"));
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `name.str_contains("x")`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:35:13
+  --> $DIR/main.rs:58:13
    |
 LL |     let _ = opt.map(|o| o.is_some());
    |             ^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.is_some()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:37:13
+  --> $DIR/main.rs:60:13
    |
 LL |     let _ = opt.map(|o| o.is_none());
    |             ^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.is_none()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:39:13
+  --> $DIR/main.rs:62:13
    |
 LL |     let _ = res.map(|r| r.is_ok());
    |             ^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.is_ok()`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:41:13
+  --> $DIR/main.rs:64:13
    |
 LL |     let _ = flag.map(|b| if b { 10 } else { 20 });
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.select(10, 20)`
 
 warning: this `map` closure is a named `SignalExt` combinator
-  --> $DIR/main.rs:44:13
+  --> $DIR/main.rs:67:13
    |
 LL |       let _ = flag.map(|v| {
    |  _____________^
@@ -107,5 +107,237 @@ LL | |         !v
 LL | |     });
    | |______^ help: use the combinator: `flag.not()`
 
-warning: 15 warnings emitted
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:96:13
+   |
+LL |     let _ = count.map(|v| v != 3);
+   |             ^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.equal_to(3).not()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:98:13
+   |
+LL |     let _ = count.map(|v| v == 0);
+   |             ^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.is_zero()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:100:13
+   |
+LL |     let _ = float.map(|v| v == 0.0);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `float.is_zero()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:102:13
+   |
+LL |     let _ = count.map(|v| v > 0);
+   |             ^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.is_positive()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:104:13
+   |
+LL |     let _ = count.map(|v| v < 0);
+   |             ^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.is_negative()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:106:13
+   |
+LL |     let _ = unsigned.map(|v| v > 0);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `unsigned.gt(0)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:108:13
+   |
+LL |     let _ = count.map(|v| v.abs());
+   |             ^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.abs()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:110:13
+   |
+LL |     let _ = opt.map(|v| v.unwrap_or(0));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.unwrap_or(0)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:112:13
+   |
+LL |     let _ = opt.map(|v| v.unwrap_or_default());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.unwrap_or_default()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:115:13
+   |
+LL |     let _ = opt.map(|v| v.unwrap_or_else(|| helper() + 1));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.unwrap_or_else(|| helper() + 1)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:117:13
+   |
+LL |     let _ = opt.map(|v| v.unwrap_or_else(zero));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.unwrap_or_else(zero)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:120:13
+   |
+LL |     let _ = res.map(|v| v.unwrap_or(0));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.unwrap_or_result(0)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:123:13
+   |
+LL |     let _ = res.map(|v| v.unwrap_or_else(|e| e.len() as i32));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.unwrap_or_else_result(|e| e.len() as i32)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:125:13
+   |
+LL |     let _ = opt.map(|v| v == Some(3));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.some_equal_to(3)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:130:13
+   |
+LL |     let _ = opt.map(|v| v == None);
+   |             ^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.is_none()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:133:13
+   |
+LL |     let _ = opt.map(|v| v != None);
+   |             ^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.is_some()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:135:13
+   |
+LL |     let _ = nested.map(|v| v.flatten());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `nested.flatten()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:137:13
+   |
+LL |     let _ = res.map(|v| v.ok());
+   |             ^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.ok()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:138:13
+   |
+LL |     let _ = res.map(|v| v.err());
+   |             ^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.err()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:140:13
+   |
+LL |     let _ = opt.map(|v| v.map(|x| x + 1));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.map_some(|x| x + 1)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:143:13
+   |
+LL |     let _ = opt.map(|v| v.and_then(|x| if x > 0 { Some(x + 1) } else { None }));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.and_then_some(|x| if x > 0 { Some(x + 1) } else { None })`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:145:13
+   |
+LL |     let _ = res.map(|v| v.map(|x| x + 1));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.map_ok(|x| x + 1)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:147:13
+   |
+LL |     let _ = res.map(|v| v.map_err(|e| e.len()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `res.map_err(|e| e.len())`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:149:13
+   |
+LL |     let _ = flag.map(|v| v.then_some(3));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.then_some(3)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:151:13
+   |
+LL |     let _ = flag.map(|v| if v { Some(3) } else { None });
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `flag.then_some(3)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:153:15
+   |
+LL |     takes_i64(count.map(|v| v.into()));
+   |               ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.map_into::<i64>()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:156:13
+   |
+LL |     let _ = count.map(|v: i32| i64::from(v));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.map_into::<i64>()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:158:15
+   |
+LL |     takes_i64(count.map(|v: i32| Into::into(v)));
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.map_into::<i64>()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:159:15
+   |
+LL |     takes_i64(count.map(|v: i32| From::from(v)));
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.map_into::<i64>()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:162:13
+   |
+LL |     let _ = count.map(|v| v.into()).map(|w: i64| w + 1);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.map_into::<i64>()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:167:31
+   |
+LL |     let _ = text("a").opacity(level.map(|v: u8| f32::from(v)));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `level.map_into::<f32>()`
+
+warning: this conversion is performed by the `impl IntoSignalF32` parameter; pass the signal as it is
+  --> $DIR/main.rs:167:31
+   |
+LL |     let _ = text("a").opacity(level.map(|v: u8| f32::from(v)));
+   |                               ^^^^^--------------------------
+   |                                    |
+   |                                    help: remove the `.map(..)` conversion
+   |
+   = note: `#[warn(needless_signal_cast)]` on by default
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:169:13
+   |
+LL |     let _ = count.map(|v| v);
+   |             ^^^^^^^^^^^^^^^^ help: use the combinator: `count.clone()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:171:13
+   |
+LL |     let _ = name.map(|v| v.clone());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `name.clone()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:173:13
+   |
+LL |     let _ = count.zip(&flag).map(|v| v);
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `count.zip(&flag)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:177:13
+   |
+LL |     let _ = shared.map(|v| v);
+   |             ^^^^^^^^^^^^^^^^^ help: use the combinator: `(*shared).clone()`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:180:13
+   |
+LL |     let _ = opt.map(|v| v.unwrap_or_else(ZERO_FN));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.unwrap_or_else(ZERO_FN)`
+
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:184:13
+   |
+LL |     let _ = opt.map(move |v| v.map(move |x| x + add));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `opt.map_some(move |x| x + add)`
+
+warning: 53 warnings emitted
 

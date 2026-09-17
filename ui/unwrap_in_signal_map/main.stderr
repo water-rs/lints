@@ -49,6 +49,14 @@ LL |     let _ = state.map(|s| s.user.as_ref().unwrap().name.clone());
    |
    = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
 
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:61:13
+   |
+LL |     let _ = nested.map(|v| v.map(|x| x.unwrap()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `nested.map_some(|x| x.unwrap())`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
 warning: this signal panics whenever its source is `None`
   --> $DIR/main.rs:61:13
    |
@@ -90,5 +98,11 @@ LL |     let _ = num.map(move |n| inner_sig.map(move |w| w.unwrap() + n));
    |
    = help: derive the value with `unwrap_or`/`unwrap_or_default`/`unwrap_or_else` (`unwrap_or_result`/`unwrap_or_else_result` for a `Result`), or keep the `Option`/`Result` with `map_some`/`map_ok` and decide at the view with `when`
 
-warning: 9 warnings emitted
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:91:13
+   |
+LL |     let _ = maybe.map(|v| v.unwrap_or_default());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `maybe.unwrap_or_default()`
+
+warning: 11 warnings emitted
 
