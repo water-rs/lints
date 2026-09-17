@@ -3983,6 +3983,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "manual_edge_insets"
+version = "0.0.0"
+dependencies = [
+ "waterui",
+]
+
+[[package]]
 name = "manual_identifiable"
 version = "0.0.0"
 dependencies = [
