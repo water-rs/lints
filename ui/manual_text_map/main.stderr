@@ -100,6 +100,16 @@ LL -     let total: Binding<i32> = binding(42);
 LL +     let total = Binding::i32(42);
    |
 
+warning: this `clone` is redundant: `map` takes `&self`
+  --> $DIR/main.rs:64:26
+   |
+LL |     let selection_text = selection.clone().map(|fruit| format!("{fruit:?}"));
+   |                          ^^^^^^^^^--------
+   |                                   |
+   |                                   help: drop the `.clone()`
+   |
+   = note: `#[warn(needless_signal_clone)]` on by default
+
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:64:26
    |
@@ -333,6 +343,14 @@ LL -     );
 LL +     let _ = text!("{name}: {count} left");
    |
 
+warning: this `clone` is redundant: `map` takes `&self`
+  --> $DIR/main.rs:123:19
+   |
+LL |     let summary = total.clone().map(|t| format!("Total: {t}")).computed();
+   |                   ^^^^^--------
+   |                        |
+   |                        help: drop the `.clone()`
+
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:123:19
    |
@@ -371,5 +389,5 @@ LL -     let _ = Model { count: binding(9) }.badge();
 LL +     let _ = Model { count: Binding::i32(9) }.badge();
    |
 
-warning: 30 warnings emitted
+warning: 32 warnings emitted
 

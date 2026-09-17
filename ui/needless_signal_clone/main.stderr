@@ -1,0 +1,68 @@
+warning: this `clone` is redundant: `select` takes `&self`
+  --> $DIR/main.rs:36:13
+   |
+LL |     let _ = flag.clone().select(0.45, 1.0);
+   |             ^^^^--------
+   |                 |
+   |                 help: drop the `.clone()`
+   |
+   = note: `#[warn(needless_signal_clone)]` on by default
+
+warning: this `clone` is redundant: `map` takes `&self`
+  --> $DIR/main.rs:38:13
+   |
+LL |     let _ = model.available.clone().map(|v| v as u8);
+   |             ^^^^^^^^^^^^^^^--------
+   |                            |
+   |                            help: drop the `.clone()`
+
+warning: this `clone` is redundant: `computed` takes `&self`
+  --> $DIR/main.rs:40:13
+   |
+LL |     let _ = count.clone().computed();
+   |             ^^^^^--------
+   |                  |
+   |                  help: drop the `.clone()`
+
+warning: this `clone` is redundant: `unwrap_or` takes `&self`
+  --> $DIR/main.rs:42:13
+   |
+LL |     let _ = maybe.clone().unwrap_or(0);
+   |             ^^^^^--------
+   |                  |
+   |                  help: drop the `.clone()`
+
+warning: this `clone` is redundant: `zip` takes `&self`
+  --> $DIR/main.rs:44:13
+   |
+LL |     let _ = a.clone().zip(&b);
+   |             ^--------
+   |              |
+   |              help: drop the `.clone()`
+
+warning: this `clone` is redundant: `map` takes `&self`
+  --> $DIR/main.rs:46:13
+   |
+LL |     let _ = make_flag().clone().map(|v| v as u8);
+   |             ^^^^^^^^^^^--------
+   |                        |
+   |                        help: drop the `.clone()`
+
+warning: this `clone` is redundant: `push` takes `&self`
+  --> $DIR/main.rs:48:5
+   |
+LL |     list.clone().push(3);
+   |     ^^^^--------
+   |         |
+   |         help: drop the `.clone()`
+
+warning: this `clone` is redundant: `select` takes `&self`
+  --> $DIR/main.rs:50:13
+   |
+LL |     let _ = (flag.clone()).select(0.45, 1.0);
+   |             ^^^^^--------^
+   |                  |
+   |                  help: drop the `.clone()`
+
+warning: 8 warnings emitted
+
