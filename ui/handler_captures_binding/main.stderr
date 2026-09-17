@@ -52,7 +52,7 @@ LL |     let items: ReactiveList<u32> = ReactiveList::new();
 LL |     let _ = button("clear").action(move || items.clear());
    |                                    ^^^^^^^
    |
-   = help: inject it with `.state(&items)` on the view and take `State(items): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+   = help: inject it with `.state(&items)` on the view and take `State(items): State<ReactiveList<T>>` as a handler parameter, so the handler can be a named function
 
 warning: this binding has a dedicated constructor
   --> $DIR/main.rs:25:31
@@ -136,5 +136,146 @@ LL -     let flag: Binding<bool> = binding(false);
 LL +     let flag = Binding::bool(false);
    |
 
-warning: 12 warnings emitted
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:59:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:62:9
+   |
+LL |         let count = count.clone();
+   |         --------------------------
+   |         |   |
+   |         |   captures `count`, a `Binding`
+   |         cloned here only to be captured
+LL |         move || count.set(1)
+   |         ^^^^^^^
+   |
+   = help: delete those `let` lines together with the `move`, then inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:66:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:70:9
+   |
+LL |         let count = count.clone();
+   |         --------------------------
+   |         |   |
+   |         |   captures `count`, a `Binding`
+   |         cloned here only to be captured
+LL |         let flag = flag.clone();
+   |         ------------------------
+   |         |   |
+   |         |   captures `flag`, a `Binding`
+   |         cloned here only to be captured
+LL |         move || {
+   |         ^^^^^^^
+   |
+   = help: delete those `let` lines together with the `move`, then inject them with `.state(&count).state(&flag)` on the view and take `State(count): State<Binding<T>>`, `State(flag): State<Binding<T>>` as handler parameters, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:80:9
+   |
+LL |         let total = total.clone();
+   |         --------------------------
+   |         |   |
+   |         |   captures `total`, a `Computed`
+   |         cloned here only to be captured
+LL |         move || takes_i32(total.get())
+   |         ^^^^^^^
+   |
+   = help: delete those `let` lines together with the `move`, then inject it with `.state(&total)` on the view and take `State(total): State<Computed<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:87:36
+   |
+LL |     let total: Computed<i32> = count.map(|n| n * 2).computed();
+   |         ----- captures `total`, a `Computed`
+...
+LL |     let _ = button("total").action(move || takes_i32(total.get()));
+   |                                    ^^^^^^^
+   |
+   = help: inject it with `.state(&total)` on the view and take `State(total): State<Computed<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:98:31
+   |
+LL |     let extra: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let extra: Binding<i32> = binding(0);
+LL +     let extra = Binding::i32(0);
+   |
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:102:9
+   |
+LL |         let extra = extra.clone();
+   |             ----- captures `extra`, a `Binding`
+LL |         takes_i32(extra.get());
+LL |         move || extra.set(1)
+   |         ^^^^^^^
+   |
+   = help: inject it with `.state(&extra)` on the view and take `State(extra): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:107:31
+   |
+LL |     let outer: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let outer: Binding<i32> = binding(0);
+LL +     let outer = Binding::i32(0);
+   |
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:112:13
+   |
+LL |         let outer = outer.clone();
+   |         --------------------------
+   |         |   |
+   |         |   captures `outer`, a `Binding`
+   |         cloned here only to be captured
+...
+LL |             move || outer.set(n)
+   |             ^^^^^^^
+   |
+   = help: delete those `let` lines together with the `move`, then inject it with `.state(&outer)` on the view and take `State(outer): State<Binding<T>>` as a handler parameter, so the handler can be a named function
+
+warning: this handler captures a reactive handle instead of taking it as `State<T>`
+  --> $DIR/main.rs:127:13
+   |
+LL |             let items = self.items.clone();
+   |             -------------------------------
+   |             |   |
+   |             |   captures `items`, a `ReactiveList`
+   |             cloned here only to be captured
+LL |             move || items.clear()
+   |             ^^^^^^^
+   |
+   = help: delete those `let` lines together with the `move`, then inject it with `.state(&items)` on the view and take `State(items): State<ReactiveList<T>>` as a handler parameter, so the handler can be a named function
+
+warning: 23 warnings emitted
 
