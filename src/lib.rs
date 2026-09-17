@@ -122,6 +122,7 @@ mod localized_concat;
 mod long_text_key;
 mod manual_binding_mutation;
 mod manual_color_erasure;
+mod manual_computed;
 mod manual_identifiable;
 mod manual_list_mutation;
 mod manual_signal_combinator;
@@ -182,6 +183,7 @@ const LINTS: &[&LintInfo] = &[
     &long_text_key::LINT_INFO,
     &manual_binding_mutation::LINT_INFO,
     &manual_color_erasure::LINT_INFO,
+    &manual_computed::LINT_INFO,
     &manual_identifiable::LINT_INFO,
     &manual_list_mutation::LINT_INFO,
     &manual_signal_combinator::LINT_INFO,
@@ -257,6 +259,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     lint_store.register_late_pass(|_| Box::new(manual_binding_mutation::ManualBindingMutation));
     lint_store
         .register_late_pass(|_| Box::new(manual_color_erasure::ManualColorErasure::default()));
+    lint_store.register_late_pass(|_| Box::new(manual_computed::ManualComputed));
     lint_store.register_late_pass(|_| Box::new(manual_identifiable::ManualIdentifiable));
     lint_store.register_late_pass(|_| Box::new(manual_list_mutation::ManualListMutation));
     lint_store.register_late_pass(|_| Box::new(manual_signal_combinator::ManualSignalCombinator));

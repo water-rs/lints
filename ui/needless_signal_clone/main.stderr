@@ -64,5 +64,13 @@ LL |     let _ = (flag.clone()).select(0.45, 1.0);
    |                  |
    |                  help: drop the `.clone()`
 
-warning: 8 warnings emitted
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:55:13
+   |
+LL |     let _ = Computed::new(count.clone());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+   |
+   = note: `#[warn(manual_computed)]` on by default
+
+warning: 9 warnings emitted
 

@@ -10,7 +10,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::{BytePos, Pos, Span, SyntaxContext, def_id::DefId};
 use std::ops::ControlFlow;
 
-use crate::binding::BINDING;
+use crate::binding::{BINDING, COMPUTED};
 use crate::carriers::CLONE;
 use crate::def_path::def_path_eq;
 use crate::param_bounds::{call_def_id, implemented_trait_item};
@@ -58,11 +58,7 @@ const SIGNAL_EXT: &[&str] = &["nami", "reactive_core", "ext", "SignalExt"];
 /// `then_some`, `mapping`, `negate`, `reverse`, …) and `List`'s mutators
 /// all borrow the handle. `Computed` has no inherent `&self` methods today;
 /// the entry keeps the detection honest if it grows one.
-const INHERENT_HOMES: &[&[&str]] = &[
-    BINDING,
-    &["nami", "reactive_core", "signal", "computed", "Computed"],
-    &["nami", "data", "collection", "List"],
-];
+const INHERENT_HOMES: &[&[&str]] = &[BINDING, COMPUTED, &["nami", "data", "collection", "List"]];
 
 /// `did`'s first parameter is `&self` — not `self`, `&mut self`, or absent.
 fn takes_ref_self(cx: &LateContext<'_>, did: DefId) -> bool {

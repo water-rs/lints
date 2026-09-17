@@ -92,6 +92,10 @@ name = "manual_color_erasure"
 path = "ui/manual_color_erasure/main.rs"
 
 [[example]]
+name = "manual_computed"
+path = "ui/manual_computed/main.rs"
+
+[[example]]
 name = "manual_identifiable"
 path = "ui/manual_identifiable/main.rs"
 
