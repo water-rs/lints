@@ -156,6 +156,14 @@ LL -     let _ = text(name.map(|v| v.to_string()).computed());
 LL +     let _ = text!("{name}");
    |
 
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:73:18
+   |
+LL |     let _ = text(name.map(|v| v.clone()).computed());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^ help: use the combinator: `name.clone()`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:73:18
    |
@@ -474,5 +482,5 @@ LL -     let _ = text(name.map(|v| Str::from(format!("<{v}>"))).computed());
 LL +     let _ = text!("<{name}>");
    |
 
-warning: 40 warnings emitted
+warning: 41 warnings emitted
 

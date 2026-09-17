@@ -9,12 +9,13 @@ use clippy_utils::ty::implements_trait;
 use rustc_errors::Applicability;
 use rustc_hir::{BinOpKind, Expr, ExprKind, HirId, LangItem, MatchSource, PatKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyKind, TypeVisitableExt, TypeckResults};
+use rustc_middle::ty::TypeVisitableExt;
 use rustc_session::declare_lint_pass;
 
 use crate::carriers::{body_expr, strip_wraps};
 use crate::def_path::def_path_eq;
 use crate::param_bounds::implemented_trait_item;
+use crate::receiver::{owned_spelling, ref_depth};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -117,24 +118,6 @@ fn op_lang_item(op: BinOpKind) -> Option<LangItem> {
     })
 }
 
-/// The number of `&`/`&mut` layers on `ty`. `zip` stores `B`, but the
-/// spelled operand may carry references: `a.zip(borrowed)` with
-/// `borrowed: &B` types the argument as `&B` itself, and a receiver reached
-/// through autoderef (`borrowed.zip(..)`) reads as `&A`/`&&A`/….
-fn ref_depth(ty: Ty<'_>) -> usize {
-    let mut depth = 0;
-    let mut ty = ty;
-    while let TyKind::Ref(_, inner, _) = ty.kind() {
-        depth += 1;
-        ty = *inner;
-    }
-    depth
-}
-
-/// `expr` spelled as a by-value `a op b` operand: the operator impls take
-/// `self`/`rhs` by value, so a place expression is cloned and a temporary
-/// moves. An operand already behind references is dereferenced to the
-/// place first — `(*b).clone()` for `b: &B`.
 /// `expr` sits where a bare `a op b` would rebind — a method receiver, a
 /// field/index base, a call callee, a unary/`&`/`as`/`.await` operand, or
 /// either side of a binary operator — so the rewrite needs `(...)`.
@@ -161,20 +144,6 @@ fn needs_parens(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
         | ExprKind::Yield(..) => true,
         ExprKind::Match(_, _, MatchSource::AwaitDesugar) => true,
         _ => false,
-    }
-}
-
-fn op_operand(typeck: &TypeckResults<'_>, expr: &Expr<'_>, sugg: Sugg<'_>) -> String {
-    let depth = ref_depth(typeck.expr_ty(expr));
-    if depth > 0 {
-        format!(
-            "({}).clone()",
-            "*".repeat(depth) + &sugg.maybe_paren().to_string()
-        )
-    } else if expr.is_syntactic_place_expr() {
-        format!("{}.clone()", sugg.maybe_paren())
-    } else {
-        sugg.maybe_paren().to_string()
     }
 }
 
@@ -290,8 +259,8 @@ impl<'tcx> LateLintPass<'tcx> for ManualSignalZipOp {
                 // surrounding expression would rebind a bare `a op b`.
                 let sugg = make_binop(
                     kind,
-                    &Sugg::NonParen(op_operand(typeck, a, a_sugg).into()),
-                    &Sugg::NonParen(op_operand(typeck, b, b_sugg).into()),
+                    &Sugg::NonParen(owned_spelling(typeck, a, a_sugg).into()),
+                    &Sugg::NonParen(owned_spelling(typeck, b, b_sugg).into()),
                 );
                 if needs_parens(cx, expr) {
                     sugg.maybe_paren().into_string()

@@ -36,6 +36,14 @@ warning: this `zip`/`map` pair is a named signal operation
 LL |     let _ = count.map(|v| v).zip(&other).map(|(x, y)| x - y);
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `count.map(|v| v) - other.clone()`
 
+warning: this `map` closure is a named `SignalExt` combinator
+  --> $DIR/main.rs:37:13
+   |
+LL |     let _ = count.map(|v| v).zip(&other).map(|(x, y)| x - y);
+   |             ^^^^^^^^^^^^^^^^ help: use the combinator: `count.clone()`
+   |
+   = note: `#[warn(manual_signal_combinator)]` on by default
+
 warning: this `zip`/`map` pair is a named signal operation
   --> $DIR/main.rs:39:13
    |
@@ -88,5 +96,5 @@ LL |     }
 LL ~     .apply(&count);
    |
 
-warning: 13 warnings emitted
+warning: 14 warnings emitted
 
