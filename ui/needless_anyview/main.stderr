@@ -1,3 +1,16 @@
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:35:5
+   |
+LL |     AnyView::new(text("a"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(anyview_new_in_free_fn)]` on by default
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("a"))
+LL +     text("a").anyview()
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:35:5
    |
@@ -47,6 +60,30 @@ LL -     }
 LL +     if c text("a") else text("b")
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:42:9
+   |
+LL |         AnyView::new(text("a"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         AnyView::new(text("a"))
+LL +         text("a").anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:44:9
+   |
+LL |         AnyView::new(text("b"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         AnyView::new(text("b"))
+LL +         text("b").anyview()
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:51:5
    |
@@ -62,11 +99,59 @@ LL ~         true => text("a"),
 LL ~         false => text("b"),
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:52:17
+   |
+LL |         true => AnyView::new(text("a")),
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         true => AnyView::new(text("a")),
+LL +         true => text("a").anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:53:18
+   |
+LL |         false => AnyView::new(text("b")),
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         false => AnyView::new(text("b")),
+LL +         false => text("b").anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:61:16
+   |
+LL |         return AnyView::new(text("a"));
+   |                ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         return AnyView::new(text("a"));
+LL +         return text("a").anyview();
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:61:16
    |
 LL |         return AnyView::new(text("a"));
    |                ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:63:5
+   |
+LL |     AnyView::new(text("b"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("b"))
+LL +     text("b").anyview()
+   |
 
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:63:5
@@ -91,6 +176,30 @@ LL ~         true => text("a"),
 LL ~         false => text("b"),
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:71:17
+   |
+LL |         true => AnyView::new(text("a")),
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         true => AnyView::new(text("a")),
+LL +         true => text("a").anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:72:18
+   |
+LL |         false => AnyView::new(text("b")),
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         false => AnyView::new(text("b")),
+LL +         false => text("b").anyview(),
+   |
+
 warning: the return type can be `impl View`
   --> $DIR/main.rs:78:16
    |
@@ -103,6 +212,18 @@ LL ~ fn erased() -> impl View {
 LL ~     text("a")
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:79:5
+   |
+LL |     AnyView::new(text("a"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("a"))
+LL +     text("a").anyview()
+   |
+
 warning: the return type can be `impl View`
   --> $DIR/main.rs:84:21
    |
@@ -113,6 +234,30 @@ help: return `impl View` and drop the `AnyView` wrappers
    |
 LL - fn passthrough() -> AnyView {
 LL + fn passthrough() -> impl View {
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:92:24
+   |
+LL |         Row::Header => AnyView::new(header()),
+   |                        ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         Row::Header => AnyView::new(header()),
+LL +         Row::Header => header().anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:93:22
+   |
+LL |         Row::Item => AnyView::new(item()),
+   |                      ^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         Row::Item => AnyView::new(item()),
+LL +         Row::Item => item().anyview(),
    |
 
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
@@ -135,6 +280,102 @@ LL -     }
 LL +     when(c, || AnyView::new(text("a"))).otherwise(|| AnyView::new(item()))
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:100:9
+   |
+LL |         AnyView::new(text("a"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         AnyView::new(text("a"))
+LL +         text("a").anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:102:9
+   |
+LL |         AnyView::new(item())
+   |         ^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         AnyView::new(item())
+LL +         item().anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:109:16
+   |
+LL |         return AnyView::new(text("a"));
+   |                ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         return AnyView::new(text("a"));
+LL +         return text("a").anyview();
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:111:5
+   |
+LL |     AnyView::new(text("b"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("b"))
+LL +     text("b").anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:118:15
+   |
+LL |         view: AnyView::new(text("a")),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         view: AnyView::new(text("a")),
+LL +         view: text("a").anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:120:5
+   |
+LL |     AnyView::new(text("b"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("b"))
+LL +     text("b").anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:125:37
+   |
+LL |     let _views: Vec<AnyView> = vec![AnyView::new(text("a"))];
+   |                                     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _views: Vec<AnyView> = vec![AnyView::new(text("a"))];
+LL +     let _views: Vec<AnyView> = vec![text("a").anyview()];
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:126:5
+   |
+LL |     AnyView::new(text("b"))
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("b"))
+LL +     text("b").anyview()
+   |
+
 warning: the return type can be `impl View`
   --> $DIR/main.rs:133:23
    |
@@ -145,6 +386,18 @@ help: return `impl View` and drop the `AnyView` wrappers
    |
 LL ~     fn view(&self) -> impl View {
 LL ~         text("a")
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:140:20
+   |
+LL |     let _ = scroll(AnyView::new(text("a")));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = scroll(AnyView::new(text("a")));
+LL +     let _ = scroll(text("a").anyview());
    |
 
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
@@ -159,11 +412,35 @@ warning: erasing to `AnyView` is unnecessary — the position already accepts `i
 LL |     let _ = scroll(text("a").anyview());
    |                    ^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:144:24
+   |
+LL |     let _ = takes_view(AnyView::new(text("a")));
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = takes_view(AnyView::new(text("a")));
+LL +     let _ = takes_view(text("a").anyview());
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:144:24
    |
 LL |     let _ = takes_view(AnyView::new(text("a")));
    |                        ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:147:21
+   |
+LL |     let _ = vstack((AnyView::new(text("a")), text("b")));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = vstack((AnyView::new(text("a")), text("b")));
+LL +     let _ = vstack((text("a").anyview(), text("b")));
+   |
 
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:147:21
@@ -183,17 +460,77 @@ LL -     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
 LL +     let _ = vstack([text("a"), text("b")]);
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:150:21
+   |
+LL |     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+LL +     let _ = vstack([text("a").anyview(), AnyView::new(text("b"))]);
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:150:46
+   |
+LL |     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = vstack([AnyView::new(text("a")), AnyView::new(text("b"))]);
+LL +     let _ = vstack([AnyView::new(text("a")), text("b").anyview()]);
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:152:42
+   |
+LL |     let _ = when(Binding::bool(true), || AnyView::new(text("a")));
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = when(Binding::bool(true), || AnyView::new(text("a")));
+LL +     let _ = when(Binding::bool(true), || text("a").anyview());
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:152:42
    |
 LL |     let _ = when(Binding::bool(true), || AnyView::new(text("a")));
    |                                          ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:158:20
+   |
+LL |             return AnyView::new(text("a"));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -             return AnyView::new(text("a"));
+LL +             return text("a").anyview();
+   |
+
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:158:20
    |
 LL |             return AnyView::new(text("a"));
    |                    ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:160:9
+   |
+LL |         AnyView::new(text("b"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         AnyView::new(text("b"))
+LL +         text("b").anyview()
+   |
 
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:160:9
@@ -221,5 +558,89 @@ warning: this `AnyView` is erased a second time
 LL |     let _ = scroll(AnyView::new(v));
    |                    ^^^^^^^^^^^^^^^ help: drop the second wrapper: `v`
 
-warning: 22 warnings emitted
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:172:31
+   |
+LL |     let _ = text("a").overlay(AnyView::new(text("b")));
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = text("a").overlay(AnyView::new(text("b")));
+LL +     let _ = text("a").overlay(text("b").anyview());
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:175:15
+   |
+LL |         view: AnyView::new(text("a")),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         view: AnyView::new(text("a")),
+LL +         view: text("a").anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:179:36
+   |
+LL |     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
+   |                                    ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
+LL +     let views: Vec<AnyView> = vec![text("a").anyview(), AnyView::new(text("b"))];
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:179:61
+   |
+LL |     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
+   |                                                             ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let views: Vec<AnyView> = vec![AnyView::new(text("a")), AnyView::new(text("b"))];
+LL +     let views: Vec<AnyView> = vec![AnyView::new(text("a")), text("b").anyview()];
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:189:13
+   |
+LL |     consume(AnyView::new(text("a")));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     consume(AnyView::new(text("a")));
+LL +     consume(text("a").anyview());
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:192:23
+   |
+LL |     let _v: AnyView = AnyView::new(text("a"));
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _v: AnyView = AnyView::new(text("a"));
+LL +     let _v: AnyView = text("a").anyview();
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:193:14
+   |
+LL |     let _v = AnyView::new(text("a"));
+   |              ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _v = AnyView::new(text("a"));
+LL +     let _v = text("a").anyview();
+   |
+
+warning: 57 warnings emitted
 

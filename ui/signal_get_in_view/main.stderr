@@ -130,6 +130,19 @@ LL -     let _ = takes_computed(count.get());
 LL +     let _ = takes_computed(count.clone());
    |
 
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:63:13
+   |
+LL |     let _ = AnyView::new(title.get());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(anyview_new_in_free_fn)]` on by default
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = AnyView::new(title.get());
+LL +     let _ = title.get().anyview();
+   |
+
 error: `.get()` reads the signal once; the view will never update
   --> $DIR/main.rs:63:26
    |
@@ -146,5 +159,17 @@ LL |     let _ = AnyViewBuilder::new(builder.get());
    |
    = help: pass the signal itself so the view can subscribe to updates
 
-error: aborting due to 13 previous errors; 2 warnings emitted
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:75:13
+   |
+LL |     let _ = AnyView::new(text!("{count}"));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let _ = AnyView::new(text!("{count}"));
+LL +     let _ = text!("{count}").anyview();
+   |
+
+error: aborting due to 13 previous errors; 4 warnings emitted
 

@@ -1,0 +1,231 @@
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:16:32
+   |
+LL |         DisplayState::Empty => AnyView::new(vstack((text("empty"),)).spacing(8.0)),
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(anyview_new_in_free_fn)]` on by default
+help: use the postfix `.anyview()`
+   |
+LL -         DisplayState::Empty => AnyView::new(vstack((text("empty"),)).spacing(8.0)),
+LL +         DisplayState::Empty => vstack((text("empty"),)).spacing(8.0).anyview(),
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:17:40
+   |
+LL |         DisplayState::Loaded(media) => AnyView::new(media_view(media)),
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -         DisplayState::Loaded(media) => AnyView::new(media_view(media)),
+LL +         DisplayState::Loaded(media) => media_view(media).anyview(),
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:22:16
+   |
+LL | fn padded() -> AnyView {
+   |                ^^^^^^^
+   |
+   = note: `#[warn(needless_anyview)]` on by default
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~ fn padded() -> impl View {
+LL ~     text("x").padding()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:23:5
+   |
+LL |     AnyView::new(text("x").padding())
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(text("x").padding())
+LL +     text("x").padding().anyview()
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:29:5
+   |
+LL |     AnyView::new(if flag { text("a") } else { text("b") })
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     AnyView::new(if flag { text("a") } else { text("b") })
+LL +     (if flag { text("a") } else { text("b") }).anyview()
+   |
+
+warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+  --> $DIR/main.rs:29:18
+   |
+LL |     AnyView::new(if flag { text("a") } else { text("b") })
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(if_else_view)]` on by default
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::widget::condition::when;
+LL |
+...
+LL | fn flag_view(flag: bool) -> AnyView {
+LL ~     AnyView::new(when(flag, || text("a")).otherwise(|| text("b")))
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:34:19
+   |
+LL |     let make = || AnyView::new(text("x"));
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -     let make = || AnyView::new(text("x"));
+LL +     let make = || text("x").anyview();
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:50:25
+   |
+LL |     fn render(&self) -> AnyView {
+   |                         ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL -     fn render(&self) -> AnyView {
+LL +     fn render(&self) -> impl View {
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:51:23
+   |
+LL |         fn inner() -> AnyView {
+   |                       ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~         fn inner() -> impl View {
+LL ~             text("nested")
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:52:13
+   |
+LL |             AnyView::new(text("nested"))
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL -             AnyView::new(text("nested"))
+LL +             text("nested").anyview()
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:69:26
+   |
+LL | fn rewrap(v: AnyView) -> AnyView {
+   |                          ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL - fn rewrap(v: AnyView) -> AnyView {
+LL + fn rewrap(v: AnyView) -> impl View {
+   |
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:70:5
+   |
+LL |     AnyView::new(v)
+   |     ^^^^^^^^^^^^^^^ help: drop the second wrapper: `v`
+   |
+   = note: `#[warn(redundant_anyview)]` on by default
+
+warning: this `AnyView` is erased a second time
+  --> $DIR/main.rs:85:25
+   |
+LL |     let view: AnyView = AnyView::new(text("a")).anyview();
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: drop the second wrapper: `AnyView::new(text("a"))`
+
+warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
+  --> $DIR/main.rs:85:25
+   |
+LL |     let view: AnyView = AnyView::new(text("a")).anyview();
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^ help: drop the `AnyView` wrapper: `text("a")`
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:105:19
+   |
+LL | fn via_macro() -> AnyView {
+   |                   ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL - fn via_macro() -> AnyView {
+LL + fn via_macro() -> impl View {
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:137:22
+   |
+LL |     pub fn tail() -> AnyView {
+   |                      ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~     pub fn tail() -> impl View {
+LL |         let view = text("x");
+LL |         let _ = view.local_tag();
+LL ~         view
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:140:9
+   |
+LL |         AnyView::new(view)
+   |         ^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL ~     use waterui::text::{Text, text};
+LL +     use waterui::view::ViewExt as _;
+LL |
+...
+LL |         let _ = view.local_tag();
+LL ~         view.anyview()
+   |
+
+warning: the return type can be `impl View`
+  --> $DIR/main.rs:150:22
+   |
+LL |     pub fn tail() -> AnyView {
+   |                      ^^^^^^^
+   |
+help: return `impl View` and drop the `AnyView` wrappers
+   |
+LL ~     pub fn tail() -> impl View {
+LL ~         text("x")
+   |
+
+warning: `AnyView::new` in a free function; use the postfix `.anyview()`
+  --> $DIR/main.rs:151:9
+   |
+LL |         AnyView::new(text("x"))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use the postfix `.anyview()`
+   |
+LL ~     use waterui::text::text;
+LL +     use waterui::view::ViewExt;
+LL |
+...
+LL |     pub fn tail() -> AnyView {
+LL ~         text("x").anyview()
+   |
+
+warning: 19 warnings emitted
+
