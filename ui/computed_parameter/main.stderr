@@ -1,3 +1,19 @@
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:136:17
+   |
+LL | pub fn bound(b: Binding<i32>) -> i32 {
+   |                 ^^^^^^^^^^^^
+   |
+   = note: `#[warn(binding_parameter_by_value)]` on by default
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn bound(b: &Binding<i32>) -> i32 {
+LL |     b.get()
+...
+LL |     let _ = listed(vec![current.clone()]);
+LL ~     let _ = bound(&Binding::i32(5));
+   |
+
 warning: a public function takes `Computed<T>` where callers would pass any signal
   --> $DIR/main.rs:11:21
    |
@@ -219,5 +235,5 @@ LL ~         let v = v.into_computed();
 LL ~         v.get()
    |
 
-warning: 16 warnings emitted
+warning: 17 warnings emitted
 

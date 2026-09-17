@@ -29,6 +29,10 @@ name = "anyview_new_in_free_fn"
 path = "ui/anyview_new_in_free_fn/main.rs"
 
 [[example]]
+name = "binding_parameter_by_value"
+path = "ui/binding_parameter_by_value/main.rs"
+
+[[example]]
 name = "blocking_in_ui_context"
 path = "ui/blocking_in_ui_context/main.rs"
 
