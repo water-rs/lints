@@ -11,6 +11,19 @@ LL -         text(self.count.map(|v| format!("{v} left")).computed())
 LL +         text!("{v} left", v = self.count)
    |
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:42:35
+   |
+LL |         let count: Binding<i32> = binding(7);
+   |                                   ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -         let count: Binding<i32> = binding(7);
+LL +         let count = Binding::i32(7);
+   |
+
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:44:25
    |
@@ -25,6 +38,66 @@ LL |     use waterui::text::IntoText;
 ...
 LL |         // Fires — `impl IntoText` argument.
 LL ~         into_text_param(text!("{count} unread"));
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:49:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:51:31
+   |
+LL |     let price: Binding<f64> = binding(9.99);
+   |                               ^^^^^^^^^^^^^
+   |
+help: use `Binding::f64`
+   |
+LL -     let price: Binding<f64> = binding(9.99);
+LL +     let price = Binding::f64(9.99);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:52:35
+   |
+LL |     let selection: Binding<i32> = binding(1);
+   |                                   ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let selection: Binding<i32> = binding(1);
+LL +     let selection = Binding::i32(1);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:55:33
+   |
+LL |     let width: Binding<usize> = binding(6usize);
+   |                                 ^^^^^^^^^^^^^^^
+   |
+help: use `Binding::usize`
+   |
+LL -     let width: Binding<usize> = binding(6usize);
+LL +     let width = Binding::usize(6);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:56:31
+   |
+LL |     let total: Binding<i32> = binding(42);
+   |                               ^^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let total: Binding<i32> = binding(42);
+LL +     let total = Binding::i32(42);
    |
 
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
@@ -286,5 +359,17 @@ LL | |             .map(|(v, w)| format!("{v:w$}"))
    |
    = help: `text!` can't carry `{:*}`-style dynamic width/precision — bind the rendered value under a name instead
 
-warning: 23 warnings emitted
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:134:28
+   |
+LL |     let _ = Model { count: binding(9) }.badge();
+   |                            ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let _ = Model { count: binding(9) }.badge();
+LL +     let _ = Model { count: Binding::i32(9) }.badge();
+   |
+
+warning: 30 warnings emitted
 

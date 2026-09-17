@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:15:31
+   |
+LL |     let value: Binding<f64> = binding(0.5);
+   |                               ^^^^^^^^^^^^
+   |
+help: use `Binding::f64`
+   |
+LL -     let value: Binding<f64> = binding(0.5);
+LL +     let value = Binding::f64(0.5);
+   |
+
 warning: an empty label defeats the mandatory label
   --> $DIR/main.rs:18:20
    |
@@ -67,5 +92,5 @@ LL |     let _ = button("").a11y_label("Save");
    |
    = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
 
-warning: 8 warnings emitted
+warning: 10 warnings emitted
 

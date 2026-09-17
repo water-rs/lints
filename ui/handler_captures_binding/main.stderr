@@ -1,3 +1,16 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
 warning: this handler captures a reactive handle instead of taking it as `State<T>`
   --> $DIR/main.rs:14:32
    |
@@ -8,6 +21,18 @@ LL |     let _ = button("+").action(move || count.set(1));
    |
    = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
    = note: `#[warn(handler_captures_binding)]` on by default
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:17:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
 
 warning: this handler captures a reactive handle instead of taking it as `State<T>`
   --> $DIR/main.rs:18:30
@@ -29,6 +54,30 @@ LL |     let _ = button("clear").action(move || items.clear());
    |
    = help: inject it with `.state(&items)` on the view and take `State(items): State<Binding<T>>` as a handler parameter, so the handler can be a named function
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:25:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
 warning: this handler captures a reactive handle instead of taking it as `State<T>`
   --> $DIR/main.rs:27:36
    |
@@ -41,6 +90,18 @@ LL |     let _ = button("reset").action(move || {
    |
    = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
 
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:34:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
 warning: this handler captures a reactive handle instead of taking it as `State<T>`
   --> $DIR/main.rs:35:42
    |
@@ -51,5 +112,29 @@ LL |     let _ = button("async").action_async(move || {
    |
    = help: inject it with `.state(&count)` on the view and take `State(count): State<Binding<T>>` as a handler parameter, so the handler can be a named function
 
-warning: 5 warnings emitted
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:40:31
+   |
+LL |     let count: Binding<i32> = binding(0);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0);
+LL +     let count = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:41:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: 12 warnings emitted
 

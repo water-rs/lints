@@ -1,3 +1,16 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:29:15
+   |
+LL |         live: binding(true),
+   |               ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -         live: binding(true),
+LL +         live: Binding::bool(true),
+   |
+
 warning: this reactive property is a snapshot of an item field
   --> $DIR/main.rs:39:9
    |
@@ -57,5 +70,5 @@ LL |     let _ = Lazy::for_each(list, |row| text("a").visible(row.live.map(|l| !
    |
    = note: `#[warn(manual_signal_combinator)]` on by default
 
-warning: 6 warnings emitted
+warning: 7 warnings emitted
 

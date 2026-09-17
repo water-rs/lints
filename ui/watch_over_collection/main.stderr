@@ -1,3 +1,16 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:25:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
 warning: this `watch` rebuilds every row whenever the collection changes
   --> $DIR/main.rs:31:13
    |
@@ -42,5 +55,5 @@ LL |     let _ = watch(fixed, |fixed| text(fixed.len().to_string()));
    |
    = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
 
-warning: 4 warnings emitted
+warning: 5 warnings emitted
 

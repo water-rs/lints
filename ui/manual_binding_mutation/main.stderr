@@ -1,3 +1,28 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:48:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:49:31
+   |
+LL |     let count: Binding<i32> = binding(0_i32);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(0_i32);
+LL +     let count = Binding::i32(0);
+   |
+
 warning: this mutation restates `Binding::set_from`
   --> $DIR/main.rs:55:5
    |
@@ -152,5 +177,5 @@ warning: this mutation restates `Binding::set`
 LL |         count.with_mut(|v| *v = 0)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.set(0)`
 
-warning: 25 warnings emitted
+warning: 27 warnings emitted
 

@@ -1,3 +1,16 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:8:31
+   |
+LL |     let flag: Binding<bool> = binding(true);
+   |                               ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(true);
+LL +     let flag = Binding::bool(true);
+   |
+
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
   --> $DIR/main.rs:14:13
    |
@@ -148,5 +161,5 @@ LL |     // Fires (plain): an `if` inside a `vstack` tuple element.
 LL ~     let _ = vstack((when(c, || text("a")).otherwise(|| text("b")), text("tail")));
    |
 
-warning: 8 warnings emitted
+warning: 9 warnings emitted
 

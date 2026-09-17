@@ -1,0 +1,163 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:21:28
+   |
+LL |     let _u: Binding<u32> = binding(0_u32);
+   |                            ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::u32`
+   |
+LL -     let _u: Binding<u32> = binding(0_u32);
+LL +     let _u = Binding::u32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:22:28
+   |
+LL |     let _i: Binding<i32> = binding(0);
+   |                            ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let _i: Binding<i32> = binding(0);
+LL +     let _i = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:23:28
+   |
+LL |     let _l: Binding<i64> = binding(0);
+   |                            ^^^^^^^^^^
+   |
+help: use `Binding::i64`
+   |
+LL -     let _l: Binding<i64> = binding(0);
+LL +     let _l = Binding::i64(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:24:30
+   |
+LL |     let _z: Binding<isize> = binding(0_isize);
+   |                              ^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::isize`
+   |
+LL -     let _z: Binding<isize> = binding(0_isize);
+LL +     let _z = Binding::isize(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:25:28
+   |
+LL |     let _f: Binding<f32> = binding(0.0_f32);
+   |                            ^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::f32`
+   |
+LL -     let _f: Binding<f32> = binding(0.0_f32);
+LL +     let _f = Binding::f32(0.0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:28
+   |
+LL |     let _d: Binding<f64> = binding(0.0);
+   |                            ^^^^^^^^^^^^
+   |
+help: use `Binding::f64`
+   |
+LL -     let _d: Binding<f64> = binding(0.0);
+LL +     let _d = Binding::f64(0.0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:27:29
+   |
+LL |     let _b: Binding<bool> = binding(false);
+   |                             ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let _b: Binding<bool> = binding(false);
+LL +     let _b = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:31:16
+   |
+LL |         total: Binding::container(0),
+   |                ^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::u64`
+   |
+LL -         total: Binding::container(0),
+LL +         total: Binding::u64(0),
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:32:16
+   |
+LL |         index: Binding::container(0),
+   |                ^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::usize`
+   |
+LL -         index: Binding::container(0),
+LL +         index: Binding::usize(0),
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:37:13
+   |
+LL |     consume(binding(0));
+   |             ^^^^^^^^^^
+   |
+help: use `Binding::i64`
+   |
+LL -     consume(binding(0));
+LL +     consume(Binding::i64(0));
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:41:18
+   |
+LL |     let suffix = binding(0_i32);
+   |                  ^^^^^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let suffix = binding(0_i32);
+LL +     let suffix = Binding::i32(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:45:17
+   |
+LL |     let count = binding(0);
+   |                 ^^^^^^^^^^
+   |
+help: use `Binding::i64`
+   |
+LL -     let count = binding(0);
+LL +     let count = Binding::i64(0);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:75:21
+   |
+LL |         let count = binding(0);
+   |                     ^^^^^^^^^^
+   |
+help: use `Binding::i64`
+   |
+LL ~     use waterui::Binding;
+LL ~     use waterui::reactive::binding;
+LL |
+LL |     pub fn make() {
+LL |         // Fires: suggests `Binding::i64(0)` plus `use waterui::Binding;`.
+LL ~         let count = Binding::i64(0);
+   |
+
+warning: 13 warnings emitted
+
