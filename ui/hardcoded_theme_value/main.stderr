@@ -11,6 +11,16 @@ LL -     let flag: Binding<bool> = binding(true);
 LL +     let flag = Binding::bool(true);
    |
 
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:22:30
+   |
+LL |         text("a").foreground(Color::srgb(255, 0, 0)),
+   |                              -----------^^^^^^^^^^^
+   |                              |
+   |                              help: use `Srgb::new_u8`: `Srgb::new_u8`
+   |
+   = note: `#[warn(manual_color_erasure)]` on by default
+
 warning: a literal color in view code does not adapt to the color scheme
   --> $DIR/main.rs:22:30
    |
@@ -31,6 +41,14 @@ LL |         text("a").foreground(Srgb::new(0.2, 0.2, 0.2)),
    |                              ^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use a theme token — `ForegroundColor`, `BackgroundColor`, `SurfaceColor`, `AccentColor`, `MutedForegroundColor` from `waterui::graphics::color` — or lift a brand color to a named constant
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:26:30
+   |
+LL |         text("a").foreground(Color::srgb_hex("#ff8800")),
+   |                              ---------------^^^^^^^^^^^
+   |                              |
+   |                              help: use `Srgb::from_hex`: `Srgb::from_hex`
 
 warning: a literal color in view code does not adapt to the color scheme
   --> $DIR/main.rs:26:30
@@ -64,6 +82,14 @@ LL |         when(flag.clone(), || text("b").size(11.0)),
    |
    = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
 
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:40:30
+   |
+LL |         text("a").foreground(Color::srgb(r, g, b)),
+   |                              -----------^^^^^^^^^
+   |                              |
+   |                              help: use `Srgb::new_u8`: `Srgb::new_u8`
+
 warning: a literal font size in view code does not follow the typography scale
   --> $DIR/main.rs:49:18
    |
@@ -72,5 +98,5 @@ LL |         text("a").size(13.0)
    |
    = help: use a semantic font — `.font(Title)`, `.font(Body)`, `.font(Caption)`, `.font(Headline)`, `.font(Footnote)` from `waterui::text::font`
 
-warning: 8 warnings emitted
+warning: 11 warnings emitted
 

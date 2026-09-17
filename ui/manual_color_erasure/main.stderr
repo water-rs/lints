@@ -1,0 +1,132 @@
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:6:34
+   |
+LL |     let _ = text("a").foreground(Color::srgb_f32(0.9, 0.2, 0.35));
+   |                                  ---------------^^^^^^^^^^^^^^^^
+   |                                  |
+   |                                  help: use `Srgb::new`: `Srgb::new`
+   |
+   = note: `#[warn(manual_color_erasure)]` on by default
+
+warning: this parameter takes `impl IntoBackground`; pass the colorspace value
+  --> $DIR/main.rs:8:34
+   |
+LL |     let _ = text("b").background(Color::srgb(230, 51, 89));
+   |                                  -----------^^^^^^^^^^^^^
+   |                                  |
+   |                                  help: use `Srgb::new_u8`: `Srgb::new_u8`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:10:25
+   |
+LL |     let _ = Circle.fill(Color::srgb_hex("#3B82F6"));
+   |                         ---------------^^^^^^^^^^^
+   |                         |
+   |                         help: use `Srgb::from_hex`: `Srgb::from_hex`
+
+warning: this parameter takes `impl IntoBackground`; pass the colorspace value
+  --> $DIR/main.rs:12:34
+   |
+LL |     let _ = text("c").background(Color::srgb_u32(0x10B981));
+   |                                  ---------------^^^^^^^^^^
+   |                                  |
+   |                                  help: use `Srgb::from_u32`: `Srgb::from_u32`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:14:30
+   |
+LL |     let _ = text("d").border(Color::p3(0.1, 0.5, 0.9), 1.0);
+   |                              ---------^^^^^^^^^^^^^^^
+   |                              |
+   |                              help: use `P3::new`: `P3::new`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:19:25
+   |
+LL |     let _ = Circle.fill(<Srgb as Into<Color>>::into(Srgb::from_hex("#4CAF50")));
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `Srgb::from_hex("#4CAF50")`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:21:34
+   |
+LL |     let _ = text("e").foreground(<P3 as Into<Color>>::into(P3::new(0.2, 0.3, 0.4)));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `P3::new(0.2, 0.3, 0.4)`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:23:34
+   |
+LL |     let _ = text("f").foreground(Color::from(Srgb::new(0.1, 0.5, 0.9)));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `Srgb::new(0.1, 0.5, 0.9)`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:25:25
+   |
+LL |     let _ = Border::new(Color::new(Srgb::new_u8(255, 0, 0)), 2.0);
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `Srgb::new_u8(255, 0, 0)`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:27:34
+   |
+LL |     let _ = text("g").foreground(Color::from(Srgb::new(0.1, 0.2, 0.3).with_opacity(0.4)));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `Srgb::new(0.1, 0.2, 0.3).with_opacity(0.4)`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:29:34
+   |
+LL |     let _ = text("h").foreground(Color::new(theme_color::Accent));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: pass the colorspace value directly: `theme_color::Accent`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:31:34
+   |
+LL |     let _ = text("i").foreground(Color::srgb_f32(0.1, 0.2, 0.3).with_opacity(0.5));
+   |                                  ---------------^^^^^^^^^^^^^^^
+   |                                  |
+   |                                  help: use `Srgb::new`: `Srgb::new`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:36:34
+   |
+LL |     let _ = text("i").foreground(<Color as Into<Color>>::into(Color::srgb(9, 20, 35)));
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Srgb::new_u8`
+   |
+LL -     let _ = text("i").foreground(<Color as Into<Color>>::into(Color::srgb(9, 20, 35)));
+LL +     let _ = text("i").foreground(Srgb::new_u8(9, 20, 35));
+   |
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:38:42
+   |
+LL |     let _ = avatar("Radia Perlman").ring(Color::srgb(10, 20, 30), 2.0);
+   |                                          -----------^^^^^^^^^^^^
+   |                                          |
+   |                                          help: use `Srgb::new_u8`: `Srgb::new_u8`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:40:18
+   |
+LL |     let inline = Color::srgb_f32(0.7, 0.1, 0.2);
+   |                  ---------------^^^^^^^^^^^^^^^
+   |                  |
+   |                  help: use `Srgb::new`: `Srgb::new`
+
+warning: this parameter takes `impl Into<Color>`; pass the colorspace value
+  --> $DIR/main.rs:95:38
+   |
+LL |         let _ = text("r").foreground(Color::srgb_f32(0.5, 0.5, 0.5));
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::color::Srgb` and pass the colorspace value
+   |
+LL ~     use waterui::prelude::{Color, ViewExt, text};
+LL +     use waterui::color::Srgb;
+LL |
+LL |     pub fn f() {
+LL |         // Fires: `Srgb` is not in scope — the suggestion imports it.
+LL ~         let _ = text("r").foreground(Srgb::new(0.5, 0.5, 0.5));
+   |
+
+warning: 16 warnings emitted
+

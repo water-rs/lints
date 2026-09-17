@@ -119,16 +119,38 @@ fn param_trait_bounds<'tcx>(
     substs: GenericArgsRef<'tcx>,
     bounds_tables: &[&[&[&'static str]]],
 ) -> FxHashMap<u32, Vec<BoundTarget<'tcx>>> {
+    param_bounds(cx, callee, substs, Some(bounds_tables))
+}
+
+/// `param index -> every positive trait bound on it`, for one callee — the
+/// unfiltered counterpart of [`param_trait_bounds`], for lints that must
+/// confirm a parameter carries no bound outside their known table.
+fn param_all_trait_bounds<'tcx>(
+    cx: &LateContext<'tcx>,
+    callee: DefId,
+    substs: GenericArgsRef<'tcx>,
+) -> FxHashMap<u32, Vec<BoundTarget<'tcx>>> {
+    param_bounds(cx, callee, substs, None)
+}
+
+fn param_bounds<'tcx>(
+    cx: &LateContext<'tcx>,
+    callee: DefId,
+    substs: GenericArgsRef<'tcx>,
+    bounds_tables: Option<&[&[&[&'static str]]]>,
+) -> FxHashMap<u32, Vec<BoundTarget<'tcx>>> {
     let mut bounds: FxHashMap<u32, Vec<BoundTarget<'tcx>>> = FxHashMap::default();
     for &(clause, _) in all_predicates_of(cx.tcx, callee) {
         let ClauseKind::Trait(pred) = clause.kind().skip_binder() else {
             continue;
         };
         if pred.polarity != PredicatePolarity::Positive
-            || !bounds_tables
-                .iter()
-                .flat_map(|table| table.iter().copied())
-                .any(|path| crate::def_path::def_path_eq(cx, pred.trait_ref.def_id, path))
+            || bounds_tables.is_some_and(|tables| {
+                !tables
+                    .iter()
+                    .flat_map(|table| table.iter().copied())
+                    .any(|path| crate::def_path::def_path_eq(cx, pred.trait_ref.def_id, path))
+            })
         {
             continue;
         }
@@ -240,21 +262,48 @@ pub(crate) fn call_arg_bounds_in<'tcx>(
     if bounds.is_empty() {
         return None;
     }
-    let per_arg = cx
-        .tcx
+    Some((callee, per_param_bounds(cx, callee, &bounds)))
+}
+
+/// [`call_arg_bounds_in`] without the bounds-table filter — every positive
+/// trait bound on each parameter, aligned to [`call_args`] the same way.
+/// A lint rewriting an argument uses this to check the parameter carries no
+/// bound its table does not know.
+pub(crate) fn call_arg_all_bounds_in<'tcx>(
+    cx: &LateContext<'tcx>,
+    typeck: &TypeckResults<'tcx>,
+    call: &Expr<'tcx>,
+) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
+    let (callee, substs) = call_target(typeck, call)?;
+    let bounds = param_all_trait_bounds(cx, callee, substs);
+    if bounds.is_empty() {
+        return None;
+    }
+    Some((callee, per_param_bounds(cx, callee, &bounds)))
+}
+
+/// [`call_arg_all_bounds_in`] with the lint's current `TypeckResults`.
+pub(crate) fn call_arg_all_bounds<'tcx>(
+    cx: &LateContext<'tcx>,
+    call: &Expr<'tcx>,
+) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
+    call_arg_all_bounds_in(cx, cx.typeck_results(), call)
+}
+
+fn per_param_bounds<'tcx>(
+    cx: &LateContext<'tcx>,
+    callee: DefId,
+    bounds: &FxHashMap<u32, Vec<BoundTarget<'tcx>>>,
+) -> Vec<Vec<BoundTarget<'tcx>>> {
+    cx.tcx
         .fn_sig(callee)
         .instantiate_identity()
         .skip_norm_wip()
         .skip_binder()
         .inputs()
         .iter()
-        .map(|input| {
-            bounds_on_param(&bounds, *input)
-                .cloned()
-                .unwrap_or_default()
-        })
-        .collect();
-    Some((callee, per_arg))
+        .map(|input| bounds_on_param(bounds, *input).cloned().unwrap_or_default())
+        .collect()
 }
 
 /// [`call_arg_bounds_in`] with the lint's current `TypeckResults`.
