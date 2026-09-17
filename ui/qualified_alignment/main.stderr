@@ -1,0 +1,112 @@
+warning: this container's `.leading()` method names the position
+  --> $DIR/main.rs:29:34
+   |
+LL |     let _ = vstack((text("a"),)).alignment(HorizontalAlignment::Leading);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `leading()`
+   |
+   = note: `#[warn(qualified_alignment)]` on by default
+
+warning: this container's `.top()` method names the position
+  --> $DIR/main.rs:32:34
+   |
+LL |     let _ = hstack((text("a"),)).alignment(VerticalAlignment::Top);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `top()`
+
+warning: this container's `.top_leading()` method names the position
+  --> $DIR/main.rs:35:34
+   |
+LL |     let _ = zstack((text("a"),)).alignment(Alignment::TopLeading);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `top_leading()`
+
+warning: this container's `.centered()` method names the position
+  --> $DIR/main.rs:38:34
+   |
+LL |     let _ = vstack((text("a"),)).alignment(HorizontalAlignment::Center);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `centered()`
+
+warning: this container's `.first_baseline()` method names the position
+  --> $DIR/main.rs:41:34
+   |
+LL |     let _ = hstack((text("a"),)).alignment(VerticalAlignment::FirstBaseline);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `first_baseline()`
+
+warning: this container's `.bottom_trailing()` method names the position
+  --> $DIR/main.rs:46:10
+   |
+LL |         .alignment(Alignment::BottomTrailing);
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `bottom_trailing()`
+
+warning: this container's `.centered()` method names the position
+  --> $DIR/main.rs:49:42
+   |
+LL |     let _ = frame::Frame::new(text("a")).alignment(Alignment::Center);
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `centered()`
+
+warning: this container's `.top()` method names the position
+  --> $DIR/main.rs:52:51
+   |
+LL |     let _ = grid(1, [GridRow::new((text("a"),))]).alignment(Alignment::Top);
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the position method: `top()`
+
+warning: this parameter takes `impl Into<Alignment>`; pass the `Top` token
+  --> $DIR/main.rs:56:48
+   |
+LL |     let _ = OverlayLayout::default().alignment(Alignment::Top);
+   |                                                ^^^^^^^^^^^^^^ help: pass the alignment token: `Top`
+
+warning: this parameter takes `impl Into<Alignment>`; pass the `Center` token
+  --> $DIR/main.rs:60:11
+   |
+LL |     takes(Alignment::Center);
+   |           ^^^^^^^^^^^^^^^^^ help: pass the alignment token: `Center`
+
+warning: this parameter takes `impl Into<Alignment>`; pass the `Center` token
+  --> $DIR/main.rs:101:11
+   |
+LL |         f(Alignment::Center)
+   |           ^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::layout::Center` and pass the token
+   |
+LL ~     use waterui::layout::{Alignment, stack::ZStack};
+LL +     use waterui::layout::Center;
+LL |
+...
+LL |         let _z: Option<ZStack<()>> = None;
+LL ~         f(Center)
+   |
+
+warning: this parameter takes `impl Into<Alignment>`; pass the `Center` token
+  --> $DIR/main.rs:116:11
+   |
+LL |         f(Alignment::Center)
+   |           ^^^^^^^^^^^^^^^^^
+   |
+help: `Center` resolves to a different item here — import under an alias
+   |
+LL ~     use waterui::layout::Alignment;
+LL +     use waterui::layout::Center as layout_Center;
+LL |
+...
+LL |         let _ = Center;
+LL ~         f(layout_Center)
+   |
+
+warning: this parameter takes `impl Into<Alignment>`; pass the `Center` token
+  --> $DIR/main.rs:134:11
+   |
+LL |         f(Alignment::Center)
+   |           ^^^^^^^^^^^^^^^^^
+   |
+help: `Center` resolves to a different item here — import under an alias
+   |
+LL ~     use waterui::layout::Alignment;
+LL +     use waterui::layout::Center as layout_Center;
+LL |
+...
+LL |         let _ = Center { x: 0 }.x;
+LL ~         f(layout_Center)
+   |
+
+warning: 13 warnings emitted
+

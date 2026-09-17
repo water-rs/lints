@@ -188,6 +188,10 @@ name = "positional_state_ambiguity"
 path = "ui/positional_state_ambiguity/main.rs"
 
 [[example]]
+name = "qualified_alignment"
+path = "ui/qualified_alignment/main.rs"
+
+[[example]]
 name = "qualified_waterui_path"
 path = "ui/qualified_waterui_path/main.rs"
 

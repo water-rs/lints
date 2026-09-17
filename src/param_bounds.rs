@@ -1,3 +1,5 @@
+use std::ops::ControlFlow;
+
 use clippy_utils::ty::all_predicates_of;
 use rustc_data_structures::fx::FxHashMap;
 use rustc_hir::def::{DefKind, Res};
@@ -6,7 +8,7 @@ use rustc_hir::{Closure, Expr, ExprKind};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{
     AssocContainer, ClauseKind, EarlyBinder, GenericArg, GenericArgsRef, PredicatePolarity, Ty,
-    TyCtxt, TyKind, TypeckResults,
+    TyCtxt, TyKind, TypeSuperVisitable, TypeVisitable, TypeVisitor, TypeckResults,
 };
 
 use crate::anyview::peel;
@@ -313,6 +315,74 @@ pub(crate) fn call_arg_bounds<'tcx>(
     bounds_tables: &[&[&[&'static str]]],
 ) -> Option<(DefId, Vec<Vec<BoundTarget<'tcx>>>)> {
     call_arg_bounds_in(cx, cx.typeck_results(), call, bounds_tables)
+}
+
+/// Counts occurrences of a `Param` index inside visited types, stopping
+/// once `count` exceeds `limit`.
+struct ParamUse {
+    index: u32,
+    limit: usize,
+    count: usize,
+}
+
+impl<'tcx> TypeVisitor<TyCtxt<'tcx>> for ParamUse {
+    type Result = ControlFlow<()>;
+
+    fn visit_ty(&mut self, ty: Ty<'tcx>) -> Self::Result {
+        if let TyKind::Param(param) = *ty.kind()
+            && param.index == self.index
+        {
+            self.count += 1;
+            if self.count > self.limit {
+                return ControlFlow::Break(());
+            }
+        }
+        ty.super_visit_with(self)
+    }
+}
+
+/// Whether `callee`'s `input_index`-th input (the receiver counts as 0 for
+/// methods, matching [`call_args`]) is a type parameter that occurs in
+/// exactly that input and not at all in the output. A lint that retypes the
+/// argument there — `X::CONST` to a token of a different type — shifts the
+/// parameter under every other occurrence (`fn f<T: Into<A>>(a: T, b: T)`,
+/// `-> T`, or an `impl<T>` method whose `self` type mentions `T`), and the
+/// applied fix would not compile.
+pub(crate) fn single_use_param(cx: &LateContext<'_>, callee: DefId, input_index: usize) -> bool {
+    let sig = cx
+        .tcx
+        .fn_sig(callee)
+        .instantiate_identity()
+        .skip_norm_wip()
+        .skip_binder();
+    let Some(input) = sig.inputs().get(input_index) else {
+        return false;
+    };
+    let TyKind::Param(param) = *input.peel_refs().kind() else {
+        return false;
+    };
+    // `inputs[input_index]` is itself the parameter, so a single use means
+    // no other input mentions it; the limit cuts the walk at two.
+    let mut uses = ParamUse {
+        index: param.index,
+        limit: 1,
+        count: 0,
+    };
+    for input in sig.inputs() {
+        if input.visit_with(&mut uses).is_break() {
+            return false;
+        }
+    }
+    if uses.count != 1 {
+        return false;
+    }
+    sig.output()
+        .visit_with(&mut ParamUse {
+            index: param.index,
+            limit: 0,
+            count: 0,
+        })
+        .is_continue()
 }
 
 /// Whether `call`'s parameter at `index` carries any of `bounds_tables`'
