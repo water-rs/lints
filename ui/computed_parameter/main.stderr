@@ -1,0 +1,223 @@
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:11:21
+   |
+LL | pub fn gauge(value: Computed<f32>) -> impl View {
+   |                     ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(computed_parameter)]` on by default
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub fn gauge(value: impl IntoComputed<f32>) -> impl View {
+LL ~     let value = value.into_computed();
+LL ~     let _ = value.get();
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:17:27
+   |
+LL | pub(crate) fn label(text: &Computed<Str>) -> Str {
+   |                           ^^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub(crate) fn label(text: impl IntoComputed<Str>) -> Str {
+LL ~     let text = text.into_computed();
+LL ~     text.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:22:25
+   |
+LL | pub(crate) fn scoped(v: Computed<i32>) -> i32 {
+   |                         ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub(crate) fn scoped(v: impl IntoComputed<i32>) -> i32 {
+LL ~     let v = v.into_computed();
+LL ~     v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:42:19
+   |
+LL | pub fn aliased(v: Celsius) -> f32 {
+   |                   ^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub fn aliased(v: impl IntoComputed<f32>) -> f32 {
+LL ~     let v = v.into_computed();
+LL ~     v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:50:23
+   |
+LL |     pub fn new(title: Computed<Str>) -> Card {
+   |                       ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~     pub fn new(title: impl IntoComputed<Str>) -> Card {
+LL ~         let title = title.into_computed();
+LL ~         let _ = title.get();
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:68:24
+   |
+LL |     fn value(&self, v: Computed<i32>);
+   |                        ^^^^^^^^^^^^^
+   |
+   = note: every implementor of this trait must make the same change
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL |     fn value(&self, v: impl IntoComputed<i32>);
+   |                        +++++++++
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:71:24
+   |
+LL |     fn level(&self, v: Computed<f32>) -> f32 {
+   |                        ^^^^^^^^^^^^^
+   |
+   = note: every implementor of this trait must make the same change
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~     fn level(&self, v: impl IntoComputed<f32>) -> f32 {
+LL ~         let v = v.into_computed();
+LL ~         v.get()
+   |
+
+warning: 2 call sites erase a signal into `Computed<T>` for this function
+  --> $DIR/main.rs:91:14
+   |
+LL | fn scaled(v: Computed<f32>) -> f32 {
+   |              ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ fn scaled(v: impl IntoComputed<f32>) -> f32 {
+LL ~     let v = v.into_computed();
+LL ~     v.get() * 2.0
+   |
+
+warning: 2 call sites erase a signal into `Computed<T>` for this function
+  --> $DIR/main.rs:97:15
+   |
+LL | fn counted(v: Computed<i32>) -> i32 {
+   |               ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ fn counted(v: impl IntoComputed<i32>) -> i32 {
+LL ~     let v = v.into_computed();
+LL ~     v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:169:24
+   |
+LL | pub fn knob(mut level: Computed<f32>) -> f32 {
+   |                        ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub fn knob(mut level: impl IntoComputed<f32>) -> f32 {
+LL ~     let mut level = level.into_computed();
+LL ~     let _ = level.get();
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:177:17
+   |
+LL | pub fn noop(_v: Computed<i32>) {
+   |                 ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~ pub fn noop(_v: impl IntoComputed<i32>) {
+LL +     let _v = _v.into_computed();
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:204:9
+   |
+LL | via_ty!(Computed<i32>);
+   |         ^^^^^^^^^^^^^
+   |
+   = note: the body is macro-generated — make the same change in the macro definition
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL | via_ty!(impl IntoComputed<i32>);
+   |         +++++++++
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:211:22
+   |
+LL |     pub fn helper(v: Computed<i32>) -> i32 {
+   |                      ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~     use waterui::prelude::*;
+LL +     use waterui::signal::IntoComputed;
+LL |
+LL |     // Fires: `IntoComputed` is not in scope here — the fix inserts
+LL |     // `use waterui::signal::IntoComputed;`.
+LL ~     pub fn helper(v: impl IntoComputed<i32>) -> i32 {
+LL ~         let v = v.into_computed();
+LL ~         v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:216:32
+   |
+LL |     pub(super) fn to_parent(v: Computed<i32>) -> i32 {
+   |                                ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~     use waterui::prelude::*;
+LL +     use waterui::signal::IntoComputed;
+LL |
+...
+LL |     // Fires: `pub(super)` — a written qualifier with restricted reach.
+LL ~     pub(super) fn to_parent(v: impl IntoComputed<i32>) -> i32 {
+LL ~         let v = v.into_computed();
+LL ~         v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:224:43
+   |
+LL |         pub(in crate::inner) fn scoped(v: Computed<i32>) -> i32 {
+   |                                           ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~         use waterui::prelude::*;
+LL +         use waterui::signal::IntoComputed;
+LL |
+LL |         // Fires: `pub(in crate::inner)` — a path qualifier two levels up.
+LL ~         pub(in crate::inner) fn scoped(v: impl IntoComputed<i32>) -> i32 {
+LL ~             let v = v.into_computed();
+LL ~             v.get()
+   |
+
+warning: a public function takes `Computed<T>` where callers would pass any signal
+  --> $DIR/main.rs:253:22
+   |
+LL |     pub fn helper(v: Computed<i32>) -> i32 {
+   |                      ^^^^^^^^^^^^^
+   |
+help: take `impl IntoComputed<T>` and erase inside with `.into_computed()`
+   |
+LL ~     pub fn helper(v: impl waterui::signal::IntoComputed<i32>) -> i32 {
+LL ~         let v = v.into_computed();
+LL ~         v.get()
+   |
+
+warning: 16 warnings emitted
+
