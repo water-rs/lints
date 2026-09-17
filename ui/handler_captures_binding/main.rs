@@ -1,7 +1,7 @@
-//! `handler_captures_binding` fixture: a `Binding`/reactive `List` captured
-//! by a closure in a `Handler`/`HandlerOnce` position warns; `Copy` captures,
-//! `State` extractor parameters, `on_change`, and captures outside handler
-//! positions stay silent.
+//! `handler_captures_binding` fixture: a `Binding`/`Computed`/reactive
+//! `List` captured by a closure in a `Handler`/`HandlerOnce` position warns,
+//! even through the clone-then-move block idiom; `Copy` captures, `State`
+//! extractors, `on_change`, and non-handler captures stay silent.
 
 use waterui::prelude::*;
 use waterui::reactive::collection::List as ReactiveList;
@@ -53,4 +53,78 @@ fn main() {
     let _ = count.map(|n| n * 2);
     // Silent — `Box::new` is no handler position, though `count` is captured.
     let _setters: Vec<Box<dyn Fn()>> = vec![Box::new(move || count.set(9))];
+
+    // Fires — the clone-then-move block idiom: `count` is cloned only to be
+    // captured.
+    let count: Binding<i32> = binding(0);
+    let _ = button("+").action({
+        let count = count.clone();
+        move || count.set(1)
+    });
+
+    // Fires — two handles cloned into the block.
+    let flag: Binding<bool> = binding(false);
+    let _ = button("reset").action({
+        let count = count.clone();
+        let flag = flag.clone();
+        move || {
+            count.set(0);
+            flag.set(false);
+        }
+    });
+
+    let total: Computed<i32> = count.map(|n| n * 2).computed();
+    // Fires — clone-then-move over a `Computed`.
+    let _ = button("total").action({
+        let total = total.clone();
+        move || takes_i32(total.get())
+    });
+    // Silent — `State(total): State<Computed<i32>>` is the extractor remedy.
+    let _ = button("total")
+        .action(|State(total): State<Computed<i32>>| takes_i32(total.get()))
+        .state(&total);
+    // Fires — `total` is a `Computed`, a captured reactive handle too.
+    let _ = button("total").action(move || takes_i32(total.get()));
+
+    // Fires — `self.items` is cloned only to be captured.
+    let _ = Row {
+        items: ReactiveList::new(),
+    }
+    .view();
+
+    // Fires — `extra` is captured, but the clone is also read before the
+    // closure, so the `let` is not "only to be captured": no clone label,
+    // generic help.
+    let extra: Binding<i32> = binding(0);
+    let _ = button("x").action({
+        let extra = extra.clone();
+        takes_i32(extra.get());
+        move || extra.set(1)
+    });
+
+    // Fires — the clone-let sits in an outer wrapper block; the label and
+    // the block-rewrite help still apply.
+    let outer: Binding<i32> = binding(0);
+    let _ = button("o").action({
+        let outer = outer.clone();
+        {
+            let n = 1_i32;
+            move || outer.set(n)
+        }
+    });
+}
+
+fn takes_i32(_: i32) {}
+
+struct Row {
+    items: ReactiveList<u32>,
+}
+
+impl Row {
+    fn view(&self) -> impl View {
+        button("clear").action({
+            let items = self.items.clone();
+            move || items.clear()
+        })
+    }
 }
