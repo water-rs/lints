@@ -120,6 +120,10 @@ name = "manual_list_mutation"
 path = "ui/manual_list_mutation/main.rs"
 
 [[example]]
+name = "manual_muted_foreground"
+path = "ui/manual_muted_foreground/main.rs"
+
+[[example]]
 name = "manual_signal_combinator"
 path = "ui/manual_signal_combinator/main.rs"
 
