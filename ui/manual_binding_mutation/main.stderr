@@ -1,3 +1,28 @@
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:46:33
+   |
+LL |     let name: Binding<String> = binding(String::new());
+   |                                 ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<String>::default()`
+   |
+LL -     let name: Binding<String> = binding(String::new());
+LL +     let name = Binding::<String>::default();
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:47:36
+   |
+LL |     let items: Binding<Vec<u32>> = binding(Vec::new());
+   |                                    ^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<Vec<u32>>::default()`
+   |
+LL -     let items: Binding<Vec<u32>> = binding(Vec::new());
+LL +     let items = Binding::<Vec<u32>>::default();
+   |
+
 warning: this binding has a dedicated constructor
   --> $DIR/main.rs:48:31
    |
@@ -177,5 +202,5 @@ warning: this mutation restates `Binding::set`
 LL |         count.with_mut(|v| *v = 0)
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the named method: `count.set(0)`
 
-warning: 27 warnings emitted
+warning: 29 warnings emitted
 

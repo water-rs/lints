@@ -2,12 +2,21 @@
 //! lints that match binding reads and writes.
 
 use clippy_utils::paths::{PathNS, lookup_path_str};
+use clippy_utils::res::MaybeQPath;
 use clippy_utils::ty::{implements_trait, make_normalized_projection};
-use rustc_hir::{BinOpKind, BorrowKind, Expr, ExprKind, LangItem, Mutability};
+use rustc_errors::Applicability;
+use rustc_hir::def::{DefKind, Namespace, Res};
+use rustc_hir::def_id::DefId;
+use rustc_hir::{
+    BinOpKind, BorrowKind, Expr, ExprKind, HirId, LangItem, Mutability, Node, Path, QPath,
+};
 use rustc_lint::LateContext;
 use rustc_middle::ty::adjustment::{Adjust, AutoBorrow, AutoBorrowMutability};
 use rustc_middle::ty::{FloatTy, IntTy, Ty, TyKind, TypeVisitableExt, TypeckResults, UintTy};
-use rustc_span::{Pos, sym};
+use rustc_span::symbol::Symbol;
+use rustc_span::{BytePos, Pos, Span, sym};
+
+use crate::imports::{Bare, bare_status, use_insertion};
 
 /// `nami`'s `Binding<T>` — the writable signal handle.
 pub(crate) const BINDING: &[&str] = &["nami", "reactive_core", "binding", "Binding"];
@@ -25,6 +34,13 @@ pub(crate) const BINDING_GET_MUT: &[&str] =
 /// `Binding::with_mut` — the inherent closure-scoped mutation.
 pub(crate) const BINDING_WITH_MUT: &[&str] =
     &["nami", "reactive_core", "binding", "Binding", "with_mut"];
+
+/// `nami`'s generic binding constructors — `binding(..)` and
+/// `Binding::container(..)` — as `LateContext::get_def_path` segments.
+pub(crate) const GENERIC_CTORS: &[&[&str]] = &[
+    &["nami", "reactive_core", "binding", "binding"],
+    &["nami", "reactive_core", "binding", "Binding", "container"],
+];
 
 /// The `T` in `Binding<T>` for a receiver expression under `typeck` —
 /// `None` for receivers that are not a `Binding` (a `CustomBinding` impl has
@@ -203,5 +219,160 @@ pub(crate) fn binding_krate(cx: &LateContext<'_>) -> Option<&'static str> {
         Some("waterui")
     } else {
         nameable("nami").then_some("nami")
+    }
+}
+
+/// A one-argument call to a `GENERIC_CTORS` constructor whose result type is
+/// `Binding<T>` with `T` fully inferred — the prologue the binding
+/// constructor lints share.
+pub(crate) struct GenericCtorCall<'tcx> {
+    /// The callee expression (`binding` or `Binding::<T>::container`).
+    pub func: &'tcx Expr<'tcx>,
+    /// The constructor's single argument.
+    pub arg: &'tcx Expr<'tcx>,
+    /// The `Binding` ADT — the def the `Binding` spelling is checked
+    /// against.
+    pub adt_did: DefId,
+    /// `T` in the result's `Binding<T>`.
+    pub value_ty: Ty<'tcx>,
+}
+
+/// `expr` is `ctor(arg)` for `ctor` in `GENERIC_CTORS` returning
+/// `Binding<T>` with no inference variables in `T` — `None` for any other
+/// call shape or an expansion.
+pub(crate) fn generic_ctor_call<'tcx>(
+    cx: &LateContext<'tcx>,
+    expr: &'tcx Expr<'tcx>,
+) -> Option<GenericCtorCall<'tcx>> {
+    if expr.span.from_expansion() {
+        return None;
+    }
+    let ExprKind::Call(func, [arg]) = expr.kind else {
+        return None;
+    };
+    let Res::Def(_, did) = func.res(cx) else {
+        return None;
+    };
+    if !GENERIC_CTORS
+        .iter()
+        .any(|path| crate::def_path::def_path_eq(cx, did, path))
+    {
+        return None;
+    }
+    let TyKind::Adt(adt, args) = *cx.typeck_results().expr_ty(expr).kind() else {
+        return None;
+    };
+    if !crate::def_path::def_path_eq(cx, adt.did(), BINDING) {
+        return None;
+    }
+    let value_ty = args.type_at(0);
+    if value_ty.has_infer() {
+        return None;
+    }
+    Some(GenericCtorCall {
+        func,
+        arg,
+        adt_did: adt.did(),
+        value_ty,
+    })
+}
+
+/// A `let <pat>: Binding<T> = <expr>` annotation — `erase` is the
+/// `: Binding<T>` span a suggestion removes once the call names `T`, and
+/// `path` the annotation's `Binding` path for lints that read `T`'s spelling
+/// from it.
+pub(crate) struct BindingAnnotation<'tcx> {
+    /// The `: Binding<T>` span to erase.
+    pub erase: Span,
+    /// The `Binding` path inside the annotation.
+    pub path: &'tcx Path<'tcx>,
+}
+
+/// `expr` is the whole initializer of `let <pat>: Binding<T> = expr`.
+/// `None` without an annotation, when the annotation is anything but a
+/// `Binding` path (a type alias, a projection), or when the `let` sits in an
+/// expansion — the call can sit at a macro call site while the `let` lives
+/// in the `macro_rules!` body, where erasing the annotation would edit the
+/// definition once per expansion.
+pub(crate) fn binding_annotation<'tcx>(
+    cx: &LateContext<'tcx>,
+    expr: &'tcx Expr<'tcx>,
+) -> Option<BindingAnnotation<'tcx>> {
+    let mut hir_id = expr.hir_id;
+    let local = loop {
+        match cx.tcx.parent_hir_node(hir_id) {
+            Node::Expr(parent) if matches!(parent.kind, ExprKind::DropTemps(_)) => {
+                hir_id = parent.hir_id;
+            }
+            Node::LetStmt(local) => break local,
+            _ => return None,
+        }
+    };
+    if local.init.is_none_or(|init| init.hir_id != hir_id) {
+        return None;
+    }
+    let ty = local.ty?;
+    if local.span.from_expansion() || ty.span.from_expansion() {
+        return None;
+    }
+    let rustc_hir::TyKind::Path(QPath::Resolved(_, path)) = ty.kind else {
+        return None;
+    };
+    if !matches!(path.res, Res::Def(DefKind::Struct, did)
+        if crate::def_path::def_path_eq(cx, did, BINDING))
+    {
+        return None;
+    }
+    Some(BindingAnnotation {
+        erase: ty.span.with_lo(local.pat.span.hi()),
+        path,
+    })
+}
+
+/// How `Binding` is spelled at `at` — `Binding` when it already resolves to
+/// the `Binding` ADT or can be `use`d there (pushing the `use` edit onto
+/// `parts`), `<krate>::Binding` when the bare name is taken or the `use`
+/// cannot be placed, downgrading `applicable` on those qualified fallbacks.
+/// `None` when neither `waterui` nor `nami` is nameable. Each lint appends
+/// its own suffix (`::<T>::default()`, `::<t>(..)`).
+pub(crate) fn binding_name(
+    cx: &LateContext<'_>,
+    hir_id: HirId,
+    at: BytePos,
+    adt_did: DefId,
+    parts: &mut Vec<(Span, String)>,
+    applicable: &mut Applicability,
+) -> Option<String> {
+    let status = bare_status(
+        cx,
+        hir_id,
+        at,
+        Symbol::intern("Binding"),
+        Namespace::TypeNS,
+        Some(adt_did),
+    );
+    let krate = binding_krate(cx);
+    match status {
+        Bare::Same => Some("Binding".to_owned()),
+        Bare::Free => krate.map(|krate| {
+            match use_insertion(cx, hir_id, &format!("{krate}::Binding")) {
+                Some((point, before, after)) => {
+                    parts.push((point, format!("{before}use {krate}::Binding;{after}")));
+                    "Binding".to_owned()
+                }
+                // The module's `use` position is in an expansion — spell
+                // the qualified path instead.
+                None => {
+                    *applicable = Applicability::MaybeIncorrect;
+                    format!("{krate}::Binding")
+                }
+            }
+        }),
+        // `Binding` is taken (or a local glob leaves it unclear) — qualify
+        // instead of importing.
+        Bare::Conflict | Bare::Unknown => krate.map(|krate| {
+            *applicable = Applicability::MaybeIncorrect;
+            format!("{krate}::Binding")
+        }),
     }
 }

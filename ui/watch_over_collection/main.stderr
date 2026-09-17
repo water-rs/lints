@@ -11,6 +11,19 @@ LL -     let count: Binding<i32> = binding(3);
 LL +     let count = Binding::i32(3);
    |
 
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:27:43
+   |
+LL |     let selected: Binding<Option<Item>> = binding(None);
+   |                                           ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<Option<Item>>::default()`
+   |
+LL -     let selected: Binding<Option<Item>> = binding(None);
+LL +     let selected = Binding::<Option<Item>>::default();
+   |
+
 warning: this `watch` rebuilds every row whenever the collection changes
   --> $DIR/main.rs:31:13
    |
@@ -55,5 +68,5 @@ LL |     let _ = watch(fixed, |fixed| text(fixed.len().to_string()));
    |
    = help: render a changing set of views over a reactive collection: `Lazy::for_each(list, |item| ..)`, `List::for_each`, or `VStack::for_each` with `reactive::collection::List<T>` (items `Identifiable`), or `SignalCollection::new(signal)` for a set derived from a signal
 
-warning: 5 warnings emitted
+warning: 6 warnings emitted
 
