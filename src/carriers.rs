@@ -3,7 +3,7 @@
 //! `format!(..)`), shared by lints that trace where a value flows.
 
 use clippy_utils::macros::{root_macro_call, root_macro_call_first_node};
-use rustc_hir::{Expr, ExprKind, HirId, Node, UnOp};
+use rustc_hir::{Block, Expr, ExprKind, HirId, Node, UnOp};
 use rustc_lint::LateContext;
 use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_span::{ExpnId, sym};
@@ -146,6 +146,27 @@ pub(crate) fn strip_wraps<'hir>(
                 [first, ..] => *first,
                 [] => return expr,
             },
+            _ => return expr,
+        };
+    }
+}
+
+/// The expression a body actually evaluates — `expr` with drop-temps and
+/// statement-free block tails removed: `{ x }` peels to `x`, while a block
+/// with statements stays whole (its statements do work a rewrite would
+/// drop).
+pub(crate) fn body_expr<'hir>(mut expr: &'hir Expr<'hir>) -> &'hir Expr<'hir> {
+    loop {
+        expr = match expr.kind {
+            ExprKind::DropTemps(inner) => inner,
+            ExprKind::Block(
+                Block {
+                    stmts: [],
+                    expr: Some(tail),
+                    ..
+                },
+                _,
+            ) => tail,
             _ => return expr,
         };
     }

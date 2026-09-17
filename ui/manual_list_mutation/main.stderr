@@ -1,0 +1,147 @@
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:30:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.push(9);
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `list.push(9);`
+   |
+note: the lint level is defined here
+  --> $DIR/main.rs:16:9
+   |
+LL | #![warn(manual_list_mutation)]
+   |         ^^^^^^^^^^^^^^^^^^^^
+
+warning: this snapshot/replace round trip restates `List::pop`
+  --> $DIR/main.rs:36:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     let _ = v.pop();
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `let _ = list.pop();`
+
+warning: this snapshot/replace round trip restates `List::remove`
+  --> $DIR/main.rs:42:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.remove(0);
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `let _ = list.remove(0);`
+
+warning: this snapshot/replace round trip restates `List::insert`
+  --> $DIR/main.rs:47:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.insert(0, 9);
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `list.insert(0, 9);`
+
+warning: this snapshot/replace round trip restates `List::clear`
+  --> $DIR/main.rs:52:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.clear();
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `list.clear();`
+
+warning: this snapshot/replace round trip restates `List::sort`
+  --> $DIR/main.rs:57:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.sort();
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `list.sort();`
+
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:62:13
+   |
+LL |       let _ = list.replace({
+   |  _____________^
+LL | |         let mut v = list.snapshot();
+LL | |         v.push(8);
+LL | |         v
+LL | |     });
+   | |______^ help: use the `List` method: `list.push(8)`
+
+warning: this snapshot/replace round trip restates `List::remove`
+  --> $DIR/main.rs:71:13
+   |
+LL |       let _ = list.replace({
+   |  _____________^
+LL | |         let mut v = list.snapshot();
+LL | |         v.remove(0);
+LL | |         v
+LL | |     });
+   | |______^ help: use the `List` method: `list.remove(0)`
+
+warning: this `replace` with an empty vector is `List::clear`
+  --> $DIR/main.rs:78:13
+   |
+LL |     let _ = list.replace(Vec::new());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.clear()`
+
+warning: this `replace` with an empty vector is `List::clear`
+  --> $DIR/main.rs:80:13
+   |
+LL |     let _ = list.replace(vec![]);
+   |             ^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.clear()`
+
+warning: this `replace` with an empty vector is `List::clear`
+  --> $DIR/main.rs:82:13
+   |
+LL |     let _ = list.replace(Default::default());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.clear()`
+
+warning: this `replace` with an empty vector is `List::clear`
+  --> $DIR/main.rs:84:13
+   |
+LL |     let _ = list.replace(Vec::default());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.clear()`
+
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:90:5
+   |
+LL | /     let mut v = state.items.snapshot();
+LL | |     v.push(5);
+LL | |     let _ = state.items.replace(v);
+   | |___________________________________^ help: use the `List` method: `state.items.push(5);`
+
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:96:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     // a comment the suggestion would delete
+LL | |     v.push(6);
+LL | |     let _ = list.replace(v);
+   | |____________________________^ help: use the `List` method: `list.push(6);`
+
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:182:5
+   |
+LL | /     let mut v = list.snapshot();
+LL | |     v.push(2);
+LL | |     list.replace(v);
+   | |____________________^ help: use the `List` method: `list.push(2);`
+
+warning: this snapshot/replace round trip restates `List::push`
+  --> $DIR/main.rs:188:5
+   |
+LL | /     list.replace({
+LL | |         let mut v = list.snapshot();
+LL | |         v.push(3);
+LL | |         v
+LL | |     });
+   | |______^ help: use the `List` method: `list.push(3)`
+
+warning: this snapshot/replace round trip restates `List::pop`
+  --> $DIR/main.rs:196:5
+   |
+LL | /     list.replace({
+LL | |         let mut v = list.snapshot();
+LL | |         v.pop();
+LL | |         v
+LL | |     });
+   | |______^ help: use the `List` method: `let _ = list.pop()`
+
+warning: 17 warnings emitted
+
