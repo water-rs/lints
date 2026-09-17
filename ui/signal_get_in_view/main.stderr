@@ -48,6 +48,16 @@ LL -     let _ = text("hello").opacity(fade.computed().get());
 LL +     let _ = text("hello").opacity(fade.computed().clone());
    |
 
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:42:35
+   |
+LL |     let _ = text("hello").opacity(fade.computed().get());
+   |                                   ^^^^-----------
+   |                                       |
+   |                                       help: drop the `.computed()`
+   |
+   = note: `#[warn(needless_computed)]` on by default
+
 error: `.get()` reads the signal once; the view will never update
   --> $DIR/main.rs:44:32
    |
@@ -171,5 +181,5 @@ LL -     let _ = AnyView::new(text!("{count}"));
 LL +     let _ = text!("{count}").anyview();
    |
 
-error: aborting due to 13 previous errors; 4 warnings emitted
+error: aborting due to 13 previous errors; 5 warnings emitted
 

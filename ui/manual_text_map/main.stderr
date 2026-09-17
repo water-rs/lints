@@ -341,6 +341,21 @@ LL -     let _ = text(count.map(|c| format!("{{{c}}} items")).computed());
 LL +     let _ = text!("{{{count}}} items");
    |
 
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:118:13
+   |
+LL |        let _ = text!(
+   |  ______________^
+LL | |          "{name}: {x}",
+LL | |          x = count.map(|c| format!("{c} left")).computed()
+   | | _______________________________________________-
+LL | ||     );
+   | ||_____^
+   |  |_____|
+   |        help: drop the `.computed()`
+   |
+   = note: `#[warn(needless_computed)]` on by default
+
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:120:13
    |
@@ -402,6 +417,14 @@ LL -     let _ = Model { count: binding(9) }.badge();
 LL +     let _ = Model { count: Binding::i32(9) }.badge();
    |
 
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:139:20
+   |
+LL |     let log_line = count.map(|c| format!("count = {c}")).computed();
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                                                         |
+   |                                                         help: drop the `.computed()`
+
 warning: this `map` builds a string signal by hand; `s!` formats signals directly
   --> $DIR/main.rs:139:20
    |
@@ -413,6 +436,14 @@ LL |     let log_line = count.map(|c| format!("count = {c}")).computed();
    = help: use `s!("count = {count}")` — `s!` subscribes to its placeholders the way `format!` captures names
    = note: `#[warn(manual_string_signal)]` on by default
 
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:142:44
+   |
+LL |     let _stored: Binding<String> = binding(name.map(|v| format!("{v}!")).computed().get());
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                                                                         |
+   |                                                                         help: drop the `.computed()`
+
 warning: this `map` builds a string signal by hand; `s!` formats signals directly
   --> $DIR/main.rs:142:44
    |
@@ -422,6 +453,14 @@ LL |     let _stored: Binding<String> = binding(name.map(|v| format!("{v}!")).co
    |                                                         the string is built by hand here
    |
    = help: use `s!("{name}!")` — `s!` subscribes to its placeholders the way `format!` captures names
+
+warning: this `computed()` erases a signal that every consumer already accepts
+  --> $DIR/main.rs:148:18
+   |
+LL |     takes_string(name.map(|v| v.to_string()).computed().get());
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------
+   |                                             |
+   |                                             help: drop the `.computed()`
 
 warning: `text!` already formats a signal — `.map(|v| format!(..))` throws away format specs and the translatable sentence
   --> $DIR/main.rs:154:18
@@ -435,5 +474,5 @@ LL -     let _ = text(name.map(|v| Str::from(format!("<{v}>"))).computed());
 LL +     let _ = text!("<{name}>");
    |
 
-warning: 36 warnings emitted
+warning: 40 warnings emitted
 
