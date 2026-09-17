@@ -1,0 +1,130 @@
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:11:22
+   |
+LL | pub fn counter(name: Binding<Str>) -> impl View {
+   |                      ^^^^^^^^^^^^
+   |
+   = note: `#[warn(binding_parameter_by_value)]` on by default
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn counter(name: &Binding<Str>) -> impl View {
+LL ~     text(name.clone())
+LL | }
+...
+LL |
+LL ~     let _ = counter(&name);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:17:27
+   |
+LL | pub(crate) fn reset(flag: Binding<bool>) {
+   |                           ^^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub(crate) fn reset(flag: &Binding<bool>) {
+LL |     flag.set(false);
+...
+LL |     let _ = counter(name.clone());
+LL ~     reset(&on);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:23:27
+   |
+LL | pub fn passthrough(count: Binding<i32>) -> Binding<i32> {
+   |                           ^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn passthrough(count: &Binding<i32>) -> Binding<i32> {
+LL ~     count.clone()
+LL | }
+...
+LL |     reset(on.clone());
+LL ~     let _ = passthrough(&count);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:29:19
+   |
+LL | pub fn keep(flag: Binding<bool>) -> impl FnOnce() -> Binding<bool> {
+   |                   ^^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn keep(flag: &Binding<bool>) -> impl FnOnce() -> Binding<bool> {
+LL ~     move || flag.clone()
+LL | }
+...
+LL |     let _ = passthrough(count.clone());
+LL ~     let _ = keep(&on);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:36:23
+   |
+LL | pub fn aliased(count: Count) -> i32 {
+   |                       ^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn aliased(count: &Count) -> i32 {
+LL |     count.get()
+...
+LL |     let _ = keep(on.clone());
+LL ~     let _ = aliased(&count);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:47:26
+   |
+LL |     pub fn new(selected: Binding<bool>) -> Row {
+   |                          ^^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~     pub fn new(selected: &Binding<bool>) -> Row {
+LL ~         Row { selected: selected.clone() }
+LL |     }
+...
+LL |     let _ = aliased(count.clone());
+LL ~     let row = Row::new(&on);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:54:24
+   |
+LL |     fn bind(&self, on: Binding<bool>);
+   |                        ^^^^^^^^^^^^^
+   |
+   = note: every implementor of this trait must make the same change
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~     fn bind(&self, on: &Binding<bool>);
+LL | }
+...
+LL |     let _ = row.selected.get();
+LL ~     Watcher::bind(&row, &on);
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:79:17
+   |
+LL | fn render(item: Binding<i32>) -> i32 {
+   |                 ^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ fn render(item: &Binding<i32>) -> i32 {
+LL |     item.get()
+...
+LL |     Private::bind(&row, Binding::bool(false));
+LL ~     let _ = render(&count);
+LL ~     let _ = render(&other);
+LL ~     let _ = render(&Binding::i32(8));
+   |
+
+warning: 8 warnings emitted
+

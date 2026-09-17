@@ -1,18 +1,16 @@
 use clippy_utils::diagnostics::span_lint_hir_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::{snippet_indent, snippet_opt};
-use rustc_abi::ExternAbi;
 use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Applicability;
-use rustc_hir::attrs::AttributeKind;
 use rustc_hir::def::{DefKind, Namespace, Res};
 use rustc_hir::def_id::{DefId, LocalDefId};
 use rustc_hir::{
-    Attribute, Body, ByRef, Constness, Expr, ExprKind, FnHeader, HirId, ImplItemImplKind,
-    ImplItemKind, ItemKind, Mutability, Node, PatKind, QPath, TraitFn, TraitItemKind, TyKind, UnOp,
+    Body, ByRef, Expr, ExprKind, HirId, ImplItemImplKind, ImplItemKind, ItemKind, Mutability,
+    PatKind, QPath, TraitItemKind, TyKind, UnOp,
 };
 use rustc_lint::{LateContext, LateLintPass, LintContext};
-use rustc_middle::ty::{self, Ty, TypeckResults, Unnormalized};
+use rustc_middle::ty::{self, Ty, TypeckResults};
 use rustc_session::impl_lint_pass;
 use rustc_span::symbol::Symbol;
 use rustc_span::{BytePos, Span};
@@ -22,6 +20,7 @@ use crate::carriers::{CLONE, is_call_to};
 use crate::def_path::def_path_eq;
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
+use crate::signature::{collectable, normalized_inputs, public_signature, signature_of};
 
 declare_waterui_lint! {
     /// ### What it does
@@ -91,20 +90,9 @@ impl_lint_pass!(ComputedParameter => [COMPUTED_PARAMETER]);
 /// `(index, T)` for each of `did`'s parameters typed `Computed<T>` or
 /// `&Computed<T>` — type aliases normalized away first.
 fn computed_params<'tcx>(cx: &LateContext<'tcx>, did: DefId) -> Vec<(u32, Ty<'tcx>)> {
-    let env = ty::TypingEnv::post_analysis(cx.tcx, did);
-    cx.tcx
-        .fn_sig(did)
-        .instantiate_identity()
-        .skip_norm_wip()
-        .skip_binder()
-        .inputs()
-        .iter()
-        .enumerate()
-        .filter_map(|(index, &input)| {
-            let ty = cx
-                .tcx
-                .try_normalize_erasing_regions(env, Unnormalized::new_wip(input))
-                .unwrap_or(input);
+    normalized_inputs(cx, did)
+        .into_iter()
+        .filter_map(|(index, ty)| {
             let inner = match *ty.kind() {
                 ty::TyKind::Ref(_, inner, _) => inner,
                 _ => ty,
@@ -112,97 +100,9 @@ fn computed_params<'tcx>(cx: &LateContext<'tcx>, did: DefId) -> Vec<(u32, Ty<'tc
             let ty::TyKind::Adt(adt, args) = *inner.kind() else {
                 return None;
             };
-            def_path_eq(cx, adt.did(), COMPUTED).then(|| (index as u32, args.type_at(0)))
+            def_path_eq(cx, adt.did(), COMPUTED).then(|| (index, args.type_at(0)))
         })
         .collect()
-}
-
-/// `#[no_mangle]`/`#[export_name]` — an `impl Trait` parameter has no C ABI.
-fn exported(attrs: &[Attribute]) -> bool {
-    attrs.iter().any(|attr| {
-        matches!(
-            attr,
-            Attribute::Parsed(AttributeKind::NoMangle(_) | AttributeKind::ExportName { .. })
-        )
-    })
-}
-
-/// Whether `did`'s signature carries a written visibility qualifier and the
-/// item is not nested inside a body, where no qualifier can reach a caller
-/// anyway. A trait member cannot be qualified itself; it borrows its
-/// trait's qualifier. An inherent method is nameable only while its self
-/// type is, so a `pub fn` on a private `struct` stays under the private
-/// call-site rule.
-fn public_signature(cx: &LateContext<'_>, did: LocalDefId) -> bool {
-    let tcx = cx.tcx;
-    let hir_id = tcx.local_def_id_to_hir_id(did);
-    let nested = tcx
-        .hir_parent_id_iter(hir_id)
-        .any(|id| tcx.hir_node(id).associated_body().is_some());
-    if nested {
-        return false;
-    }
-    let node = match tcx.hir_node(hir_id) {
-        Node::TraitItem(_) => {
-            let Some(owner) = tcx.parent(did.to_def_id()).as_local() else {
-                return false;
-            };
-            tcx.hir_node(tcx.local_def_id_to_hir_id(owner))
-        }
-        node => node,
-    };
-    match node {
-        Node::Item(item) => written_public(cx, item.vis_span),
-        Node::ImplItem(item) => {
-            item.vis_span().is_some_and(|span| written_public(cx, span))
-                && impl_self_public(cx, did)
-        }
-        _ => false,
-    }
-}
-
-/// Whether a `vis_span` is a real qualifier — `pub`, `pub(crate)`,
-/// `pub(super)`, `pub(in ..)`. `pub(self)`/`pub(in self)` are private no
-/// matter where they are written, and an unqualified item keeps the
-/// parser's zero-width placeholder span, which `is_empty` detects.
-/// (`tcx.local_visibility` cannot replace the written check: it merges
-/// `pub(crate)` at the crate root with private.)
-fn written_public(cx: &LateContext<'_>, span: Span) -> bool {
-    if span.is_empty() {
-        return false;
-    }
-    let squashed = snippet_opt(cx, span).map(|text| {
-        text.chars()
-            .filter(|c| !c.is_whitespace())
-            .collect::<String>()
-    });
-    !matches!(squashed.as_deref(), Some("pub(self)" | "pub(inself)"))
-}
-
-/// Whether `did` — an inherent impl item — sits on an ADT that carries its
-/// own written qualifier. Non-ADT and foreign self types cannot be inherent
-/// receivers anyway; they count as private.
-fn impl_self_public(cx: &LateContext<'_>, did: LocalDefId) -> bool {
-    let tcx = cx.tcx;
-    let Some(impl_did) = tcx.parent(did.to_def_id()).as_local() else {
-        return false;
-    };
-    let Node::Item(item) = tcx.hir_node(tcx.local_def_id_to_hir_id(impl_did)) else {
-        return false;
-    };
-    let ItemKind::Impl(impl_) = item.kind else {
-        return false;
-    };
-    let TyKind::Path(QPath::Resolved(None, path)) = impl_.self_ty.kind else {
-        return false;
-    };
-    let Some(adt) = path.res.opt_def_id().and_then(DefId::as_local) else {
-        return false;
-    };
-    match tcx.hir_node(tcx.local_def_id_to_hir_id(adt)) {
-        Node::Item(item) => written_public(cx, item.vis_span),
-        _ => false,
-    }
 }
 
 /// Whether the expression passed for a `Computed` parameter is a plain
@@ -234,21 +134,6 @@ fn is_place<'hir>(cx: &LateContext<'hir>, typeck: &TypeckResults<'hir>, expr: &E
     }
 }
 
-/// Whether `item` — from `check_item`/`check_impl_item`/`check_trait_item` —
-/// is a signature this lint may rewrite. `const fn` is out: the inserted
-/// `.into_computed()` call can never be const.
-fn collectable(
-    cx: &LateContext<'_>,
-    did: LocalDefId,
-    attrs: &[Attribute],
-    header: FnHeader,
-) -> bool {
-    header.abi == ExternAbi::Rust
-        && header.constness == Constness::NotConst
-        && !exported(attrs)
-        && !computed_params(cx, did.to_def_id()).is_empty()
-}
-
 impl<'tcx> LateLintPass<'tcx> for ComputedParameter {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &'tcx rustc_hir::Item<'tcx>) {
         if let ItemKind::Fn { sig, .. } = item.kind
@@ -257,6 +142,7 @@ impl<'tcx> LateLintPass<'tcx> for ComputedParameter {
                 item.owner_id.def_id,
                 cx.tcx.hir_attrs(item.hir_id()),
                 sig.header,
+                |cx, did| !computed_params(cx, did).is_empty(),
             )
         {
             self.sigs.push(item.owner_id.def_id);
@@ -273,6 +159,7 @@ impl<'tcx> LateLintPass<'tcx> for ComputedParameter {
                 item.owner_id.def_id,
                 cx.tcx.hir_attrs(item.hir_id()),
                 sig.header,
+                |cx, did| !computed_params(cx, did).is_empty(),
             )
         {
             self.sigs.push(item.owner_id.def_id);
@@ -286,6 +173,7 @@ impl<'tcx> LateLintPass<'tcx> for ComputedParameter {
                 item.owner_id.def_id,
                 cx.tcx.hir_attrs(item.hir_id()),
                 sig.header,
+                |cx, did| !computed_params(cx, did).is_empty(),
             )
         {
             self.sigs.push(item.owner_id.def_id);
@@ -334,35 +222,6 @@ impl<'tcx> LateLintPass<'tcx> for ComputedParameter {
                 );
             }
         }
-    }
-}
-
-/// `(decl, body, is_trait_member)` for a collected function.
-fn signature_of<'hir>(
-    tcx: rustc_middle::ty::TyCtxt<'hir>,
-    did: LocalDefId,
-) -> Option<(
-    &'hir rustc_hir::FnDecl<'hir>,
-    Option<&'hir Body<'hir>>,
-    bool,
-)> {
-    match tcx.hir_node_by_def_id(did) {
-        Node::Item(item) => match item.kind {
-            ItemKind::Fn { sig, body, .. } => Some((sig.decl, Some(tcx.hir_body(body)), false)),
-            _ => None,
-        },
-        Node::ImplItem(item) => match item.kind {
-            ImplItemKind::Fn(sig, body) => Some((sig.decl, Some(tcx.hir_body(body)), false)),
-            _ => None,
-        },
-        Node::TraitItem(item) => match item.kind {
-            TraitItemKind::Fn(sig, TraitFn::Provided(body)) => {
-                Some((sig.decl, Some(tcx.hir_body(body)), true))
-            }
-            TraitItemKind::Fn(sig, TraitFn::Required(..)) => Some((sig.decl, None, true)),
-            _ => None,
-        },
-        _ => None,
     }
 }
 

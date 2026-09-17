@@ -72,5 +72,21 @@ warning: this `zip`/`map` pair is a named signal operation
 LL |     let _ = base - count.zip(&other).map(|(x, y)| x - y);
    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the signal operation: `(count.clone() - other.clone())`
 
-warning: 12 warnings emitted
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:12:28
+   |
+LL |     fn apply(&self, count: Binding<i32>) {
+   |                            ^^^^^^^^^^^^
+   |
+   = note: `#[warn(binding_parameter_by_value)]` on by default
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~     fn apply(&self, count: &Binding<i32>) {
+LL |         // Fires — `*` is the operator; `self.factor` is a field, so the fix
+...
+LL |     }
+LL ~     .apply(&count);
+   |
+
+warning: 13 warnings emitted
 

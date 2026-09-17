@@ -101,6 +101,7 @@ mod anyview;
 mod anyview_new_in_free_fn;
 mod applicability;
 mod binding;
+mod binding_parameter_by_value;
 mod blocking_in_ui_context;
 mod carriers;
 mod collection_item_snapshot;
@@ -156,6 +157,7 @@ mod s_macro_in_text;
 mod set_with_own_get;
 mod signal_get_in_view;
 mod signal_map;
+mod signature;
 mod snapshot_get;
 mod spacer_in_zstack;
 mod state_created_in_rebuilt_scope;
@@ -175,6 +177,7 @@ mod watch_over_collection;
 
 const LINTS: &[&LintInfo] = &[
     &anyview_new_in_free_fn::LINT_INFO,
+    &binding_parameter_by_value::LINT_INFO,
     &blocking_in_ui_context::LINT_INFO,
     &blocking_in_ui_context::thread_sleep::LINT_INFO,
     &collection_item_snapshot::LINT_INFO,
@@ -245,6 +248,9 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
 
     lint_store.register_lints(&LINTS.iter().map(|info| info.lint).collect::<Vec<_>>());
     lint_store.register_late_pass(|_| Box::new(anyview_new_in_free_fn::AnyviewNewInFreeFn));
+    lint_store.register_late_pass(|_| {
+        Box::new(binding_parameter_by_value::BindingParameterByValue::default())
+    });
     lint_store
         .register_late_pass(|_| Box::new(blocking_in_ui_context::BlockingInUiContext::default()));
     lint_store.register_late_pass(|_| Box::new(collection_item_snapshot::CollectionItemSnapshot));
