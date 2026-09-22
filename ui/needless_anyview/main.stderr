@@ -19,19 +19,6 @@ LL |     AnyView::new(text("a"))
    |
    = note: `#[warn(needless_anyview)]` on by default
 
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:41:5
-   |
-LL | /     if c {
-LL | |         AnyView::new(text("a"))
-LL | |     } else {
-LL | |         AnyView::new(text("b"))
-LL | |     }
-   | |_____^
-   |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
-   = note: `#[warn(if_else_view)]` on by default
-
 warning: erasing to `AnyView` is unnecessary — the position already accepts `impl View`
   --> $DIR/main.rs:41:5
    |
@@ -251,18 +238,6 @@ help: use the postfix `.anyview()`
 LL -         Row::Item => AnyView::new(item()),
 LL +         Row::Item => item().anyview(),
    |
-
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:99:5
-   |
-LL | /     if c {
-LL | |         AnyView::new(text("a"))
-LL | |     } else {
-LL | |         AnyView::new(item())
-LL | |     }
-   | |_____^
-   |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
   --> $DIR/main.rs:100:9
@@ -632,5 +607,5 @@ LL -     let _v = AnyView::new(text("a"));
 LL +     let _v = text("a").anyview();
    |
 
-warning: 58 warnings emitted
+warning: 56 warnings emitted
 

@@ -5,9 +5,9 @@ fn side_a() {}
 
 fn side_b() {}
 
-// Fires: the `if` is a `-> impl View` body's tail — a view position. The
-// condition is a plain `bool`, which `when` cannot take, so the lint fires
-// with help only — no machine-applicable `when(..)` suggestion.
+// Silent: the `if` is a `-> impl View` body's tail — a view position —
+// but the condition is a plain `bool`, which `when` cannot take and no
+// `.get()` sits in it to unwrap, so the lint stays silent.
 fn plain_bool(c: bool) -> impl View {
     if c { text("a") } else { text("b") }
 }
@@ -32,10 +32,10 @@ fn deep_get(items: Binding<Vec<i32>>) -> impl View {
 }
 
 // Fires: an `else if` chain is one diagnostic on the outer `if`.
-fn chained(c: bool, d: bool) -> impl View {
-    if c {
+fn chained(flag: Binding<bool>, d: Binding<bool>) -> impl View {
+    if flag.get() {
         text("a")
-    } else if d {
+    } else if d.get() {
         text("b")
     } else {
         text("e")
@@ -43,8 +43,8 @@ fn chained(c: bool, d: bool) -> impl View {
 }
 
 // Fires: block arms with statements stay verbatim in `|| { .. }`.
-fn blocks(c: bool) -> impl View {
-    if c {
+fn blocks(flag: Binding<bool>) -> impl View {
+    if flag.get() {
         side_a();
         text("a")
     } else {
@@ -64,15 +64,14 @@ fn main() {
     let flag: Binding<bool> = Binding::bool(true);
     let items: Binding<Vec<i32>> = binding(vec![1, 2, 3]);
     let c = true;
-    let d = false;
 
     // Fires (snapshot): an `if` passed where an `impl View` parameter sits.
     let _ = scroll(if flag.get() { text("on") } else { text("off") });
     // Fires (snapshot): an `if` inside a `vstack` tuple element — each
     // element of a `TupleViews` argument is a view position.
     let _ = vstack((if flag.get() { text("a") } else { text("b") }, text("tail")));
-    // Fires: a `when` builder closure's tail — the closure is passed to a
-    // `ViewBuilder` parameter, and `c` is a plain `bool` — help only.
+    // Silent: a `when` builder closure's tail — the closure is passed to a
+    // `ViewBuilder` parameter — but `c` is a plain `bool`.
     let _ = when(flag.clone(), move || if c { text("a") } else { text("b") });
     // Fires (snapshot): the receiver of a `ViewExt` method call.
     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
@@ -81,8 +80,8 @@ fn main() {
     let _ = snapshot(Binding::bool(true));
     let _ = negated(Binding::bool(true));
     let _ = deep_get(binding(vec![4, 5, 6]));
-    let _ = chained(c, d);
-    let _ = blocks(c);
+    let _ = chained(Binding::bool(true), Binding::bool(false));
+    let _ = blocks(Binding::bool(true));
     let _ = inner_let(Binding::bool(false));
 
     // Silent: an `if` picking between colors — data position, and `Color`

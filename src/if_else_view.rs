@@ -79,7 +79,6 @@ const SNAPSHOT_MSG: &str =
 const SNAPSHOT_NOTE: &str =
     "the `.get()` reads the signal once — the chosen branch never re-evaluates";
 const SUGGESTION: &str = "rewrite as `when(cond, || ..).otherwise(|| ..)`";
-const BOOL_HELP: &str = "`when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`";
 const DEEP_GET_HELP: &str = "derive a `Computed<bool>` with `map`/`zip` and pass it to `when`";
 const GENERIC_HELP: &str = "import `waterui::widget::condition::when` and rewrite the branch as `when(cond, || ..).otherwise(|| ..)`";
 
@@ -406,15 +405,6 @@ impl IfElseView {
             }
             Bare::Conflict => return None,
         }
-        // `when` takes `impl IntoComputed<bool>` — a plain `bool`
-        // condition cannot feed it, so no machine-applicable `when(..)`
-        // suggestion is emitted for one.
-        if branches
-            .iter()
-            .any(|b| b.cond.as_ref().is_some_and(|c| !c.signal))
-        {
-            return None;
-        }
         let mut text = String::new();
         for (index, branch) in branches.iter().enumerate() {
             let cond = &branch.cond.as_ref()?.text;
@@ -476,6 +466,17 @@ impl<'tcx> LateLintPass<'tcx> for IfElseView {
                 get: contains_get(cx, cond),
             })
             .collect();
+        // A verbatim condition that is not a live signal — a plain
+        // `bool` — cannot drive `when` at all, and no `.get()` sits in it
+        // to unwrap: the `if`/`else` is legitimate static configuration,
+        // so the lint stays silent rather than warn with nothing to act
+        // on. (A `.get()` cond maps to `None`, never this arm.)
+        if branches
+            .iter()
+            .any(|b| b.cond.as_ref().is_some_and(|c| !c.signal))
+        {
+            return;
+        }
         let snapshot = branches.iter().any(|branch| branch.get);
         span_lint_and_then(
             cx,
@@ -492,12 +493,6 @@ impl<'tcx> LateLintPass<'tcx> for IfElseView {
                     }
                     None if branches.iter().any(|b| b.get && b.cond.is_none()) => {
                         diag.help(DEEP_GET_HELP);
-                    }
-                    None if branches
-                        .iter()
-                        .any(|b| b.cond.as_ref().is_some_and(|c| !c.signal)) =>
-                    {
-                        diag.help(BOOL_HELP);
                     }
                     None => {
                         diag.help(GENERIC_HELP);
