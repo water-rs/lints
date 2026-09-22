@@ -49,15 +49,37 @@ impl Row {
     }
 }
 
+// Fires: `pub` — an edition-2024 `-> impl View` return gets `+ use<>` in
+// the suggestion, so the new `&`'s anonymous lifetime is not captured.
+pub fn panel(name: Binding<Str>) -> impl View {
+    text(name)
+}
+
+// Fires: `pub` — named generics are re-captured by name: `+ use<'a, T>`.
+pub fn tag<'a, T: View>(name: Binding<Str>, mark: &'a str, note: &'a str, inner: T) -> impl View {
+    let _ = name.get();
+    let _ = (mark, note);
+    inner
+}
+
 pub trait Watcher {
     // Fires: `pub` trait member — the note names every implementor.
     fn bind(&self, on: Binding<bool>);
+
+    // Fires: `pub` trait member returning `impl View` — `use<Self>` keeps
+    // the trait's self capture while dropping the new `&`'s lifetime.
+    fn build(&self, on: Binding<bool>) -> impl View;
 }
 
 impl Watcher for Row {
     // Silent: `impl Watcher for Row` — the trait fixes the signature.
     fn bind(&self, on: Binding<bool>) {
         on.set(true);
+    }
+
+    fn build(&self, on: Binding<bool>) -> impl View {
+        let _ = on.get();
+        text("row")
     }
 }
 
