@@ -5,15 +5,17 @@ use rustc_hir::def::Res;
 use rustc_hir::def_id::{DefId, LocalDefId};
 use rustc_hir::intravisit::{self, Visitor};
 use rustc_hir::{
-    BodyId, ByRef, CaptureBy, Expr, ExprKind, HirId, ImplItemImplKind, ImplItemKind, ItemKind,
-    Node, PatKind, QPath, StructTailExpr, TraitItemKind,
+    BodyId, ByRef, CaptureBy, Expr, ExprKind, FnRetTy, GenericBound, GenericParamKind, Generics,
+    HirId, Impl, ImplItemImplKind, ImplItemKind, Item, ItemKind, Node, OpaqueTyOrigin, ParamName,
+    PatKind, QPath, StructTailExpr, TraitItemKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::hir::nested_filter::OnlyBodies;
 use rustc_middle::ty::adjustment::{Adjust, AutoBorrow};
-use rustc_middle::ty::{self, TyKind, TypeckResults};
+use rustc_middle::ty::{self, TyCtxt, TyKind, TypeckResults};
 use rustc_session::impl_lint_pass;
 use rustc_span::Span;
+use rustc_span::edition::Edition;
 
 use crate::binding::BINDING;
 use crate::carriers::{CLONE, is_call_to};
@@ -403,6 +405,98 @@ impl<'tcx> Visitor<'tcx> for ParamUses<'_, 'tcx> {
     }
 }
 
+/// The HIR generics of `did` — an `fn` item, an `impl`/`trait` item, or an
+/// impl/trait member — or `None` for anything else.
+fn generics_at<'hir>(tcx: TyCtxt<'hir>, did: LocalDefId) -> Option<&'hir Generics<'hir>> {
+    match tcx.hir_node_by_def_id(did) {
+        Node::Item(Item {
+            kind:
+                ItemKind::Fn { generics, .. }
+                | ItemKind::Impl(Impl { generics, .. })
+                | ItemKind::Trait { generics, .. },
+            ..
+        }) => Some(generics),
+        Node::ImplItem(item) => Some(item.generics),
+        Node::TraitItem(item) => Some(item.generics),
+        _ => None,
+    }
+}
+
+/// The `use<..>` name list for `did`'s opaque return: every named lifetime,
+/// then `Self` and every named type/const parameter of the item and its
+/// enclosing impl/trait. Params that cannot be spelled — synthetic
+/// `impl Trait` arguments, elided/anonymous lifetimes — are absent, so the
+/// `&` the fix introduces is excluded by construction.
+fn use_names(cx: &LateContext<'_>, did: LocalDefId, trait_member: bool) -> String {
+    let tcx = cx.tcx;
+    let mut lifetimes: Vec<String> = Vec::new();
+    let mut others: Vec<String> = Vec::new();
+    if trait_member {
+        others.push("Self".to_owned());
+    }
+    let mut dids = vec![did];
+    if let Some(parent) = tcx.parent(did.to_def_id()).as_local() {
+        dids.push(parent);
+    }
+    for did in dids {
+        let Some(generics) = generics_at(tcx, did) else {
+            continue;
+        };
+        for param in generics.params {
+            let ParamName::Plain(ident) = param.name else {
+                continue;
+            };
+            match param.kind {
+                GenericParamKind::Lifetime { .. } => lifetimes.push(ident.name.to_string()),
+                GenericParamKind::Type {
+                    synthetic: true, ..
+                } => {}
+                _ => others.push(ident.name.to_string()),
+            }
+        }
+    }
+    lifetimes
+        .into_iter()
+        .chain(others)
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// The `+ use<..>` suggestion part for an edition-2024 `-> impl Trait`
+/// return: there an `impl Trait` captures every lifetime in scope — the
+/// `&Binding` the fix introduces brings a new anonymous one — and callers
+/// handing over temporaries (`f(&store.note)`) fail borrow-check. The
+/// `use` list re-captures every named generic and drops the new lifetime.
+/// `None` for concrete/`-> ()` returns, `async fn` output (`impl Future`
+/// already captures everything), signatures already carrying a `use`
+/// bound, and pre-2024 editions where none of this applies.
+fn precise_capture(
+    cx: &LateContext<'_>,
+    did: LocalDefId,
+    decl: &rustc_hir::FnDecl<'_>,
+    trait_member: bool,
+) -> Option<(Span, String)> {
+    let FnRetTy::Return(ty) = decl.output else {
+        return None;
+    };
+    let rustc_hir::TyKind::OpaqueDef(opaque) = ty.kind else {
+        return None;
+    };
+    if ty.span.edition() < Edition::Edition2024
+        || !matches!(opaque.origin, OpaqueTyOrigin::FnReturn { .. })
+        || opaque
+            .bounds
+            .iter()
+            .any(|bound| matches!(bound, GenericBound::Use(..)))
+    {
+        return None;
+    }
+    Some((
+        ty.span.shrink_to_hi(),
+        format!(" + use<{}>", use_names(cx, did, trait_member)),
+    ))
+}
+
 fn report(cx: &LateContext<'_>, did: LocalDefId, call_sites: Option<&Vec<CallSite>>) {
     let hir_id = cx.tcx.local_def_id_to_hir_id(did);
     let Some((decl, body, trait_member)) = signature_of(cx.tcx, did) else {
@@ -441,6 +535,7 @@ fn report(cx: &LateContext<'_>, did: LocalDefId, call_sites: Option<&Vec<CallSit
         .iter()
         .map(|&(_, written)| (written.span.shrink_to_lo(), "&".to_owned()))
         .collect();
+    parts.extend(precise_capture(cx, did, decl, trait_member));
     if let Some(body) = body
         && !locals.is_empty()
     {
