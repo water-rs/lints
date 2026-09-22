@@ -1,12 +1,3 @@
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:12:5
-   |
-LL |     if c { text("a") } else { text("b") }
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
-   = note: `#[warn(if_else_view)]` on by default
-
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
   --> $DIR/main.rs:17:5
    |
@@ -14,6 +5,7 @@ LL |     if flag.get() { text("on") } else { text("off") }
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+   = note: `#[warn(if_else_view)]` on by default
 help: rewrite as `when(cond, || ..).otherwise(|| ..)`
    |
 LL -     if flag.get() { text("on") } else { text("off") }
@@ -46,24 +38,35 @@ LL | |     }
    = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
    = help: derive a `Computed<bool>` with `map`/`zip` and pass it to `when`
 
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
   --> $DIR/main.rs:36:5
    |
-LL | /     if c {
+LL | /     if flag.get() {
 LL | |         text("a")
-LL | |     } else if d {
+LL | |     } else if d.get() {
 LL | |         text("b")
 LL | |     } else {
 LL | |         text("e")
 LL | |     }
    | |_____^
    |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL -     if flag.get() {
+LL -         text("a")
+LL -     } else if d.get() {
+LL -         text("b")
+LL -     } else {
+LL -         text("e")
+LL -     }
+LL +     when(flag.clone(), || text("a")).or(d.clone(), || text("b")).otherwise(|| text("e"))
+   |
 
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
   --> $DIR/main.rs:47:5
    |
-LL | /     if c {
+LL | /     if flag.get() {
 LL | |         side_a();
 LL | |         text("a")
 LL | |     } else {
@@ -72,10 +75,20 @@ LL | |         text("b")
 LL | |     }
    | |_____^
    |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL ~     when(flag.clone(), || {
+LL +         side_a();
+LL +         text("a")
+LL +     }).otherwise(|| {
+LL +         side_b();
+LL +         text("b")
+LL +     })
+   |
 
 error: `.get()` reads the signal once; the view will never update
-  --> $DIR/main.rs:70:23
+  --> $DIR/main.rs:69:23
    |
 LL |     let _ = scroll(if flag.get() { text("on") } else { text("off") });
    |                       ^^^^^^^^^^
@@ -84,7 +97,7 @@ LL |     let _ = scroll(if flag.get() { text("on") } else { text("off") });
    = note: `#[deny(signal_get_in_view)]` on by default
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:70:20
+  --> $DIR/main.rs:69:20
    |
 LL |     let _ = scroll(if flag.get() { text("on") } else { text("off") });
    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,7 +110,7 @@ LL +     let _ = scroll(when(flag.clone(), || text("on")).otherwise(|| text("off
    |
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:73:21
+  --> $DIR/main.rs:72:21
    |
 LL |     let _ = vstack((if flag.get() { text("a") } else { text("b") }, text("tail")));
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,16 +122,8 @@ LL -     let _ = vstack((if flag.get() { text("a") } else { text("b") }, text("t
 LL +     let _ = vstack((when(flag.clone(), || text("a")).otherwise(|| text("b")), text("tail")));
    |
 
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:76:40
-   |
-LL |     let _ = when(flag.clone(), move || if c { text("a") } else { text("b") });
-   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
-
 error: `.get()` reads the signal once; the view will never update
-  --> $DIR/main.rs:78:17
+  --> $DIR/main.rs:77:17
    |
 LL |     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
    |                 ^^^^^^^^^^
@@ -126,7 +131,7 @@ LL |     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
    = help: pass the signal itself so the view can subscribe to updates
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:78:13
+  --> $DIR/main.rs:77:13
    |
 LL |     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,7 +144,7 @@ LL +     let _ = when(flag.clone(), || text("a")).otherwise(|| text("b")).anyvie
    |
 
 warning: color components written as literals; write the color as `Color::srgb_hex("#FF0000")`
-  --> $DIR/main.rs:92:9
+  --> $DIR/main.rs:91:9
    |
 LL |         Color::srgb(255, 0, 0)
    |         ^^^^^^^^^^^^^^^^^^^^^^
@@ -152,7 +157,7 @@ LL +         Color::srgb_hex("#FF0000")
    |
 
 warning: color components written as literals; write the color as `Color::srgb_hex("#0000FF")`
-  --> $DIR/main.rs:94:9
+  --> $DIR/main.rs:93:9
    |
 LL |         Color::srgb(0, 0, 255)
    |         ^^^^^^^^^^^^^^^^^^^^^^
@@ -163,5 +168,5 @@ LL -         Color::srgb(0, 0, 255)
 LL +         Color::srgb_hex("#0000FF")
    |
 
-error: aborting due to 2 previous errors; 12 warnings emitted
+error: aborting due to 2 previous errors; 10 warnings emitted
 
