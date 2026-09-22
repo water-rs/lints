@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::macros::FormatArgsStorage;
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
@@ -10,6 +9,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TypeVisitableExt;
 use rustc_session::impl_lint_pass;
 
+use crate::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
 use crate::param_bounds::{
     BoundTarget, SIGNAL_PARAM_BOUNDS, VIEW_PARAM_BOUNDS, call_arg_bounds, call_args,
 };

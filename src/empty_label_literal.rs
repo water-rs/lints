@@ -1,10 +1,10 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use rustc_ast::LitKind;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{
     LABEL_PARAM_BOUNDS, call_arg_bounds, call_args, call_def_id, implemented_trait_item,
 };

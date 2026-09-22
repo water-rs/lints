@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::ty::implements_trait;
@@ -12,6 +11,7 @@ use rustc_span::Symbol;
 use std::ops::ControlFlow;
 
 use crate::carriers::{carried_arg, strip_wraps};
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{SNAPSHOT_PARAM_BOUNDS, arg_has_bound};
 use crate::row_builder::row_builder_closure;
 

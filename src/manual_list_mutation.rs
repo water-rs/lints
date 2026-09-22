@@ -1,6 +1,5 @@
 use std::ops::ControlFlow;
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::eq_expr_value;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::source::snippet_with_applicability;
@@ -15,6 +14,7 @@ use rustc_span::Span;
 use crate::applicability::comment_guard;
 use crate::carriers::body_expr;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::list::{replace_call, snapshot_receiver};
 use crate::param_bounds::{call_def_id, implemented_trait_item};
 

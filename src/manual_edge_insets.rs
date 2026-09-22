@@ -18,7 +18,6 @@
 //! always compiles — the single applicable `From` impl pins every inference
 //! variable — so the rewrite stays `MachineApplicable` and unsuffixed there.
 
-use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::source::snippet_with_applicability;
 use rustc_ast::{LitFloatType, LitKind};
 use rustc_errors::Applicability;
@@ -31,6 +30,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::applicability::comment_guard;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use crate::param_bounds::{
     BoundTarget, call_arg_all_bounds, call_args, call_def_id, implemented_trait_item,
 };

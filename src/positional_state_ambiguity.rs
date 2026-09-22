@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::ty::{ExprFnSig, expr_sig};
 use rustc_hir::def_id::DefId;
 use rustc_hir::{Expr, FnDecl};
@@ -8,6 +7,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::anyview::peel;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::handler_args;
 
 declare_waterui_lint! {

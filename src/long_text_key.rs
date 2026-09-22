@@ -1,12 +1,12 @@
 //! `long_text_key` — a `text!`/`Text::localized` key longer than
 //! `long_text_key_words` words is prose parked in the key position.
 
-use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
 use rustc_span::Span;
 
+use crate::diagnostics::span_lint_and_help;
 use crate::text_key::{self, TextKeys};
 
 declare_waterui_lint! {

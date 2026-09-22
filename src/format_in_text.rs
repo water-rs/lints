@@ -1,7 +1,6 @@
 //! `format_in_text` — `format!` prose reaching a text position renders as
 //! `Text::verbatim`: untranslatable, and invisible to the plural machinery.
 
-use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_then};
 use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
 use rustc_ast::FormatArgs;
 use rustc_ast::format::FormatArgsPiece;
@@ -16,6 +15,7 @@ use rustc_span::symbol::Ident;
 
 use crate::carriers::{FROM, INTO, TEXT_VERBATIM, TO_STRING, is_string_ty};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_help, span_lint_and_then};
 use crate::format_args::text_macro_suggestion;
 use crate::param_bounds::{
     TEXT_PARAM_BOUNDS, call_arg_bounds, call_args, call_def_id, implemented_trait_item,

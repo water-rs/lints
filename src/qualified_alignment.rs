@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use rustc_errors::Applicability;
 use rustc_hir::def::{DefKind, Namespace, Res};
@@ -13,6 +12,7 @@ use crate::anyview::peel;
 use crate::applicability::comment_guard;
 use crate::color::{INTO, SIZED};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{BoundTarget, call_arg_all_bounds, call_args, single_use_param};
 

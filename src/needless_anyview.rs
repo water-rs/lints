@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::source::snippet_opt;
 use rustc_errors::Applicability;
 use rustc_hir::def::{DefKind, Res};
@@ -16,6 +15,7 @@ use rustc_span::Span;
 use std::mem;
 
 use crate::anyview::{ANYVIEW, erased_inner, is_anyview, peel};
+use crate::diagnostics::{span_lint_and_help, span_lint_and_sugg, span_lint_and_then};
 use crate::param_bounds::{BoundTarget, VIEW_BUILDER, call_arg_bounds_in, call_args};
 
 declare_waterui_lint! {

@@ -2,7 +2,6 @@
 //! `use_id`/`self_id` wrapper on a local struct where `#[derive(Identifiable)]`
 //! plus a `#[id]` field marker say the same thing.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::is_self;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::{snippet_indent, snippet_opt};
@@ -27,6 +26,7 @@ use rustc_span::symbol::Symbol;
 use rustc_span::{BytePos, Pos, Span};
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::imports::{Bare, bare_status};
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 

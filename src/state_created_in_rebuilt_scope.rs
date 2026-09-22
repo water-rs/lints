@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::visitors::{Descend, for_each_expr_without_closures};
 use rustc_hir::{Closure, Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
@@ -8,6 +7,7 @@ use rustc_span::Span;
 use std::ops::ControlFlow;
 
 use crate::anyview::peel;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{
     VIEW_BUILDER, call_arg_bounds, call_args, call_def_id, implemented_trait_item,
 };

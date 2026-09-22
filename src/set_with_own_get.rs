@@ -1,6 +1,5 @@
 use std::ops::ControlFlow;
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::eq_expr_value;
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
@@ -18,6 +17,7 @@ use crate::binding::{
 };
 use crate::carriers::strip_wraps;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 use crate::snapshot_get::{get_receiver, is_snapshot_get_in};
 

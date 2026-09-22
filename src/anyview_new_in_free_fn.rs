@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_then};
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::MaybeQPath;
 use clippy_utils::sugg::Sugg;
@@ -12,6 +11,7 @@ use rustc_span::Symbol;
 
 use crate::anyview::{ANYVIEW_EXT, ANYVIEW_NEW, is_anyview};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_help, span_lint_and_then};
 use crate::imports::{Bare, bare_status, use_insertion};
 
 declare_waterui_lint! {

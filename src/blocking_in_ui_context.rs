@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::def_id::LocalDefId;
 use rustc_hir::{ClosureKind, CoroutineDesugaring, CoroutineKind, Expr, ExprKind, Node};
@@ -7,6 +6,7 @@ use rustc_session::impl_lint_pass;
 use rustc_span::Symbol;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::{call_def_id, handler_closures, implemented_trait_item};
 use crate::thread_sleep::{SLEEP_PATH, is_test_wrapper};
 

@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::res::{MaybeDef, MaybeQPath};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
@@ -13,6 +12,7 @@ use rustc_span::symbol::Symbol;
 use rustc_span::{Span, sym};
 
 use crate::binding::{binding_annotation, binding_name, dedicated_ctor, generic_ctor_call};
+use crate::diagnostics::span_lint_and_then;
 use crate::imports::{Bare, bare_status};
 
 declare_waterui_lint! {

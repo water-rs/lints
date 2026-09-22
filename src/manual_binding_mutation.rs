@@ -1,7 +1,6 @@
 //! `manual_binding_mutation` — a `Binding` mutation or `set` conversion
 //! written by hand where `Binding` has the named method.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::{MaybeDef, MaybeQPath, MaybeResPath};
 use clippy_utils::source::snippet_opt;
@@ -21,6 +20,7 @@ use crate::binding::{
 };
 use crate::carriers::{CLONE, FROM, INTO, TO_OWNED, TO_STRING, strip_wraps};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 use crate::snapshot_get::reads_binding;
 

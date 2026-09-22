@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_hir_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::{snippet_indent, snippet_opt};
 use rustc_data_structures::fx::FxHashMap;
@@ -18,6 +17,7 @@ use rustc_span::{BytePos, Span};
 use crate::binding::{COMPUTED, binding_krate};
 use crate::carriers::{CLONE, is_call_to};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_hir_and_then;
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 use crate::signature::{collectable, normalized_inputs, public_signature, signature_of};

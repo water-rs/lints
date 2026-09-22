@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_help, span_lint_and_sugg};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::usage::local_used_after_expr;
 use rustc_ast::LitKind;
@@ -9,6 +8,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_help, span_lint_and_sugg};
 use crate::param_bounds::{call_def_id, implemented_trait_item};
 
 declare_waterui_lint! {

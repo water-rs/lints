@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_data_structures::fx::FxHashMap;
 use rustc_hir::def_id::LocalDefId;
 use rustc_hir::{Expr, ExprKind};
@@ -6,6 +5,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::call_def_id;
 use crate::thread_sleep::{SLEEP_PATH, is_test_wrapper};
 

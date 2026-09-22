@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::higher::ForLoop;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::snippet_with_applicability;
@@ -10,6 +9,7 @@ use rustc_middle::ty::{Ty, TyKind, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::{Symbol, sym};
 
+use crate::diagnostics::span_lint_and_then;
 use crate::imports::{Bare, bare_status};
 use crate::list::snapshot_receiver;
 

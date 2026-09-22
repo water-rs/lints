@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::source::snippet_opt;
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
@@ -16,6 +15,7 @@ use rustc_session::impl_lint_pass;
 use rustc_span::symbol::{Symbol, kw};
 use rustc_span::{BytePos, ExpnId, ExpnKind, MacroKind, Span};
 
+use crate::diagnostics::span_lint_and_then;
 use crate::imports::{Bare, bare_status, target_did, use_insertion};
 
 declare_waterui_lint! {

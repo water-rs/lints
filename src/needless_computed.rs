@@ -2,7 +2,6 @@
 //! `Computed::new(..)` erasures whose result only ever reaches a parameter
 //! that already accepts any signal.
 
-use clippy_utils::diagnostics::{span_lint, span_lint_and_then};
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::sugg::Sugg;
 use clippy_utils::visitors::{Descend, for_each_expr};
@@ -23,6 +22,7 @@ use crate::carriers::CARRIER_CALLS;
 use crate::color::SIZED;
 use crate::computed::{COMPUTED_NEW, INTO_COMPUTED, erases_signal};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint, span_lint_and_then};
 use crate::param_bounds::{
     call_arg_all_bounds_in, call_arg_bounds_in, call_args, call_def_id, implemented_trait_item,
 };

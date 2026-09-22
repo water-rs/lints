@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::source::snippet_opt;
 use rustc_ast::{LitFloatType, LitIntType, LitKind};
 use rustc_errors::Applicability;
@@ -9,6 +8,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 
 use crate::binding::{binding_annotation, binding_name, dedicated_ctor, generic_ctor_call};
+use crate::diagnostics::span_lint_and_then;
 
 declare_waterui_lint! {
     /// ### What it does

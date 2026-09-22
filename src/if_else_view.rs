@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::paths::{PathNS, lookup_path};
 use clippy_utils::source::snippet_opt;
 use clippy_utils::ty::implements_trait;
@@ -15,6 +14,7 @@ use rustc_span::{Span, Symbol};
 use std::cell::OnceCell;
 use std::ops::ControlFlow;
 
+use crate::diagnostics::span_lint_and_then;
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds, call_args};
 use crate::snapshot_get::{get_receiver, is_snapshot_get};

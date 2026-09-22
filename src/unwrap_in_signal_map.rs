@@ -4,7 +4,6 @@
 
 use std::ops::ControlFlow;
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::is_in_cfg_test;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::visitors::{Descend, for_each_expr};
@@ -18,6 +17,7 @@ use rustc_session::impl_lint_pass;
 use crate::anyview::peel;
 use crate::carriers::CLONE;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{call_def_id, implemented_trait_item};
 use crate::thread_sleep::is_test_wrapper;
 
