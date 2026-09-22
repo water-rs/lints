@@ -10,16 +10,8 @@ LL | |         Str::from(format!("{}k", count / 1000))
 LL | |     }
    | |_____^
    |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
    = note: `#[warn(if_else_view)]` on by default
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::reactive::s;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL | fn count_label(count: i32) -> Str {
-LL ~     when(count == 0, || Str::from("none")).or(count < 10_000, || Str::from(count.to_string())).otherwise(|| Str::from(format!("{}k", count / 1000)))
-   |
 
 warning: this `map` builds a string signal by hand; `s!` formats signals directly
   --> $DIR/main.rs:45:18

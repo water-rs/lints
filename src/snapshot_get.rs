@@ -6,12 +6,14 @@ use std::ops::ControlFlow;
 
 use clippy_utils::eq_expr_value;
 use clippy_utils::res::MaybeQPath;
+use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_hir::def::{DefKind, Res};
+use rustc_hir::def_id::DefId;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::LateContext;
-use rustc_middle::ty::TypeckResults;
-use rustc_span::SyntaxContext;
+use rustc_middle::ty::{AssocKind, Ty, TypeckResults, Unnormalized};
+use rustc_span::{Symbol, SyntaxContext};
 
 use crate::binding::BINDING_GET_MUT;
 use crate::carriers::strip_wraps;
@@ -60,6 +62,44 @@ pub(crate) fn is_snapshot_get_in(
     SNAPSHOT_GETS
         .iter()
         .any(|path| crate::def_path::def_path_eq(cx, did, path))
+}
+
+/// Whether `ty` is a live signal handle — `Binding`, `Computed`, a derived
+/// signal, or any other `Signal` whose `watch` produces a real guard.
+/// `nami`'s `impl_constant!` gives `bool`, the numbers, `String`, `Duration`,
+/// and the standard collections a `Signal` impl whose `watch` is a no-op
+/// (`type Guard = ()`), so the trait alone cannot tell a live handle from
+/// data — a non-unit normalized `<ty as Signal>::Guard` is exactly what
+/// makes the type live. An unresolvable projection counts as live: the type
+/// cannot be proven a plain value.
+pub(crate) fn is_live_signal<'tcx>(
+    cx: &LateContext<'tcx>,
+    signal_dids: &[DefId],
+    ty: Ty<'tcx>,
+) -> bool {
+    signal_dids
+        .iter()
+        .filter(|trait_did| implements_trait(cx, ty, **trait_did, &[]))
+        .any(|trait_did| {
+            let Some(guard_did) = cx
+                .tcx
+                .associated_items(*trait_did)
+                .filter_by_name_unhygienic(Symbol::intern("Guard"))
+                .find(|item| matches!(item.kind, AssocKind::Type { .. }))
+                .map(|item| item.def_id)
+            else {
+                return true;
+            };
+            let projection =
+                Ty::new_projection_from_args(cx.tcx, guard_did, cx.tcx.mk_args(&[ty.into()]));
+            match cx
+                .tcx
+                .try_normalize_erasing_regions(cx.typing_env(), Unnormalized::new_wip(projection))
+            {
+                Ok(guard_ty) => !guard_ty.is_unit(),
+                Err(_) => true,
+            }
+        })
 }
 
 /// The receiver (`x` in `x.get()` / `Signal::get(x)`).

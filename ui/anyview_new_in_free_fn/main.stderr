@@ -66,16 +66,8 @@ warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no 
 LL |     AnyView::new(if flag { text("a") } else { text("b") })
    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
    = note: `#[warn(if_else_view)]` on by default
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL | fn flag_view(flag: bool) -> AnyView {
-LL ~     AnyView::new(when(flag, || text("a")).otherwise(|| text("b")))
-   |
 
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
   --> $DIR/main.rs:34:19

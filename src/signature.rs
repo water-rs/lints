@@ -6,14 +6,17 @@
 use clippy_utils::source::snippet_opt;
 use rustc_abi::ExternAbi;
 use rustc_hir::attrs::AttributeKind;
+use rustc_hir::def::{DefKind, Res};
 use rustc_hir::def_id::{DefId, LocalDefId};
 use rustc_hir::{
-    Attribute, Body, Constness, FnHeader, ImplItemKind, ItemKind, Node, QPath, TraitFn,
-    TraitItemKind, TyKind,
+    Attribute, Body, Constness, FnHeader, FnRetTy, GenericBound, ImplItemKind, ItemKind, Node,
+    QPath, TraitFn, TraitItemKind, TyKind,
 };
 use rustc_lint::LateContext;
 use rustc_middle::ty::{self, Ty, TyCtxt, Unnormalized};
 use rustc_span::Span;
+
+use crate::def_path::def_path_eq;
 
 /// `did`'s parameters as `(index, normalized type)` — `fn_sig` inputs under
 /// identity instantiation with type aliases normalized away, so a parameter
@@ -142,6 +145,26 @@ fn impl_self_public(cx: &LateContext<'_>, did: LocalDefId) -> bool {
     };
     match tcx.hir_node(tcx.local_def_id_to_hir_id(adt)) {
         Node::Item(item) => written_public(cx, item.vis_span),
+        _ => false,
+    }
+}
+
+/// Whether `decl` declares `-> impl` with a bound on
+/// `waterui_core::ui::view::View`.
+pub(crate) fn returns_impl_view(cx: &LateContext<'_>, decl: &rustc_hir::FnDecl<'_>) -> bool {
+    let FnRetTy::Return(ty) = decl.output else {
+        return false;
+    };
+    match ty.kind {
+        TyKind::OpaqueDef(opaque) => opaque.bounds.iter().any(|bound| match bound {
+            GenericBound::Trait(poly) => match poly.trait_ref.path.res {
+                Res::Def(DefKind::Trait, did) => {
+                    def_path_eq(cx, did, &["waterui_core", "ui", "view", "View"])
+                }
+                _ => false,
+            },
+            _ => false,
+        }),
         _ => false,
     }
 }

@@ -1,165 +1,167 @@
-warning: this binding has a dedicated constructor
-  --> $DIR/main.rs:8:31
-   |
-LL |     let flag: Binding<bool> = binding(true);
-   |                               ^^^^^^^^^^^^^
-   |
-   = note: `#[warn(typed_binding_constructor)]` on by default
-help: use `Binding::bool`
-   |
-LL -     let flag: Binding<bool> = binding(true);
-LL +     let flag = Binding::bool(true);
-   |
-
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:14:13
+  --> $DIR/main.rs:12:5
    |
-LL |       let _ = if c {
-   |  _____________^
-LL | |         text("a").anyview()
-LL | |     } else {
-LL | |         text("b").anyview()
-LL | |     };
-   | |_____^
+LL |     if c { text("a") } else { text("b") }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
    = note: `#[warn(if_else_view)]` on by default
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (plain): both arms erase to `AnyView` — `when` needs no erasure.
-LL ~     let _ = when(c, || text("a").anyview()).otherwise(|| text("b").anyview());
-   |
-
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:20:13
-   |
-LL |     let _ = if c { text("a") } else { text("b") };
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (plain): same-typed arms unify to `Text`.
-LL ~     let _ = when(c, || text("a")).otherwise(|| text("b"));
-   |
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:22:13
+  --> $DIR/main.rs:17:5
    |
-LL |     let _ = if flag.get() { text("on") } else { text("off") };
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |     if flag.get() { text("on") } else { text("off") }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
 help: rewrite as `when(cond, || ..).otherwise(|| ..)`
    |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (snapshot): `x.get()` — the fix passes `flag.clone()` to `when`.
-LL ~     let _ = when(flag.clone(), || text("on")).otherwise(|| text("off"));
+LL -     if flag.get() { text("on") } else { text("off") }
+LL +     when(flag.clone(), || text("on")).otherwise(|| text("off"))
    |
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:24:13
+  --> $DIR/main.rs:22:5
    |
-LL |     let _ = if !flag.get() { text("off") } else { text("on") };
-   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |     if !flag.get() { text("off") } else { text("on") }
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
 help: rewrite as `when(cond, || ..).otherwise(|| ..)`
    |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (snapshot): `!x.get()` — the fix passes `!flag.clone()`.
-LL ~     let _ = when(!flag.clone(), || text("off")).otherwise(|| text("on"));
+LL -     if !flag.get() { text("off") } else { text("on") }
+LL +     when(!flag.clone(), || text("off")).otherwise(|| text("on"))
    |
 
 warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
-  --> $DIR/main.rs:26:13
+  --> $DIR/main.rs:27:5
    |
-LL |       let _ = if items.get().is_empty() {
-   |  _____________^
+LL | /     if items.get().is_empty() {
 LL | |         text("empty")
 LL | |     } else {
 LL | |         text("full")
-LL | |     };
+LL | |     }
    | |_____^
    |
    = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
    = help: derive a `Computed<bool>` with `map`/`zip` and pass it to `when`
 
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:32:13
+  --> $DIR/main.rs:36:5
    |
-LL |       let _ = if c {
-   |  _____________^
+LL | /     if c {
 LL | |         text("a")
 LL | |     } else if d {
 LL | |         text("b")
 LL | |     } else {
 LL | |         text("e")
-LL | |     };
+LL | |     }
    | |_____^
    |
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (plain): an `else if` chain is one diagnostic on the outer `if`.
-LL ~     let _ = when(c, || text("a")).or(d, || text("b")).otherwise(|| text("e"));
-   |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
 
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:40:13
+  --> $DIR/main.rs:47:5
    |
-LL |       let _ = if c {
-   |  _____________^
+LL | /     if c {
 LL | |         side_a();
 LL | |         text("a")
 LL | |     } else {
+LL | |         side_b();
 LL | |         text("b")
-LL | |     };
+LL | |     }
    | |_____^
    |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:70:23
+   |
+LL |     let _ = scroll(if flag.get() { text("on") } else { text("off") });
+   |                       ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+   = note: `#[deny(signal_get_in_view)]` on by default
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:70:20
+   |
+LL |     let _ = scroll(if flag.get() { text("on") } else { text("off") });
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
 help: rewrite as `when(cond, || ..).otherwise(|| ..)`
    |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (plain): block arms with statements stay verbatim in `|| { .. }`.
-LL ~     let _ = when(c, || {
-LL +         side_a();
-LL +         text("a")
-LL ~     }).otherwise(|| text("b"));
+LL -     let _ = scroll(if flag.get() { text("on") } else { text("off") });
+LL +     let _ = scroll(when(flag.clone(), || text("on")).otherwise(|| text("off")));
+   |
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:73:21
+   |
+LL |     let _ = vstack((if flag.get() { text("a") } else { text("b") }, text("tail")));
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
+help: rewrite as `when(cond, || ..).otherwise(|| ..)`
+   |
+LL -     let _ = vstack((if flag.get() { text("a") } else { text("b") }, text("tail")));
+LL +     let _ = vstack((when(flag.clone(), || text("a")).otherwise(|| text("b")), text("tail")));
    |
 
 warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:47:21
+  --> $DIR/main.rs:76:40
    |
-LL |     let _ = vstack((if c { text("a") } else { text("b") }, text("tail")));
-   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+LL |     let _ = when(flag.clone(), move || if c { text("a") } else { text("b") });
+   |                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
+   = help: `when` takes `impl IntoComputed<bool>` — a plain `bool` cannot drive it; keep the `if` or read the condition from a `Binding`/`Computed`
+
+error: `.get()` reads the signal once; the view will never update
+  --> $DIR/main.rs:78:17
+   |
+LL |     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
+   |                 ^^^^^^^^^^
+   |
+   = help: pass the signal itself so the view can subscribe to updates
+
+warning: this branch is chosen once; `when(x, || ..).otherwise(|| ..)` switches reactively
+  --> $DIR/main.rs:78:13
+   |
+LL |     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: the `.get()` reads the signal once — the chosen branch never re-evaluates
 help: rewrite as `when(cond, || ..).otherwise(|| ..)`
    |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL |     // Fires (plain): an `if` inside a `vstack` tuple element.
-LL ~     let _ = vstack((when(c, || text("a")).otherwise(|| text("b")), text("tail")));
+LL -     let _ = (if flag.get() { text("a") } else { text("b") }).anyview();
+LL +     let _ = when(flag.clone(), || text("a")).otherwise(|| text("b")).anyview();
    |
 
-warning: 9 warnings emitted
+warning: color components written as literals; write the color as `Color::srgb_hex("#FF0000")`
+  --> $DIR/main.rs:92:9
+   |
+LL |         Color::srgb(255, 0, 0)
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(literal_color_components)]` on by default
+help: write it as a hex literal
+   |
+LL -         Color::srgb(255, 0, 0)
+LL +         Color::srgb_hex("#FF0000")
+   |
+
+warning: color components written as literals; write the color as `Color::srgb_hex("#0000FF")`
+  --> $DIR/main.rs:94:9
+   |
+LL |         Color::srgb(0, 0, 255)
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: write it as a hex literal
+   |
+LL -         Color::srgb(0, 0, 255)
+LL +         Color::srgb_hex("#0000FF")
+   |
+
+error: aborting due to 2 previous errors; 12 warnings emitted
 
