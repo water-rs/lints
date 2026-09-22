@@ -1,14 +1,11 @@
-use rustc_hir::def::{DefKind, Res};
-use rustc_hir::{
-    Expr, ExprKind, FnDecl, FnRetTy, GenericBound, ImplItemKind, ItemKind, Node, TraitItemKind,
-    TyKind, UnOp,
-};
+use rustc_hir::{Expr, ExprKind, ImplItemKind, ItemKind, Node, TraitItemKind, UnOp};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
 use crate::def_path::def_path_eq;
 use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::{call_def_id, implemented_trait_item};
+use crate::signature::returns_impl_view;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -98,26 +95,6 @@ fn is_literal(expr: &Expr<'_>) -> bool {
     match expr.kind {
         ExprKind::Lit(_) => true,
         ExprKind::Unary(UnOp::Neg, inner) | ExprKind::DropTemps(inner) => is_literal(inner),
-        _ => false,
-    }
-}
-
-/// Whether `decl` declares `-> impl` with a bound on
-/// `waterui_core::ui::view::View`.
-fn returns_impl_view(cx: &LateContext<'_>, decl: &FnDecl<'_>) -> bool {
-    let FnRetTy::Return(ty) = decl.output else {
-        return false;
-    };
-    match ty.kind {
-        TyKind::OpaqueDef(opaque) => opaque.bounds.iter().any(|bound| match bound {
-            GenericBound::Trait(poly) => match poly.trait_ref.path.res {
-                Res::Def(DefKind::Trait, did) => {
-                    def_path_eq(cx, did, &["waterui_core", "ui", "view", "View"])
-                }
-                _ => false,
-            },
-            _ => false,
-        }),
         _ => false,
     }
 }
