@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::source::snippet_opt;
 use clippy_utils::usage::local_used_in;
@@ -10,6 +9,7 @@ use rustc_span::Symbol;
 use crate::binding::BINDING_SET;
 use crate::carriers::strip_wraps;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 
 declare_waterui_lint! {

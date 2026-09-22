@@ -2,7 +2,6 @@
 //! through a verbatim wrapper and silently leaves the localization
 //! pipeline.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::source::snippet_opt;
 use rustc_ast::LitKind;
 use rustc_errors::Applicability;
@@ -13,6 +12,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::carriers::{FROM, INTO, TEXT_VERBATIM, TO_OWNED, TO_STRING, is_string_ty};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{
     TEXT_PARAM_BOUNDS, call_arg_bounds, call_args, call_def_id, implemented_trait_item,
 };

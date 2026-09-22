@@ -2,7 +2,6 @@
 //! hand (`format!`, `+`/`push_str` concatenation, `from`/`to_string`
 //! conversions) restates `s!`, nami's reactive `format!`.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::MaybeResPath;
@@ -23,6 +22,7 @@ use std::ops::ControlFlow;
 use crate::carriers::{
     CLONE, FROM, INTO, TO_OWNED, TO_STRING, is_string_ty, resolves_to, strip_tail, strip_wraps,
 };
+use crate::diagnostics::span_lint_and_then;
 use crate::format_args::{escape_literal, render_options};
 use crate::param_bounds::{TEXT_PARAM_BOUNDS, arg_has_bound, call_args};
 use crate::signal_map::{

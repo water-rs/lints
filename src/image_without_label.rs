@@ -2,7 +2,6 @@
 //! carries no `.a11y_label(..)` and no `.a11y_hidden(true)` enters the
 //! accessibility tree unannounced.
 
-use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::get_parent_expr;
 use clippy_utils::visitors::{Descend, for_each_expr_without_closures};
 use rustc_ast::LitKind;
@@ -13,6 +12,7 @@ use rustc_session::declare_lint_pass;
 use std::ops::ControlFlow;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::{call_def_id, implemented_trait_item};
 
 declare_waterui_lint! {

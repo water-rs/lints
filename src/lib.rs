@@ -111,6 +111,7 @@ mod computed_parameter;
 mod config;
 mod def_path;
 mod default_binding_constructor;
+mod diagnostics;
 mod discarded_call;
 mod discarded_wait_result;
 mod empty_label_literal;

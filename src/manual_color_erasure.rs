@@ -1,6 +1,5 @@
 use std::cell::OnceCell;
 
-use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use rustc_data_structures::fx::FxHashSet;
 use rustc_errors::Applicability;
 use rustc_hir::def::{Namespace, Res};
@@ -11,6 +10,7 @@ use rustc_span::symbol::Symbol;
 
 use crate::anyview::peel;
 use crate::color::{self, COLOR_PARAM_BOUNDS, Defs, Flag, Replacement};
+use crate::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{BoundTarget, call_arg_all_bounds, call_arg_bounds, call_args};
 

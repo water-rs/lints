@@ -2,7 +2,6 @@
 //! `IntoComputed` spellings of the same conversion restate
 //! `SignalExt::computed()`.
 
-use clippy_utils::diagnostics::{span_lint, span_lint_and_sugg};
 use clippy_utils::is_expr_temporary_value;
 use clippy_utils::sugg::Sugg;
 use rustc_errors::Applicability;
@@ -14,6 +13,7 @@ use rustc_session::declare_lint_pass;
 use crate::carriers::{CLONE, FROM, INTO};
 use crate::computed::{COMPUTED_NEW, INTO_COMPUTED, erases_signal};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint, span_lint_and_sugg};
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 
 declare_waterui_lint! {

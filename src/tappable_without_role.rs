@@ -1,13 +1,13 @@
 //! `tappable_without_role` — a tap gesture on a view with no accessibility
 //! role or label is invisible to assistive technology.
 
-use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::get_parent_expr;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::{call_def_id, implemented_trait_item};
 use crate::tap_gesture::{control_name, is_tap_call};
 

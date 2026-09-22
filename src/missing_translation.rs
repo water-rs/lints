@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_data_structures::fx::{FxHashMap, FxHashSet};
 use rustc_hir::Expr;
 use rustc_hir::def_id::CRATE_DEF_ID;
@@ -8,6 +7,7 @@ use rustc_span::{Span, Symbol};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
+use crate::diagnostics::span_lint_and_help;
 use crate::text_key::{self, KeySpace, TextKeys};
 
 declare_waterui_lint! {

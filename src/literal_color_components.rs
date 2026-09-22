@@ -1,5 +1,4 @@
 use clippy_utils::consts::{ConstEvalCtxt, Constant};
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::res::MaybeQPath;
 use clippy_utils::source::snippet_opt;
 use rustc_data_structures::fx::FxHashMap;
@@ -12,6 +11,7 @@ use rustc_span::Span;
 
 use crate::color;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::implemented_trait_item;
 
 declare_waterui_lint! {

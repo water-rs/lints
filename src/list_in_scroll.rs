@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
@@ -6,6 +5,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::carriers::is_call_to;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 
 declare_waterui_lint! {
     /// ### What it does

@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::visitors::is_local_used;
 use rustc_hir::{Block, Closure, Expr, ExprKind, PatKind, StmtKind};
 use rustc_lint::{LateContext, LateLintPass};
@@ -9,6 +8,7 @@ use rustc_span::{Ident, Span, Symbol};
 use crate::binding::{BINDING, COMPUTED};
 use crate::carriers::CLONE;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{call_def_id, handler_args, implemented_trait_item};
 
 declare_waterui_lint! {

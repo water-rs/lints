@@ -1,11 +1,11 @@
 //! `on_tap_on_control` — a tap gesture on a view that already activates on
 //! tap competes with the control's own activation.
 
-use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
+use crate::diagnostics::span_lint_and_help;
 use crate::tap_gesture::{control_name, is_tap_call};
 
 declare_waterui_lint! {

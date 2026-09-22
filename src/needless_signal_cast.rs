@@ -1,7 +1,6 @@
 //! `needless_signal_cast` — `.map(|v| v as f32)`-style conversions on a
 //! signal that only ever reaches an `impl IntoSignalF32` parameter.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::ty::implements_trait;
@@ -17,6 +16,7 @@ use std::ops::ControlFlow;
 use crate::applicability::comment_guard;
 use crate::carriers::{CLONE, FROM, INTO, body_expr, resolves_to};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{arg_has_bound, call_args, implemented_trait_item};
 use crate::receiver::receiver_needs_clone;
 

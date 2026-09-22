@@ -1,6 +1,5 @@
 use std::cell::OnceCell;
 
-use clippy_utils::diagnostics::span_lint_hir_and_then;
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::{snippet_indent, snippet_opt};
 use clippy_utils::ty::{implements_trait, ty_from_hir_ty};
@@ -22,6 +21,7 @@ use rustc_span::{Ident, Span};
 
 use crate::applicability::comment_guard;
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_hir_and_then;
 use crate::imports::{Bare, bare_status, extern_nameable, target_did, use_insertion};
 
 declare_waterui_lint! {

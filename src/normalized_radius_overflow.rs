@@ -1,11 +1,12 @@
 use clippy_utils::consts::{ConstEvalCtxt, Constant};
-use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::res::MaybeQPath;
 use rustc_hir::def::{DefKind, Res};
 use rustc_hir::def_id::DefId;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
+
+use crate::diagnostics::span_lint_and_help;
 
 declare_waterui_lint! {
     /// ### What it does

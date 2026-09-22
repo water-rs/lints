@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_hir::{Expr, HirId, Pat};
@@ -6,6 +5,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 use std::ops::ControlFlow;
 
+use crate::diagnostics::span_lint_and_then;
 use crate::watch::watch_call;
 
 declare_waterui_lint! {

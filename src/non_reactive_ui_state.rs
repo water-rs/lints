@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::res::{MaybeDef, MaybeResPath};
 use rustc_ast::Mutability;
 use rustc_data_structures::fx::FxHashMap;
@@ -13,6 +12,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::{Span, sym};
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::handler_closures;
 
 declare_waterui_lint! {

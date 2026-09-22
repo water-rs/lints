@@ -1,7 +1,6 @@
 //! `manual_signal_zip_op` — `a.zip(&b).map(|(x, y)| x op y)` restates a
 //! named signal operation.
 
-use clippy_utils::diagnostics::span_lint_and_sugg;
 use clippy_utils::get_parent_expr;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::sugg::{Sugg, make_binop};
@@ -14,6 +13,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::carriers::{body_expr, strip_wraps};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_sugg;
 use crate::param_bounds::implemented_trait_item;
 use crate::receiver::{owned_spelling, ref_depth};
 

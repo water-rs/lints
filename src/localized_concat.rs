@@ -1,7 +1,6 @@
 //! `localized_concat` — a `+` that appends to a localized `Text` builds a
 //! sentence no translation catalog can reorder.
 
-use clippy_utils::diagnostics::span_lint_and_help;
 use clippy_utils::get_parent_expr;
 use clippy_utils::macros::root_macro_call_first_node;
 use rustc_hir::{BinOpKind, Expr, ExprKind};
@@ -11,6 +10,7 @@ use rustc_session::declare_lint_pass;
 
 use crate::carriers::{CLONE, INTO, TO_OWNED};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_help;
 use crate::param_bounds::{call_args, call_def_id, implemented_trait_item};
 
 declare_waterui_lint! {

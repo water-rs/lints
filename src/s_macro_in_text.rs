@@ -5,7 +5,6 @@
 //! placeholders and yields a `Text` whose key is in the catalog and whose
 //! slots subscribe to the signals.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::macros::root_macro_call_first_node;
 use clippy_utils::source::snippet_opt;
 use rustc_data_structures::fx::FxHashSet;
@@ -19,6 +18,7 @@ use rustc_span::Span;
 
 use crate::carriers::{FROM, INTO};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::format_args::{SCall, parse_s_call};
 use crate::param_bounds::{
     TEXT_PARAM_BOUNDS, call_arg_bounds, call_args, call_def_id, implemented_trait_item,

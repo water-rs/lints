@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use clippy_utils::higher::{ForLoop, VecArgs};
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::source::snippet_with_applicability;
@@ -12,6 +11,7 @@ use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 
 use crate::def_path::def_path_eq;
+use crate::diagnostics::{span_lint_and_sugg, span_lint_and_then};
 use crate::param_bounds::{call_args, call_def_id};
 
 declare_waterui_lint! {

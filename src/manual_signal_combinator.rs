@@ -1,7 +1,6 @@
 //! `manual_signal_combinator` — `signal.map(|v| !v)`-style closures that
 //! restate a named `SignalExt` combinator.
 
-use clippy_utils::diagnostics::span_lint_and_sugg;
 use clippy_utils::res::{MaybeDef, MaybeQPath, MaybeResPath};
 use clippy_utils::source::snippet_with_applicability;
 use clippy_utils::sugg::Sugg;
@@ -23,6 +22,7 @@ use std::ops::ControlFlow;
 
 use crate::carriers::{CLONE, FROM, INTO, body_expr, is_string_ty, resolves_to};
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_sugg;
 use crate::param_bounds::implemented_trait_item;
 use crate::receiver::{deref_depth, owned_spelling};
 

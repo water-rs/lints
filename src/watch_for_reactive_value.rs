@@ -1,4 +1,3 @@
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::res::MaybeResPath;
 use clippy_utils::visitors::{Descend, for_each_expr};
 use rustc_hir::{Block, Expr, ExprKind, HirId, Pat};
@@ -8,6 +7,7 @@ use rustc_session::declare_lint_pass;
 use std::ops::ControlFlow;
 
 use crate::carriers::carried_arg;
+use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{SIGNAL_PARAM_BOUNDS, arg_has_bound};
 use crate::watch::watch_call;
 

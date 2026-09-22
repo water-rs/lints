@@ -1,7 +1,6 @@
 //! `manual_text_map` — `.map(|v| format!(..))` over a signal whose result
 //! only feeds a text position; `text!` formats the signal itself.
 
-use clippy_utils::diagnostics::span_lint_and_then;
 use clippy_utils::macros::{FormatArgsStorage, find_format_arg_expr, root_macro_call_first_node};
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::source::snippet_opt;
@@ -25,6 +24,7 @@ use crate::carriers::{
     CLONE, TO_OWNED, TO_STRING, is_call_to, is_string_ty, strip_tail, strip_wraps,
 };
 use crate::def_path::def_path_eq;
+use crate::diagnostics::span_lint_and_then;
 use crate::format_args::{escape_literal, parse_text_call, render_options};
 use crate::imports::{Bare, bare_status, use_insertion};
 use crate::param_bounds::{TEXT_PARAM_BOUNDS, call_arg_bounds_in, call_args};
