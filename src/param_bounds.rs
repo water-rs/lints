@@ -65,6 +65,12 @@ pub(crate) const VIEW_BUILDER: &[&str] = &["waterui_core", "foundation", "handle
 pub(crate) const VIEW_PARAM_BOUNDS: &[&[&str]] =
     &[&["waterui_core", "ui", "view", "View"], VIEW_BUILDER];
 
+/// Parameter bounds that take a collection of views — `vstack`/`hstack`/
+/// `zstack`'s `C: TupleViews`, `Grid` cells. The argument itself produces
+/// the collection, so only a value nested inside it (a tuple or array
+/// element) is a view position.
+pub(crate) const TUPLE_VIEWS_BOUNDS: &[&[&str]] = &[&["waterui_core", "ui", "view", "TupleViews"]];
+
 /// Parameter bounds that take an action handler — a closure passed to one is
 /// invoked at event time with arguments extracted from the environment
 /// (`Button::action`/`action_async`, `ViewExt`'s `on_*`/`gesture` modifiers,

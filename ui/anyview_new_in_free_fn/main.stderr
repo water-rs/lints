@@ -60,23 +60,6 @@ LL -     AnyView::new(if flag { text("a") } else { text("b") })
 LL +     (if flag { text("a") } else { text("b") }).anyview()
    |
 
-warning: `if`/`else` on views — `when(cond, || ..).otherwise(|| ..)` needs no erasure and stays reactive
-  --> $DIR/main.rs:29:18
-   |
-LL |     AnyView::new(if flag { text("a") } else { text("b") })
-   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: `#[warn(if_else_view)]` on by default
-help: rewrite as `when(cond, || ..).otherwise(|| ..)`
-   |
-LL ~ use waterui::prelude::*;
-LL + use waterui::widget::condition::when;
-LL |
-...
-LL | fn flag_view(flag: bool) -> AnyView {
-LL ~     AnyView::new(when(flag, || text("a")).otherwise(|| text("b")))
-   |
-
 warning: `AnyView::new` in a free function; use the postfix `.anyview()`
   --> $DIR/main.rs:34:19
    |
@@ -227,5 +210,5 @@ LL |     pub fn tail() -> AnyView {
 LL ~         text("x").anyview()
    |
 
-warning: 19 warnings emitted
+warning: 18 warnings emitted
 

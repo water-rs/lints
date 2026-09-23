@@ -1,11 +1,9 @@
 use clippy_utils::paths::{PathNS, lookup_path_str};
 use clippy_utils::res::MaybeResPath;
-use clippy_utils::ty::implements_trait;
 use clippy_utils::visitors::{Descend, for_each_expr};
-use rustc_hir::def_id::DefId;
 use rustc_hir::{Expr, ExprKind, HirId};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{AssocKind, Ty, TypeckResults, Unnormalized};
+use rustc_middle::ty::{Ty, TypeckResults};
 use rustc_session::declare_lint_pass;
 use rustc_span::Symbol;
 use std::ops::ControlFlow;
@@ -14,6 +12,7 @@ use crate::carriers::{carried_arg, strip_wraps};
 use crate::diagnostics::span_lint_and_then;
 use crate::param_bounds::{SNAPSHOT_PARAM_BOUNDS, arg_has_bound};
 use crate::row_builder::row_builder_closure;
+use crate::snapshot_get::is_live_signal;
 
 declare_waterui_lint! {
     /// ### What it does
@@ -95,38 +94,6 @@ fn item_field_read<'tcx>(
             .filter(|(id, _)| *id != item_pat && bindings.contains(id))
             .map(|(_, ident)| (ident.name, typeck.expr_ty(expr))),
     }
-}
-
-/// Whether `ty` is a live signal handle — `Binding`, `Computed`, a derived
-/// signal, or any other `Signal` whose `watch` produces a real guard. The
-/// constant impls set `type Guard = ()` because their `watch` is a no-op, so
-/// a non-unit normalized `<ty as Signal>::Guard` is exactly what makes the
-/// field live. An unresolvable projection stays silent: the field cannot be
-/// proven a plain value.
-fn is_live_signal<'tcx>(cx: &LateContext<'tcx>, signal_dids: &[DefId], ty: Ty<'tcx>) -> bool {
-    signal_dids
-        .iter()
-        .filter(|trait_did| implements_trait(cx, ty, **trait_did, &[]))
-        .any(|trait_did| {
-            let Some(guard_did) = cx
-                .tcx
-                .associated_items(*trait_did)
-                .filter_by_name_unhygienic(Symbol::intern("Guard"))
-                .find(|item| matches!(item.kind, AssocKind::Type { .. }))
-                .map(|item| item.def_id)
-            else {
-                return true;
-            };
-            let projection =
-                Ty::new_projection_from_args(cx.tcx, guard_did, cx.tcx.mk_args(&[ty.into()]));
-            match cx
-                .tcx
-                .try_normalize_erasing_regions(cx.typing_env(), Unnormalized::new_wip(projection))
-            {
-                Ok(guard_ty) => !guard_ty.is_unit(),
-                Err(_) => true,
-            }
-        })
 }
 
 impl<'tcx> LateLintPass<'tcx> for CollectionItemSnapshot {

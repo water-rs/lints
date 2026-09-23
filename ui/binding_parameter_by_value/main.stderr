@@ -7,7 +7,7 @@ LL | pub fn counter(name: Binding<Str>) -> impl View {
    = note: `#[warn(binding_parameter_by_value)]` on by default
 help: the callee clones if it keeps the handle; callers pass `&b`
    |
-LL ~ pub fn counter(name: &Binding<Str>) -> impl View {
+LL ~ pub fn counter(name: &Binding<Str>) -> impl View + use<> {
 LL ~     text(name.clone())
 LL | }
 ...
@@ -54,7 +54,7 @@ LL | pub fn keep(flag: Binding<bool>) -> impl FnOnce() -> Binding<bool> {
    |
 help: the callee clones if it keeps the handle; callers pass `&b`
    |
-LL ~ pub fn keep(flag: &Binding<bool>) -> impl FnOnce() -> Binding<bool> {
+LL ~ pub fn keep(flag: &Binding<bool>) -> impl FnOnce() -> Binding<bool> + use<> {
 LL ~     move || flag.clone()
 LL | }
 ...
@@ -94,7 +94,30 @@ LL ~     let row = Row::new(&on);
    |
 
 warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
-  --> $DIR/main.rs:54:24
+  --> $DIR/main.rs:54:20
+   |
+LL | pub fn panel(name: Binding<Str>) -> impl View {
+   |                    ^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL ~ pub fn panel(name: &Binding<Str>) -> impl View + use<> {
+LL ~     text(name.clone())
+   |
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:59:31
+   |
+LL | pub fn tag<'a, T: View>(name: Binding<Str>, mark: &'a str, note: &'a str, inner: T) -> impl View {
+   |                               ^^^^^^^^^^^^
+   |
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL | pub fn tag<'a, T: View>(name: &Binding<Str>, mark: &'a str, note: &'a str, inner: T) -> impl View + use<'a, T> {
+   |                               +                                                                   ++++++++++++
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:67:24
    |
 LL |     fn bind(&self, on: Binding<bool>);
    |                        ^^^^^^^^^^^^^
@@ -103,14 +126,26 @@ LL |     fn bind(&self, on: Binding<bool>);
 help: the callee clones if it keeps the handle; callers pass `&b`
    |
 LL ~     fn bind(&self, on: &Binding<bool>);
-LL | }
+LL |
 ...
 LL |     let _ = row.selected.get();
 LL ~     Watcher::bind(&row, &on);
    |
 
 warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
-  --> $DIR/main.rs:79:17
+  --> $DIR/main.rs:71:25
+   |
+LL |     fn build(&self, on: Binding<bool>) -> impl View;
+   |                         ^^^^^^^^^^^^^
+   |
+   = note: every implementor of this trait must make the same change
+help: the callee clones if it keeps the handle; callers pass `&b`
+   |
+LL |     fn build(&self, on: &Binding<bool>) -> impl View + use<Self>;
+   |                         +                            +++++++++++
+
+warning: a public function takes `Binding<T>` by value; take `&Binding<T>`
+  --> $DIR/main.rs:101:17
    |
 LL | fn render(item: Binding<i32>) -> i32 {
    |                 ^^^^^^^^^^^^
@@ -126,5 +161,5 @@ LL ~     let _ = render(&other);
 LL ~     let _ = render(&Binding::i32(8));
    |
 
-warning: 8 warnings emitted
+warning: 11 warnings emitted
 

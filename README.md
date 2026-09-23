@@ -12,11 +12,11 @@ The lint catalog and its status live in this repository's issues. Each lint has 
 cargo install cargo-dylint dylint-link
 ```
 
-Then, in the project's `Cargo.toml`:
+Then, in the project's `Cargo.toml` — releases are not tagged yet, so pin a revision:
 
 ```toml
 [workspace.metadata.dylint]
-libraries = [{ git = "https://github.com/water-rs/lints", tag = "v0.1.0" }]
+libraries = [{ git = "https://github.com/water-rs/lints", rev = "4c24f503a93c0f085b2aa93789bbb4392830b52c" }]
 ```
 
 and `cargo dylint --all`. The `water` CLI will front this as `water lint` (water-rs/waterui#735).
