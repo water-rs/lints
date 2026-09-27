@@ -1,0 +1,35 @@
+warning: `undo` forks this state on every `Clone` — each copy gets its own cell
+  --> $DIR/main.rs:24:5
+   |
+LL |     undo: RefCell<Vec<ClosedTab>>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: share it like the `Rc` sibling: `Rc<std::cell::RefCell<std::vec::Vec<ClosedTab>>>`
+   = note: `#[warn(clone_refcell_field)]` on by default
+
+warning: `scratch` forks this state on every `Clone` — each copy gets its own cell
+  --> $DIR/main.rs:31:5
+   |
+LL |     scratch: Cell<u32>,
+   |     ^^^^^^^^^^^^^^^^^^
+   |
+   = help: share it like the `Rc` sibling: `Rc<std::cell::Cell<u32>>`
+
+warning: `cursor` forks this state on every `Clone` — each copy gets its own cell
+  --> $DIR/main.rs:40:5
+   |
+LL |     cursor: RefCell<usize>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: share it like the `Rc` sibling: `Rc<std::cell::RefCell<usize>>`
+
+warning: `dirty` forks this state on every `Clone` — each copy gets its own cell
+  --> $DIR/main.rs:41:5
+   |
+LL |     dirty: Cell<bool>,
+   |     ^^^^^^^^^^^^^^^^^
+   |
+   = help: share it like the `Rc` sibling: `Rc<std::cell::Cell<bool>>`
+
+warning: 4 warnings emitted
+
