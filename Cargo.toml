@@ -40,6 +40,10 @@ name = "blocking_in_ui_context"
 path = "ui/blocking_in_ui_context/main.rs"
 
 [[example]]
+name = "collection_in_tuple_stack"
+path = "ui/collection_in_tuple_stack/main.rs"
+
+[[example]]
 name = "collection_item_snapshot"
 path = "ui/collection_item_snapshot/main.rs"
 

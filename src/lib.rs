@@ -104,6 +104,7 @@ mod binding;
 mod binding_parameter_by_value;
 mod blocking_in_ui_context;
 mod carriers;
+mod collection_in_tuple_stack;
 mod collection_item_snapshot;
 mod color;
 mod computed;
@@ -185,6 +186,7 @@ const LINTS: &[&LintInfo] = &[
     &binding_parameter_by_value::LINT_INFO,
     &blocking_in_ui_context::LINT_INFO,
     &blocking_in_ui_context::thread_sleep::LINT_INFO,
+    &collection_in_tuple_stack::LINT_INFO,
     &collection_item_snapshot::LINT_INFO,
     &computed_parameter::LINT_INFO,
     &default_binding_constructor::LINT_INFO,
@@ -262,6 +264,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
     });
     lint_store
         .register_late_pass(|_| Box::new(blocking_in_ui_context::BlockingInUiContext::default()));
+    lint_store.register_late_pass(|_| Box::new(collection_in_tuple_stack::CollectionInTupleStack));
     lint_store.register_late_pass(|_| Box::new(collection_item_snapshot::CollectionItemSnapshot));
     lint_store.register_late_pass(|_| Box::new(computed_parameter::ComputedParameter::default()));
     lint_store
