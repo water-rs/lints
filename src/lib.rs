@@ -167,6 +167,7 @@ mod signal_map;
 mod signature;
 mod snapshot_get;
 mod spacer_in_zstack;
+mod spawn_local_in_app;
 mod state_created_in_rebuilt_scope;
 mod tap_gesture;
 mod tappable_without_role;
@@ -238,6 +239,7 @@ const LINTS: &[&LintInfo] = &[
     &set_with_own_get::LINT_INFO,
     &signal_get_in_view::LINT_INFO,
     &spacer_in_zstack::LINT_INFO,
+    &spawn_local_in_app::LINT_INFO,
     &state_created_in_rebuilt_scope::LINT_INFO,
     &state_created_in_rebuilt_scope::row_builder::LINT_INFO,
     &tappable_without_role::LINT_INFO,
@@ -370,6 +372,7 @@ pub fn register_lints(sess: &rustc_session::Session, lint_store: &mut LintStore)
         }
     });
     lint_store.register_late_pass(|_| Box::new(spacer_in_zstack::SpacerInZstack));
+    lint_store.register_late_pass(|_| Box::new(spawn_local_in_app::SpawnLocalInApp::default()));
     lint_store.register_late_pass(|_| {
         Box::new(state_created_in_rebuilt_scope::StateCreatedInRebuiltScope)
     });
