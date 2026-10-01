@@ -421,6 +421,7 @@ pub(crate) struct ManualStringSignal {
     format_args: FormatArgsStorage,
     signal: OnceCell<Option<DefId>>,
     text_macro: OnceCell<Option<DefId>>,
+    s_import: OnceCell<Option<&'static str>>,
 }
 
 impl_lint_pass!(ManualStringSignal => [MANUAL_STRING_SIGNAL]);
@@ -431,7 +432,34 @@ impl ManualStringSignal {
             format_args,
             signal: OnceCell::new(),
             text_macro: OnceCell::new(),
+            s_import: OnceCell::new(),
         }
+    }
+
+    /// Where `s!` comes from for this crate, as a help suffix: the
+    /// `use nami::s;` line when `nami` is a direct dependency, otherwise
+    /// the dependency to add first — `nami_derive::s` expands to `::nami`
+    /// paths, so importing the facade's `reactive::s` can never compile
+    /// a call on its own. `None` when `s` cannot be located at all.
+    fn s_import_note(&self, cx: &LateContext<'_>) -> Option<&'static str> {
+        *self.s_import.get_or_init(|| {
+            if lookup_path_str(cx.tcx, PathNS::Macro, "nami::s").is_empty() {
+                return None;
+            }
+            let nami_direct = cx
+                .tcx
+                .sess
+                .opts
+                .externs
+                .get("nami")
+                .is_some_and(|entry| entry.add_prelude);
+            Some(if nami_direct {
+                " — `s` is `nami::s`: import it with `use nami::s;`"
+            } else {
+                " — `s` needs `nami` in `[dependencies]` (it expands to `::nami` \
+                 paths), then `use nami::s;`"
+            })
+        })
     }
 
     /// `nami_core::Signal`'s `DefId` — for `is_signal` classification.
@@ -756,18 +784,20 @@ impl<'tcx> LateLintPass<'tcx> for ManualStringSignal {
         let sketch = self.s_sketch(cx, body_typeck, &source_list, &params, value);
         let branchy = has_string_branch(cx, body_typeck, value);
         let receiver_src = snippet_opt(cx, receiver.span).unwrap_or_else(|| "count".into());
+        let import = self.s_import_note(cx).unwrap_or_default();
         span_lint_and_then(cx, MANUAL_STRING_SIGNAL, expr.span, MESSAGE, |diag| {
             diag.span_label(label_span, "the string is built by hand here");
             match sketch {
                 Some(sketch) => {
                     diag.help(format!(
                         "use `{sketch}` — `s!` subscribes to its placeholders the way \
-                         `format!` captures names"
+                         `format!` captures names{import}"
                     ));
                 }
                 None => {
                     diag.help(format!(
-                        "use `s!` — `s!(\"{{k}}k\", k = &{receiver_src}.map(|c| c / 1000))`"
+                        "use `s!` — `s!(\"{{k}}k\", k = \
+                         &{receiver_src}.map(|c| c / 1000))`{import}"
                     ));
                 }
             }

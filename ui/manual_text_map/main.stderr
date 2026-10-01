@@ -441,7 +441,7 @@ LL |     let log_line = count.map(|c| format!("count = {c}")).computed();
    |                                  |
    |                                  the string is built by hand here
    |
-   = help: use `s!("count = {count}")` — `s!` subscribes to its placeholders the way `format!` captures names
+   = help: use `s!("count = {count}")` — `s!` subscribes to its placeholders the way `format!` captures names — `s` is `nami::s`: import it with `use nami::s;`
    = note: `#[warn(manual_string_signal)]` on by default
 
 warning: this `computed()` erases a signal that every consumer already accepts
@@ -460,7 +460,7 @@ LL |     let _stored: Binding<String> = binding(name.map(|v| format!("{v}!")).co
    |                                                         |
    |                                                         the string is built by hand here
    |
-   = help: use `s!("{name}!")` — `s!` subscribes to its placeholders the way `format!` captures names
+   = help: use `s!("{name}!")` — `s!` subscribes to its placeholders the way `format!` captures names — `s` is `nami::s`: import it with `use nami::s;`
 
 warning: this `computed()` erases a signal that every consumer already accepts
   --> $DIR/main.rs:148:18
