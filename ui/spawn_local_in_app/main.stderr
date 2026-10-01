@@ -1,0 +1,19 @@
+error: this `spawn_local` runs while the app is being constructed, before the runner installs the local executor
+  --> $DIR/main.rs:15:5
+   |
+LL |     spawn_local(async {}).detach();
+   |     ^^^^^^^^^^^^^^^^^^^^^ panics with `Local executor not set` when it runs
+   |
+   = help: move startup async work into `.task(..)` or `.on_appear` on a view, or into a handler body
+   = note: `#[deny(spawn_local_in_app)]` on by default
+
+error: this `spawn_local` runs while the app is being constructed, before the runner installs the local executor
+  --> $DIR/main.rs:38:5
+   |
+LL |     spawn_local(async {}).detach();
+   |     ^^^^^^^^^^^^^^^^^^^^^ panics with `Local executor not set` when it runs
+   |
+   = help: move startup async work into `.task(..)` or `.on_appear` on a view, or into a handler body
+
+error: aborting due to 2 previous errors
+

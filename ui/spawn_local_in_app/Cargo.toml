@@ -1,0 +1,12 @@
+[package]
+name = "spawn_local_in_app"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+waterui = { version = "0.4.1", default-features = false }
+
+[[bin]]
+name = "spawn_local_in_app"
+path = "main.rs"
