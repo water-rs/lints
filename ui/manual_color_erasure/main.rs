@@ -1,4 +1,5 @@
 use waterui::prelude::*;
+use waterui::reactive::{Binding, binding};
 use waterui::shape::{Circle, ShapeExt};
 
 fn main() {
@@ -73,6 +74,14 @@ fn main() {
     let _ = text("p").foreground(Color::red());
     // Silent: a `Material` background — not a color at all.
     let _ = text("q").background(Material::Regular);
+
+    // Silent: `binding<T>`'s `impl Into<T>` parameter is generic — the
+    // bound resolves to `Into<Color>` at this call, but `T` is the
+    // callee's parameter, not a declared `Into<Color>` position: passing
+    // the `Srgb` would produce `Binding<Srgb>`, a different type than the
+    // `Binding<Color>` this call builds. `literal_color_components` still
+    // asks for the hex spelling here — a separate, correct diagnostic.
+    let _color: Binding<Color> = binding(Color::srgb(244, 67, 54));
 
     no_srgb_import::f();
 }
