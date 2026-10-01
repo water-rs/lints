@@ -22,6 +22,12 @@ pub(crate) struct BoundTarget<'tcx> {
     /// The bound's generic arguments minus `Self` (e.g. `[f32]` for
     /// `IntoComputed<f32>`), instantiated with the call site's substitutions.
     pub args: &'tcx [GenericArg<'tcx>],
+    /// The same arguments as the callee declared them — a type parameter
+    /// stays a `TyKind::Param` here (`T` in `binding<T>(x: impl Into<T>)`)
+    /// even when the call site's substitutions resolve it. Whether the
+    /// bound's argument is concretely a type — `impl Into<Color>` — reads
+    /// from `declared_args`.
+    pub declared_args: &'tcx [GenericArg<'tcx>],
 }
 
 /// Parameter bounds that take a live signal — a value passed to one of
@@ -172,6 +178,7 @@ fn param_bounds<'tcx>(
         bounds.entry(param.index).or_default().push(BoundTarget {
             trait_did: pred.trait_ref.def_id,
             args: &inst_pred.trait_ref.args[1..],
+            declared_args: &pred.trait_ref.args[1..],
         });
     }
     bounds

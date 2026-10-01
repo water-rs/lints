@@ -215,14 +215,18 @@ fn literal_fits(lit: &Spanned<LitKind>, param: Ty<'_>) -> bool {
 }
 
 /// Whether `target` is the `Into<Color>` or `IntoBackground` bound — a
-/// parameter position that takes a colorspace value directly.
+/// parameter position that takes a colorspace value directly. The check
+/// reads the bound as declared: `binding<T>(x: impl Into<T>)` resolved to
+/// `Into<Color>` at a call site is not a color position — its parameter
+/// takes whatever `T` the caller picks, and passing an `Srgb` where `T`
+/// is `Color` would change the `Binding`'s type, not just its value.
 pub(crate) fn color_bound(cx: &LateContext<'_>, target: &BoundTarget<'_>) -> bool {
     if def_path_eq(cx, target.trait_did, INTO_BACKGROUND) {
         return true;
     }
     def_path_eq(cx, target.trait_did, INTO)
         && target
-            .args
+            .declared_args
             .first()
             .and_then(|arg| arg.as_type())
             .is_some_and(|ty| is_color(cx, ty))
