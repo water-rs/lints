@@ -130,6 +130,13 @@ const DEFAULT_BLOCKING_PATHS: &[&str] = &[
     "std::sync::poison::rwlock::RwLock::write",
 ];
 
+/// `executor_core::std_on::spawn` — the free function behind
+/// `waterui::task::spawn`, which routes a `Send` future to the global
+/// executor's worker threads. Its future's async block is a scope
+/// boundary, not a UI context; `spawn_local` is absent on purpose — that
+/// one runs on the UI executor.
+const GLOBAL_SPAWN: &[&str] = &["executor_core", "std_on", "spawn"];
+
 /// Trait methods whose impl bodies are UI contexts.
 const VIEW_BODY: &[&str] = &["waterui_core", "ui", "view", "View", "body"];
 const GPU_RENDER: &[&str] = &[
@@ -199,6 +206,27 @@ impl Context {
     }
 }
 
+/// Whether `expr` is passed to `task::spawn` — a `Call` whose callee
+/// resolves to `executor_core::std_on::spawn`. The global executor runs
+/// the future on worker threads, so a blocking call inside it never
+/// stalls the UI thread; `spawn_local` keeps it there and is not a
+/// boundary.
+fn on_global_executor(cx: &LateContext<'_>, expr: &Expr<'_>) -> bool {
+    let Node::Expr(call) = cx.tcx.hir_node(cx.tcx.parent_hir_id(expr.hir_id)) else {
+        return false;
+    };
+    let ExprKind::Call(_, args) = call.kind else {
+        return false;
+    };
+    if !args.iter().any(|arg| arg.hir_id == expr.hir_id) {
+        return false;
+    }
+    let typeck = cx.tcx.typeck(cx.tcx.hir_enclosing_body_owner(call.hir_id));
+    call_def_id(typeck, call)
+        .map(|did| implemented_trait_item(cx.tcx, did))
+        .is_some_and(|did| def_path_eq(cx, did, GLOBAL_SPAWN))
+}
+
 /// The UI context `expr`'s enclosing scope is, if any. Walked with
 /// `hir_parent_iter`: the first `Closure` decides — an `async` coroutine is
 /// an async context, a closure in the `handlers` set is a handler context,
@@ -224,11 +252,16 @@ fn ui_context(
     }
     for (_, node) in cx.tcx.hir_parent_iter(expr.hir_id) {
         match node {
-            Node::Expr(Expr {
-                kind: ExprKind::Closure(closure),
-                ..
-            }) => match closure.kind {
+            Node::Expr(
+                closure_expr @ Expr {
+                    kind: ExprKind::Closure(closure),
+                    ..
+                },
+            ) => match closure.kind {
                 ClosureKind::Coroutine(CoroutineKind::Desugared(CoroutineDesugaring::Async, _)) => {
+                    if on_global_executor(cx, closure_expr) {
+                        return None;
+                    }
                     return Some(Context::AsyncBlock);
                 }
                 ClosureKind::Closure if handlers.contains(&closure.def_id) => {
