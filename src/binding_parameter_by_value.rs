@@ -343,6 +343,9 @@ struct ParamUses<'a, 'tcx> {
     /// closure, `async move {}`); the outermost function body starts
     /// unstacked, so `.last()` misses mean `false`.
     owned_capture: Vec<bool>,
+    /// Whether a flagged parameter is used inside a capture-by-value
+    /// closure — the closure takes the handle, not a borrow of it.
+    captured: bool,
     /// `(span, replacement)` for each use that becomes `x.clone()`.
     edits: Vec<(Span, String)>,
 }
@@ -351,10 +354,10 @@ impl<'tcx> ParamUses<'_, 'tcx> {
     /// The `.clone()` edit for a use of a flagged parameter — `None` when
     /// the use only borrows. A shorthand field initializer is rewritten
     /// `f: f.clone()`, not `f.clone()` which would not parse.
-    fn edit(&self, e: &'tcx Expr<'tcx>) -> Option<String> {
-        if !self.owned_capture.last().copied().unwrap_or(false)
-            && !consumed(self.cx, self.typeck, e)
-        {
+    fn edit(&mut self, e: &'tcx Expr<'tcx>) -> Option<String> {
+        if self.owned_capture.last().copied().unwrap_or(false) {
+            self.captured = true;
+        } else if !consumed(self.cx, self.typeck, e) {
             return None;
         }
         let text = snippet_opt(self.cx, e.span)?;
@@ -497,6 +500,24 @@ fn precise_capture(
     ))
 }
 
+/// Whether `decl`'s return type is `-> impl Trait + use<..>` — an opaque
+/// whose author pinned its captures to named generics. The `&` the fix
+/// introduces is an anonymous lifetime no `use` list admits, so a
+/// parameter already captured into a `move`/`use` closure inside such a
+/// return cannot become `&Binding` — the rewritten body would fail E0700.
+fn returns_use_bound(decl: &rustc_hir::FnDecl<'_>) -> bool {
+    let FnRetTy::Return(ty) = decl.output else {
+        return false;
+    };
+    let rustc_hir::TyKind::OpaqueDef(opaque) = ty.kind else {
+        return false;
+    };
+    opaque
+        .bounds
+        .iter()
+        .any(|bound| matches!(bound, GenericBound::Use(..)))
+}
+
 fn report(cx: &LateContext<'_>, did: LocalDefId, call_sites: Option<&Vec<CallSite>>) {
     let hir_id = cx.tcx.local_def_id_to_hir_id(did);
     let Some((decl, body, trait_member)) = signature_of(cx.tcx, did) else {
@@ -544,9 +565,16 @@ fn report(cx: &LateContext<'_>, did: LocalDefId, call_sites: Option<&Vec<CallSit
             params: &locals,
             typeck: cx.tcx.typeck_body(body.id()),
             owned_capture: Vec::new(),
+            captured: false,
             edits: Vec::new(),
         };
         uses.visit_body(body);
+        // `-> impl Trait + use<..>` never admits the `&`'s anonymous
+        // lifetime; a parameter the returned opaque needs by value stays
+        // by value.
+        if uses.captured && returns_use_bound(decl) {
+            return;
+        }
         parts.extend(uses.edits);
     }
     for site in call_sites.into_iter().flatten() {

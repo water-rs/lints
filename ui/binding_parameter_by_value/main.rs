@@ -37,6 +37,28 @@ pub fn aliased(count: Count) -> i32 {
     count.get()
 }
 
+// Silent: `-> impl Fn() -> bool + use<>` pins the opaque's captures to
+// named generics — the `&` the fix introduces is an anonymous lifetime
+// no `use` list admits, and `hover` is captured by the returned closure,
+// so `&hover` could never satisfy the signature (E0700). Moving the
+// handle in is what `use<>` requires.
+pub fn basket(hover: Binding<bool>) -> impl Fn() -> bool + use<> {
+    move || hover.get()
+}
+
+// Silent: `use<In>` admits the type parameter but still no anonymous
+// lifetime, and `b` is captured by the closure.
+pub fn make<In: Clone>(b: Binding<In>) -> impl Fn() -> In + use<In> {
+    move || b.get()
+}
+
+// Fires: `use<>` return, but `b` is only read at the top level — `&b`
+// works because nothing captures it.
+pub fn read_only(b: Binding<i32>) -> impl Fn() -> i32 + use<> {
+    let v = b.get();
+    move || v
+}
+
 pub struct Row {
     selected: Binding<bool>,
 }
