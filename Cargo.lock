@@ -980,13 +980,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "collection_in_tuple_stack"
-version = "0.0.0"
-dependencies = [
- "waterui",
-]
-
-[[package]]
 name = "collection_item_snapshot"
 version = "0.0.0"
 dependencies = [

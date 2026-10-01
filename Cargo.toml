@@ -44,10 +44,6 @@ name = "clone_refcell_field"
 path = "ui/clone_refcell_field/main.rs"
 
 [[example]]
-name = "collection_in_tuple_stack"
-path = "ui/collection_in_tuple_stack/main.rs"
-
-[[example]]
 name = "collection_item_snapshot"
 path = "ui/collection_item_snapshot/main.rs"
 
