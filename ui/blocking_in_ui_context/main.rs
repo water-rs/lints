@@ -37,6 +37,24 @@ fn main() {
         task::sleep(Duration::from_millis(1)).await;
     });
 
+    // Silent — `task::spawn` sends the future to the global `Send` executor,
+    // so blocking inside it stalls a worker thread, not the UI thread.
+    let _ = button("a").action(|| {
+        task::spawn(async move {
+            std::thread::sleep(Duration::from_millis(1));
+            let _ = std::fs::read("/etc/hosts");
+        })
+        .detach();
+    });
+
+    // Fires — `spawn_local` keeps the same future on the UI executor.
+    let _ = button("a").action(|| {
+        task::spawn_local(async move {
+            std::thread::sleep(Duration::from_millis(1));
+        })
+        .detach();
+    });
+
     // Silent — the `std::fs::read` sits in `helper`'s body; only direct calls
     // in the UI context are in scope.
     let _ = button("a").action(|| helper(7));

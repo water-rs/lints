@@ -41,8 +41,16 @@ LL |         drop(m.lock().unwrap());
    |
    = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
 
+error: `std::thread::sleep` blocks the UI thread's executor
+  --> $DIR/main.rs:53:13
+   |
+LL |             std::thread::sleep(Duration::from_millis(1));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: await `waterui::task::sleep(duration)` in an `.action_async`/`.task(..)` future instead
+
 warning: this call blocks inside a UI context (async block)
-  --> $DIR/main.rs:55:13
+  --> $DIR/main.rs:73:13
    |
 LL |     let _ = std::fs::read("/x");
    |             ^^^^^^^^^^^^^^^^^^^
@@ -50,12 +58,12 @@ LL |     let _ = std::fs::read("/x");
    = help: move the blocking work to `waterui::task::spawn` (a worker thread) and await its handle, or use the async API
 
 error: `std::thread::sleep` blocks the UI thread's executor
-  --> $DIR/main.rs:63:9
+  --> $DIR/main.rs:81:9
    |
 LL |         std::thread::sleep(Duration::from_millis(1));
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: await `waterui::task::sleep(duration)` in an `.action_async`/`.task(..)` future instead
 
-error: aborting due to 2 previous errors; 5 warnings emitted
+error: aborting due to 3 previous errors; 5 warnings emitted
 
