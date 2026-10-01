@@ -59,11 +59,15 @@ declare_waterui_lint! {
     /// ```
     pub NEEDLESS_STATE_WRAPPER,
     style,
-    "a `State<T>` closure parameter whose `T` can be extracted directly"
+    "a `State<T>` closure parameter whose `T` can be extracted directly, or made extractable with `#[state]`"
 }
 
 const MSG: &str =
     "`State<T>` is for types that cannot implement `Extractor`; `T` can be extracted directly";
+/// The headline for a local `Clone` type: it is not extractable yet — it
+/// becomes so once `#[state]` gives it the `Extractor` impl.
+const LOCAL_MSG: &str = "`State<T>` is for types that cannot implement `Extractor`; \
+    `T` can be extracted directly once it is marked `#[state]`";
 const LOCAL_NOTE: &str = "add `#[state]` to `T`";
 
 /// `waterui_core`'s `State<T>` — the extractor wrapper for foreign values.
@@ -158,6 +162,10 @@ impl NeedlessStateWrapper {
         let inner_text = written_inner(ty)
             .and_then(|inner| snippet_opt(cx, inner.span))
             .unwrap_or_else(|| inner.to_string());
+        // A type that already implements `Extractor` extracts directly;
+        // a local `Clone` type extracts only once `#[state]` gives it the
+        // impl — the headline says which situation `T` is in.
+        let msg = if local.is_some() { LOCAL_MSG } else { MSG };
         let mut app = Applicability::MachineApplicable;
         let mut parts: Vec<(Span, String)> = Vec::new();
         match param.pat.kind {
@@ -196,7 +204,7 @@ impl NeedlessStateWrapper {
                         NEEDLESS_STATE_WRAPPER,
                         ty.hir_id,
                         ty.span,
-                        MSG,
+                        msg,
                         |diag| {
                             if local.is_some() {
                                 diag.note(LOCAL_NOTE);
@@ -223,7 +231,7 @@ impl NeedlessStateWrapper {
             NEEDLESS_STATE_WRAPPER,
             ty.hir_id,
             ty.span,
-            MSG,
+            msg,
             |diag| {
                 diag.multipart_suggestion(label, parts, app);
                 if local.is_some() {
