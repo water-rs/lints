@@ -75,7 +75,7 @@ LL |     let _ = maybe.map(|v| format!("{}", v.unwrap()));
    |                           |
    |                           the string is built by hand here
    |
-   = help: use `s!("{arg0}", arg0 = &maybe.map(|v| v.unwrap()))` — `s!` subscribes to its placeholders the way `format!` captures names
+   = help: use `s!("{arg0}", arg0 = &maybe.map(|v| v.unwrap()))` — `s!` subscribes to its placeholders the way `format!` captures names — `s` is `nami::s`: import it with `use nami::s;`
    = note: `#[warn(manual_string_signal)]` on by default
 
 warning: this signal panics whenever its source is `None`

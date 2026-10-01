@@ -1,0 +1,13 @@
+warning: this `map` builds a string signal by hand; `s!` formats signals directly
+  --> $DIR/main.rs:19:18
+   |
+LL |     let _label = count.map(|c| format!("{c} items"));
+   |                  ^^^^^^^^^^^^^^--------------------^
+   |                                |
+   |                                the string is built by hand here
+   |
+   = help: use `s!("{count} items")` — `s!` subscribes to its placeholders the way `format!` captures names — `s` is `nami::s`: import it with `use nami::s;`
+   = note: `#[warn(manual_string_signal)]` on by default
+
+warning: 1 warning emitted
+

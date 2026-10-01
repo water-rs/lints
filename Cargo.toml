@@ -148,6 +148,10 @@ name = "manual_string_signal"
 path = "ui/manual_string_signal/main.rs"
 
 [[example]]
+name = "manual_string_signal_facade"
+path = "ui/manual_string_signal_facade/main.rs"
+
+[[example]]
 name = "manual_text_map"
 path = "ui/manual_text_map/main.rs"
 

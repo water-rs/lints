@@ -4047,6 +4047,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "manual_string_signal_facade"
+version = "0.0.0"
+dependencies = [
+ "waterui",
+]
+
+[[package]]
 name = "manual_text_map"
 version = "0.0.0"
 dependencies = [
