@@ -3,7 +3,7 @@ use clippy_utils::res::MaybeQPath;
 use clippy_utils::source::snippet_opt;
 use rustc_data_structures::fx::FxHashMap;
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind, QPath, UnOp};
+use rustc_hir::{Expr, ExprKind, HirId, QPath, UnOp};
 use rustc_lint::{LateContext, LateLintPass, LintContext};
 use rustc_middle::ty::{FloatTy, Ty, TyCtxt, TyKind};
 use rustc_session::impl_lint_pass;
@@ -11,7 +11,7 @@ use rustc_span::Span;
 
 use crate::color;
 use crate::def_path::def_path_eq;
-use crate::diagnostics::span_lint_and_then;
+use crate::diagnostics::span_lint_hir_and_then;
 use crate::param_bounds::implemented_trait_item;
 
 declare_waterui_lint! {
@@ -375,6 +375,10 @@ fn last_segment(func: &Expr<'_>) -> Option<Span> {
 /// A flagged call queued for `check_crate_post` — the "appears more than
 /// once" help needs the crate-wide count before any diagnostic goes out.
 struct Flag {
+    /// The call's HIR id — emitting the diagnostic at this node keeps the
+    /// lint level resolvable by item-level `#[allow]`/`#[expect]`; a
+    /// crate-root emission could not be suppressed below the whole crate.
+    hir_id: HirId,
     /// The whole call — the diagnostic's span.
     span: Span,
     /// The callee's final segment — replaced with `from_hex`/`srgb_hex`.
@@ -439,6 +443,7 @@ impl<'tcx> LateLintPass<'tcx> for LiteralColorComponents {
         };
         let hex = format!("#{:02X}{:02X}{:02X}", rgb[0], rgb[1], rgb[2]);
         self.flags.push(Flag {
+            hir_id: expr.hir_id,
             span: expr.span,
             seg,
             args: expr.span.with_lo(func.span.hi()),
@@ -460,9 +465,10 @@ impl<'tcx> LateLintPass<'tcx> for LiteralColorComponents {
             *counts.entry(flag.key).or_default() += 1;
         }
         for flag in &flags {
-            span_lint_and_then(
+            span_lint_hir_and_then(
                 cx,
                 LITERAL_COLOR_COMPONENTS,
+                flag.hir_id,
                 flag.span,
                 flag.msg.clone(),
                 |diag| {

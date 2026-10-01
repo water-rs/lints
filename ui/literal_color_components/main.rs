@@ -1,3 +1,5 @@
+#![allow(unknown_lints)]
+
 use waterui::prelude::*;
 
 const R: u8 = 244;
@@ -58,4 +60,19 @@ fn main() {
     // Silent for this lint: a `Color::*` call at an `impl Into<Color>`
     // parameter is `manual_color_erasure`'s diagnostic.
     let _ = text("a").foreground(Color::srgb(244, 67, 54));
+
+    // Silent: item-level `#[allow]`/`#[expect]` suppress the diagnostics
+    // `check_crate_post` emits — they resolve at the call's HIR node.
+    let _ = allowed();
+    let _ = expected();
+}
+
+#[allow(literal_color_components)]
+fn allowed() -> Srgb {
+    Srgb::new_u8(10, 20, 30)
+}
+
+#[expect(literal_color_components)]
+fn expected() -> Srgb {
+    Srgb::new_u8(11, 22, 33)
 }
