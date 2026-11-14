@@ -473,5 +473,5 @@ fn run_ui_example(example: &str) {
         .join("ui")
         .join(example);
     let _guard = ManifestDirGuard::set(&manifest_dir);
-    dylint_testing::ui_test_example(env!("CARGO_PKG_NAME"), example);
+    dylint_testing::ui_test_example(env!("CARGO_CRATE_NAME"), example);
 }
