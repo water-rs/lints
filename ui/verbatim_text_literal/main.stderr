@@ -1,0 +1,121 @@
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:13:18
+   |
+LL |     let _ = text(Str::from_static("Hello"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(verbatim_text_literal)]` on by default
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text(Str::from_static("Hello"));
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:15:18
+   |
+LL |     let _ = text("Hello".to_string());
+   |                  ^^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text("Hello".to_string());
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:17:18
+   |
+LL |     let _ = text("Hello".to_owned());
+   |                  ^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text("Hello".to_owned());
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:19:18
+   |
+LL |     let _ = text(String::from("Hello"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text(String::from("Hello"));
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:21:18
+   |
+LL |     let _ = text(Str::from("Hello"));
+   |                  ^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text(Str::from("Hello"));
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:23:18
+   |
+LL |     let _ = text(Into::<String>::into("Hello"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text(Into::<String>::into("Hello"));
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:25:18
+   |
+LL |     let _ = text(Text::verbatim("Hello"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = text(Text::verbatim("Hello"));
+LL +     let _ = text("Hello");
+   |
+
+warning: this literal reaches the text position as verbatim text and skips localization
+  --> $DIR/main.rs:27:20
+   |
+LL |     let _ = button("Save".to_string());
+   |                    ^^^^^^^^^^^^^^^^^^
+   |
+help: pass the literal itself — `&'static str` is looked up in the catalog
+   |
+LL -     let _ = button("Save".to_string());
+LL +     let _ = button("Save");
+   |
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:37:18
+   |
+LL |     let _ = text(format!("count: {n}"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(format_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(format!("count: {n}"));
+LL +     let _ = text(text!("count: {n}"));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:37:18
+   |
+LL |     let _ = text(format!("count: {n}"));
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+   = note: `#[warn(plural_bypass)]` on by default
+
+warning: 10 warnings emitted
+

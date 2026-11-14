@@ -1,0 +1,154 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:25:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:26:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: reactive state created inside a scope that is rebuilt on every change
+  --> $DIR/main.rs:31:38
+   |
+LL |     let _ = watch(count.clone(), |v| {
+   |             ----- this closure runs again whenever the watched value changes
+LL |         let draft: Binding<String> = binding(String::new());
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: own the state one level up — in the enclosing body or the component — and move it into the closure
+   = note: `#[warn(state_created_in_rebuilt_scope)]` on by default
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:31:38
+   |
+LL |         let draft: Binding<String> = binding(String::new());
+   |                                      ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(default_binding_constructor)]` on by default
+help: use `Binding::<String>::default()`
+   |
+LL -         let draft: Binding<String> = binding(String::new());
+LL +         let draft = Binding::<String>::default();
+   |
+
+warning: reactive state created inside a scope that is rebuilt on every change
+  --> $DIR/main.rs:43:17
+   |
+LL |     let _ = when(flag.clone(), || {
+   |             ---- this closure runs again whenever the watched value changes
+LL |         let n = Binding::i32(0);
+   |                 ^^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: own the state one level up — in the enclosing body or the component — and move it into the closure
+
+warning: reactive state created inside a scope that is rebuilt on every change
+  --> $DIR/main.rs:50:31
+   |
+LL |     let _ = when(flag.clone(), || text("a")).otherwise(|| {
+   |                                              --------- this closure runs again whenever the watched value changes
+LL |         let n: Binding<i32> = Binding::default();
+   |                               ^^^^^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: own the state one level up — in the enclosing body or the component — and move it into the closure
+
+warning: reactive state created inside a scope that is rebuilt on every change
+  --> $DIR/main.rs:56:21
+   |
+LL |     let _ = Dynamic::watch(count.clone(), |v| {
+   |             -------------- this closure runs again whenever the watched value changes
+LL |         let items = ReactiveList::from(vec![1]);
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: own the state one level up — in the enclosing body or the component — and move it into the closure
+
+warning: reactive state created inside a row builder
+  --> $DIR/main.rs:69:39
+   |
+LL |     let _ = Lazy::for_each(list, |item| {
+   |             -------------- this closure runs again each time the row is rebuilt
+LL |         let selected: Binding<bool> = binding(false);
+   |                                       ^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: row-local state is recreated when the row is rebuilt; if it must survive, keep it on the item and pass it in
+note: the lint level is defined here
+  --> $DIR/main.rs:8:9
+   |
+LL | #![warn(state_created_in_row_builder)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:69:39
+   |
+LL |         let selected: Binding<bool> = binding(false);
+   |                                       ^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -         let selected: Binding<bool> = binding(false);
+LL +         let selected = Binding::bool(false);
+   |
+
+warning: reactive state created inside a row builder
+  --> $DIR/main.rs:77:35
+   |
+LL |     let _ = VStack::for_each(other, |item| {
+   |             ---------------- this closure runs again each time the row is rebuilt
+LL |         let seen: Binding<bool> = Binding::container(false);
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^ this `Binding`/`List` is recreated — and reset — each time the closure runs
+   |
+   = help: row-local state is recreated when the row is rebuilt; if it must survive, keep it on the item and pass it in
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:77:35
+   |
+LL |         let seen: Binding<bool> = Binding::container(false);
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -         let seen: Binding<bool> = Binding::container(false);
+LL +         let seen = Binding::bool(false);
+   |
+
+warning: this binding is seeded with its type's default
+  --> $DIR/main.rs:82:34
+   |
+LL |     let draft: Binding<String> = binding(String::new());
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: use `Binding::<String>::default()`
+   |
+LL -     let draft: Binding<String> = binding(String::new());
+LL +     let draft = Binding::<String>::default();
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:98:39
+   |
+LL |                 let _: Binding<i32> = binding(0);
+   |                                       ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -                 let _: Binding<i32> = binding(0);
+LL +                 let _ = Binding::i32(0);
+   |
+
+warning: 13 warnings emitted
+

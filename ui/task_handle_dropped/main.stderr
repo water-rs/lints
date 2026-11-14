@@ -1,0 +1,42 @@
+error: this task handle is dropped at once, cancelling the task
+  --> $DIR/main.rs:21:5
+   |
+LL |     spawn_local(async {});
+   |     ---------------------^
+   |     |
+   |     the task is cancelled when this handle is dropped
+   |     help: detach the task so it runs to completion: `spawn_local(async {}).detach();`
+   |
+   = note: `#[deny(task_handle_dropped)]` on by default
+
+error: this task handle is dropped at once, cancelling the task
+  --> $DIR/main.rs:24:5
+   |
+LL |     let _ = spawn_local(async {});
+   |     ^^^^^^^^---------------------^
+   |     |       |
+   |     |       the task is cancelled when this handle is dropped
+   |     help: detach the task so it runs to completion: `spawn_local(async {}).detach();`
+
+error: this task handle is dropped at once, cancelling the task
+  --> $DIR/main.rs:26:5
+   |
+LL |     let _t = spawn(async { 1 });
+   |     ^^^^^^^^^------------------^
+   |              |
+   |              the task is cancelled when this handle is dropped
+   |
+   = help: `.await` the handle, keep it alive for as long as the task should run, or `.detach()` it
+
+error: this task handle is dropped at once, cancelling the task
+  --> $DIR/main.rs:28:5
+   |
+LL |     let _handle = spawn_local(async {});
+   |     ^^^^^^^^^^^^^^---------------------^
+   |                   |
+   |                   the task is cancelled when this handle is dropped
+   |
+   = help: `.await` the handle, keep it alive for as long as the task should run, or `.detach()` it
+
+error: aborting due to 4 previous errors
+

@@ -1,0 +1,47 @@
+warning: `.foreground(MutedForeground)` restates `.muted()`
+  --> $DIR/main.rs:12:22
+   |
+LL |     let _ = text("a").foreground(MutedForeground);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `.muted()`: `.muted()`
+   |
+   = note: `#[warn(manual_muted_foreground)]` on by default
+
+warning: `.foreground(MutedForeground)` restates `.muted()`
+  --> $DIR/main.rs:14:22
+   |
+LL |     let _ = text("a").foreground(theme_color::MutedForeground);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `.muted()`: `.muted()`
+
+warning: `.foreground(MutedForeground)` restates `.muted()`
+  --> $DIR/main.rs:16:22
+   |
+LL |     let _ = text("a").foreground(waterui::theme::color::MutedForeground);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `.muted()`: `.muted()`
+
+warning: `waterui::theme::color::MutedForeground` can be imported and used unqualified
+  --> $DIR/main.rs:16:34
+   |
+LL |     let _ = text("a").foreground(waterui::theme::color::MutedForeground);
+   |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(qualified_waterui_path)]` on by default
+help: `MutedForeground` is already in scope
+   |
+LL -     let _ = text("a").foreground(waterui::theme::color::MutedForeground);
+LL +     let _ = text("a").foreground(MutedForeground);
+   |
+
+warning: `.foreground(MutedForeground)` restates `.muted()`
+  --> $DIR/main.rs:18:32
+   |
+LL |     let _ = text("a").caption().foreground(MutedForeground).padding();
+   |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `.muted()`: `.muted()`
+
+warning: `.foreground(MutedForeground)` restates `.muted()`
+  --> $DIR/main.rs:20:22
+   |
+LL |     let _ = header!().foreground(MutedForeground);
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `.muted()`: `.muted()`
+
+warning: 6 warnings emitted
+

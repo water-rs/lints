@@ -1,0 +1,19 @@
+error: the radius is a fraction of the shorter side (0.0–0.5), not points
+  --> $DIR/main.rs:6:35
+   |
+LL |     let _ = RoundedRectangle::new(12.0);
+   |                                   ^^^^
+   |
+   = help: use `FixedRoundedRectangle::new(..)` for a corner radius in points
+   = note: `#[deny(normalized_radius_overflow)]` on by default
+
+error: the radius is a fraction of the shorter side (0.0–0.5), not points
+  --> $DIR/main.rs:9:35
+   |
+LL |     let _ = RoundedRectangle::new(R);
+   |                                   ^
+   |
+   = help: use `FixedRoundedRectangle::new(..)` for a corner radius in points
+
+error: aborting due to 2 previous errors
+

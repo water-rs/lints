@@ -1,0 +1,95 @@
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:27:13
+   |
+LL |     let _ = list.snapshot().len();
+   |             ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use the `List` method — `list.len()` needs `use waterui::reactive::collection::Collection;` in scope
+note: the lint level is defined here
+  --> $DIR/main.rs:13:9
+   |
+LL | #![warn(needless_list_snapshot)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `List` iterates directly; `snapshot()` before the loop is spelled out
+  --> $DIR/main.rs:30:14
+   |
+LL |     for x in list.snapshot() {
+   |              ^^^^^^^^^^^^^^^ help: use the `List` method: `list.iter()`
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:40:13
+   |
+LL |     let _ = list.snapshot().len();
+   |             ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use the `List` method — `list.len()` needs `use waterui::reactive::collection::Collection;` in scope
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:42:13
+   |
+LL |     let _ = list.snapshot().is_empty();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use the `List` method — `list.is_empty()` needs `use waterui::reactive::collection::Collection;` in scope
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:47:13
+   |
+LL |     let _ = list.snapshot().get(1).cloned();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use the `List` method — `list.get(1)` needs `use waterui::reactive::collection::Collection;` in scope
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:49:13
+   |
+LL |     let _ = list.snapshot().first().cloned();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use the `List` method — `list.get(0)` needs `use waterui::reactive::collection::Collection;` in scope
+
+warning: `List` iterates directly; `snapshot()` before the loop is spelled out
+  --> $DIR/main.rs:51:13
+   |
+LL |     let _ = list.snapshot().into_iter();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.iter()`
+
+warning: `List` iterates directly; `snapshot()` before the loop is spelled out
+  --> $DIR/main.rs:55:14
+   |
+LL |     for x in list.snapshot() {
+   |              ^^^^^^^^^^^^^^^ help: use the `List` method: `list.iter()`
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:91:17
+   |
+LL |         let _ = list.snapshot().len();
+   |                 ^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.len()`
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:93:17
+   |
+LL |         let _ = list.snapshot().is_empty();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.is_empty()`
+
+warning: this `snapshot` copies the list to read what `List` exposes directly
+  --> $DIR/main.rs:98:17
+   |
+LL |         let _ = list.snapshot().first().cloned();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.get(0)`
+
+warning: `List` iterates directly; `snapshot()` before the loop is spelled out
+  --> $DIR/main.rs:101:17
+   |
+LL |         let _ = list.snapshot().into_iter();
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the `List` method: `list.iter()`
+
+warning: `List` iterates directly; `snapshot()` before the loop is spelled out
+  --> $DIR/main.rs:103:18
+   |
+LL |         for x in list.snapshot() {
+   |                  ^^^^^^^^^^^^^^^ help: use the `List` method: `list.iter()`
+
+warning: 13 warnings emitted
+

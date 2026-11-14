@@ -1,0 +1,78 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let flag: Binding<bool> = binding(true);
+   |                               ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(true);
+LL +     let flag = Binding::bool(true);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:14:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this `watch` rebuilds its subtree on every change of a value the closure never reads
+  --> $DIR/main.rs:18:34
+   |
+LL |     let _ = watch(flag.clone(), |_| text("hi"));
+   |                   ------------   ^
+   |                   |
+   |                   every change of this value rebuilds the subtree
+   |
+   = help: hide or show with `.visible(signal)` / `when(signal, || ..)`, or react with `.on_change(&signal, |v| ..)` — `watch` is for a value that decides the view's shape
+   = note: `#[warn(watch_ignores_value)]` on by default
+
+warning: this `watch` rebuilds its subtree on every change of a value the closure never reads
+  --> $DIR/main.rs:20:26
+   |
+LL |     let _ = watch(flag, |_unused| text("hi"));
+   |                   ----   ^^^^^^^
+   |                   |
+   |                   every change of this value rebuilds the subtree
+   |
+   = help: hide or show with `.visible(signal)` / `when(signal, || ..)`, or react with `.on_change(&signal, |v| ..)` — `watch` is for a value that decides the view's shape
+
+warning: this `watch` rebuilds its subtree on every change of a value the closure never reads
+  --> $DIR/main.rs:22:44
+   |
+LL |     let _ = Dynamic::watch(count.clone(), |_| vstack((text("a"),)));
+   |                            -------------   ^
+   |                            |
+   |                            every change of this value rebuilds the subtree
+   |
+   = help: hide or show with `.visible(signal)` / `when(signal, || ..)`, or react with `.on_change(&signal, |v| ..)` — `watch` is for a value that decides the view's shape
+
+warning: this `watch` rebuilds its subtree on every change of a value the closure never reads
+  --> $DIR/main.rs:24:35
+   |
+LL |     let _ = watch(count.clone(), |_v| text("fixed"));
+   |                   -------------   ^^
+   |                   |
+   |                   every change of this value rebuilds the subtree
+   |
+   = help: hide or show with `.visible(signal)` / `when(signal, || ..)`, or react with `.on_change(&signal, |v| ..)` — `watch` is for a value that decides the view's shape
+
+warning: this `watch` rebuilds its subtree on every change of a value the closure never reads
+  --> $DIR/main.rs:26:34
+   |
+LL |     let _ = watch(pair.clone(), |(_a, _b)| text("fixed"));
+   |                   ------------   ^^^^^^^^
+   |                   |
+   |                   every change of this value rebuilds the subtree
+   |
+   = help: hide or show with `.visible(signal)` / `when(signal, || ..)`, or react with `.on_change(&signal, |v| ..)` — `watch` is for a value that decides the view's shape
+
+warning: 7 warnings emitted
+

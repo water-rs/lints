@@ -1,0 +1,292 @@
+warning: `waterui::text!` can be imported and used unqualified
+  --> $DIR/main.rs:35:21
+   |
+LL |     let _greeting = waterui::text!("welcome");
+   |                     ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(qualified_waterui_path)]` on by default
+help: `text` is already in scope
+   |
+LL -     let _greeting = waterui::text!("welcome");
+LL +     let _greeting = text!("welcome");
+   |
+
+warning: `waterui::log::debug!` can be imported and used unqualified
+  --> $DIR/main.rs:62:5
+   |
+LL |     waterui::log::debug!("kiosk ready");
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::log::debug`
+   |
+LL ~ use waterui::layout::stack::hstack;
+LL + use waterui::log::debug;
+LL | use waterui::prelude::*;
+...
+LL |     // Macro invocations — `text` is in the prelude, `debug` is not.
+LL ~     debug!("kiosk ready");
+   |
+
+warning: `waterui::regional::current_settings` can be imported and used unqualified
+  --> $DIR/main.rs:20:15
+   |
+LL |     let _tz = waterui::regional::current_settings().timezone().to_string();
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::regional::current_settings`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::regional::current_settings;
+LL |
+...
+LL |     // Expression position — the locale example's `waterui::regional::` calls.
+LL ~     let _tz = current_settings().timezone().to_string();
+   |
+
+warning: `waterui::regional::current_settings` can be imported and used unqualified
+  --> $DIR/main.rs:21:16
+   |
+LL |     let _ctx = waterui::regional::current_settings();
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::regional::current_settings`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::regional::current_settings;
+LL |
+...
+LL |     let _tz = waterui::regional::current_settings().timezone().to_string();
+LL ~     let _ctx = current_settings();
+   |
+
+warning: `waterui::regional::set_locale_tag` can be imported and used unqualified
+  --> $DIR/main.rs:22:5
+   |
+LL |     waterui::regional::set_locale_tag("en-US").expect("locale tag must parse");
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::regional::set_locale_tag`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::regional::set_locale_tag;
+LL |
+...
+LL |     let _ctx = waterui::regional::current_settings();
+LL ~     set_locale_tag("en-US").expect("locale tag must parse");
+   |
+
+warning: `waterui::regional::set_locale_tag` can be imported and used unqualified
+  --> $DIR/main.rs:24:22
+   |
+LL |         |code: &str| waterui::regional::set_locale_tag(code).expect("locale tag must parse");
+   |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::regional::set_locale_tag`
+   |
+LL ~ use waterui::prelude::*;
+LL + use waterui::regional::set_locale_tag;
+LL |
+...
+LL |     let on_pick =
+LL ~         |code: &str| set_locale_tag(code).expect("locale tag must parse");
+   |
+
+warning: `waterui::layout::stack::vstack` can be imported and used unqualified
+  --> $DIR/main.rs:28:18
+   |
+LL |     let _stack = waterui::layout::stack::vstack((text("a"), text("b")));
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `vstack` is already in scope
+   |
+LL -     let _stack = waterui::layout::stack::vstack((text("a"), text("b")));
+LL +     let _stack = vstack((text("a"), text("b")));
+   |
+
+warning: `waterui::layout::row` can be imported and used unqualified
+  --> $DIR/main.rs:31:17
+   |
+LL |     let _grid = waterui::layout::row((text("cell"),));
+   |                 ^^^^^^^^^^^^^^^^^^^^
+   |
+help: `row` resolves to a different item here — import under an alias
+   |
+LL ~ use waterui::layout;
+LL + use waterui::layout::row as layout_row;
+LL | use waterui::layout::stack::hstack;
+...
+LL |     // `row` collides (local fn + the prelude's list `row`) — alias import.
+LL ~     let _grid = layout_row((text("cell"),));
+   |
+
+warning: `waterui::layout::Divider` can be imported and used unqualified
+  --> $DIR/main.rs:32:44
+   |
+LL |     let _typed: waterui::layout::Divider = waterui::layout::Divider;
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `Divider` is already in scope
+   |
+LL -     let _typed: waterui::layout::Divider = waterui::layout::Divider;
+LL +     let _typed: waterui::layout::Divider = Divider;
+   |
+
+warning: `waterui::layout::Divider` can be imported and used unqualified
+  --> $DIR/main.rs:32:17
+   |
+LL |     let _typed: waterui::layout::Divider = waterui::layout::Divider;
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `Divider` is already in scope
+   |
+LL -     let _typed: waterui::layout::Divider = waterui::layout::Divider;
+LL +     let _typed: Divider = waterui::layout::Divider;
+   |
+
+warning: `waterui::layout::Divider` can be imported and used unqualified
+  --> $DIR/main.rs:33:9
+   |
+LL |     let waterui::layout::Divider = _typed;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `Divider` is already in scope
+   |
+LL -     let waterui::layout::Divider = _typed;
+LL +     let Divider = _typed;
+   |
+
+warning: `waterui::text::Text` can be imported and used unqualified
+  --> $DIR/main.rs:34:19
+   |
+LL |     let _inline = waterui::text::Text::new("inline");
+   |                   ^^^^^^^^^^^^^^^^^^^
+   |
+help: `Text` is already in scope
+   |
+LL -     let _inline = waterui::text::Text::new("inline");
+LL +     let _inline = Text::new("inline");
+   |
+
+warning: `waterui::layout::stack::hstack` can be imported and used unqualified
+  --> $DIR/main.rs:39:17
+   |
+LL |     let _pair = waterui::layout::stack::hstack((text("l"), text("r")));
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `hstack` is already in scope
+   |
+LL -     let _pair = waterui::layout::stack::hstack((text("l"), text("r")));
+LL +     let _pair = hstack((text("l"), text("r")));
+   |
+
+warning: `w::layout::stack::vstack` can be imported and used unqualified
+  --> $DIR/main.rs:42:20
+   |
+LL |     let _stack_w = w::layout::stack::vstack((text("w"),));
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `vstack` is already in scope
+   |
+LL -     let _stack_w = w::layout::stack::vstack((text("w"),));
+LL +     let _stack_w = vstack((text("w"),));
+   |
+
+warning: `w::locale::Locale` can be imported and used unqualified
+  --> $DIR/main.rs:46:15
+   |
+LL |     let _loc: w::locale::Locale = locale::locales::EN_US.clone();
+   |               ^^^^^^^^^^^^^^^^^
+   |
+help: import `w::locale::Locale`
+   |
+LL + use w::locale::Locale;
+LL | use waterui as w;
+LL | use waterui::layout;
+...
+LL |     // side stays silent while the `w::` type is still flagged.
+LL ~     let _loc: Locale = locale::locales::EN_US.clone();
+   |
+
+warning: `waterui::component::list::row` can be imported and used unqualified
+  --> $DIR/main.rs:53:17
+   |
+LL |     let _list = waterui::component::list::row("Serial", "A-42");
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `row` resolves to a different item here — import under an alias
+   |
+LL ~ use waterui as w;
+LL + use waterui::component::list::row as list_row;
+LL | use waterui::layout;
+...
+LL |     row();
+LL ~     let _list = list_row("Serial", "A-42");
+   |
+
+warning: `waterui::layout::Divider` can be imported and used unqualified
+  --> $DIR/main.rs:56:10
+   |
+LL |     show(waterui::layout::Divider);
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: `Divider` is already in scope
+   |
+LL -     show(waterui::layout::Divider);
+LL +     show(Divider);
+   |
+
+warning: `nami::constant` can be imported and used unqualified
+  --> $DIR/main.rs:59:18
+   |
+LL |     let _const = nami::constant(0);
+   |                  ^^^^^^^^^^^^^^
+   |
+help: import `nami::constant`
+   |
+LL + use nami::constant;
+LL | use waterui as w;
+LL | use waterui::layout;
+...
+LL |     // `nami` is in the same family — flag and import like `waterui::`.
+LL ~     let _const = constant(0);
+   |
+
+warning: `waterui::view::View` can be imported and used unqualified
+  --> $DIR/main.rs:70:18
+   |
+LL | fn show(_v: impl waterui::view::View) {}
+   |                  ^^^^^^^^^^^^^^^^^^^
+   |
+help: `View` is already in scope
+   |
+LL - fn show(_v: impl waterui::view::View) {}
+LL + fn show(_v: impl View) {}
+   |
+
+warning: `waterui::text::Text` can be imported and used unqualified
+  --> $DIR/main.rs:80:23
+   |
+LL |     pub fn build() -> waterui::text::Text {
+   |                       ^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::text::Text`
+   |
+LL ~     use waterui::text::Text;
+LL ~     pub fn build() -> Text {
+   |
+
+warning: `waterui::text::text` can be imported and used unqualified
+  --> $DIR/main.rs:81:9
+   |
+LL |         waterui::text::text("i")
+   |         ^^^^^^^^^^^^^^^^^^^
+   |
+help: import `waterui::text::text`
+   |
+LL ~     use waterui::text::text;
+LL ~     pub fn build() -> waterui::text::Text {
+LL ~         text("i")
+   |
+
+warning: 21 warnings emitted
+

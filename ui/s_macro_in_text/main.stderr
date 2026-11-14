@@ -1,0 +1,59 @@
+warning: `s!` in a text position is untranslatable verbatim text; `text!` formats the same signals through the catalog
+  --> $DIR/main.rs:21:18
+   |
+LL |     let _ = text(s!("Hello {name}").computed());
+   |                  ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(s_macro_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(s!("Hello {name}").computed());
+LL +     let _ = text!("Hello {name}");
+   |
+
+warning: `s!` in a text position is untranslatable verbatim text; `text!` formats the same signals through the catalog
+  --> $DIR/main.rs:23:23
+   |
+LL |     let _ = Text::new(s!("{count} items").computed());
+   |                       ^^^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = Text::new(s!("{count} items").computed());
+LL +     let _ = text!("{count} items");
+   |
+
+warning: `s!` in a text position is untranslatable verbatim text; `text!` formats the same signals through the catalog
+  --> $DIR/main.rs:26:20
+   |
+LL |     let _ = button(s!("Buy {price}").computed());
+   |                    ^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = button(s!("Buy {price}").computed());
+LL +     let _ = button(text!("Buy {price}"));
+   |
+
+warning: `s!` in a text position is untranslatable verbatim text; `text!` formats the same signals through the catalog
+  --> $DIR/main.rs:28:18
+   |
+LL |     let _ = text(s!("Hi {}", name).computed());
+   |                  ^^^^^^^^^^^^^^^^^
+   |
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = text(s!("Hi {}", name).computed());
+LL +     let _ = text!("Hi {arg0}", arg0 = name);
+   |
+
+warning: `s!` in a text position is untranslatable verbatim text; `text!` formats the same signals through the catalog
+  --> $DIR/main.rs:30:15
+   |
+LL |     let msg = s!("Total: {price}").computed();
+   |               ^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use `text!("Total: {price}")` — `text!` keeps the slots in the catalog
+
+warning: 5 warnings emitted
+

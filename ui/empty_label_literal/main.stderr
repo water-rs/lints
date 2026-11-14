@@ -1,0 +1,96 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:13:31
+   |
+LL |     let flag: Binding<bool> = binding(false);
+   |                               ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(false);
+LL +     let flag = Binding::bool(false);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:15:31
+   |
+LL |     let value: Binding<f64> = binding(0.5);
+   |                               ^^^^^^^^^^^^
+   |
+help: use `Binding::f64`
+   |
+LL -     let value: Binding<f64> = binding(0.5);
+LL +     let value = Binding::f64(0.5);
+   |
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:18:20
+   |
+LL |     let _ = button("");
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(empty_label_literal)]
+   |         ^^^^^^^^^^^^^^^^^^^
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:20:20
+   |
+LL |     let _ = button("   ");
+   |                    ^^^^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:22:20
+   |
+LL |     let _ = toggle("", &flag);
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:24:20
+   |
+LL |     let _ = slider("/t", &value);
+   |                    ^^^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:26:19
+   |
+LL |     let _ = field("", &name);
+   |                   ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:28:34
+   |
+LL |     let _ = text("a").a11y_label("");
+   |                                  ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:30:20
+   |
+LL |     let _ = button("").action(|| {});
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: an empty label defeats the mandatory label
+  --> $DIR/main.rs:44:20
+   |
+LL |     let _ = button("").a11y_label("Save");
+   |                    ^^ screen readers and `waterui-testing` queries find the control by this label
+   |
+   = help: give the control its real name; to hide it visually use `Label::new(name, icon).icon_only()` / `.hide_label()` or `LabelDisplayMode::IconOnly`
+
+warning: 10 warnings emitted
+

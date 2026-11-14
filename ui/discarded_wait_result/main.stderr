@@ -1,0 +1,86 @@
+error: the result of `wait_for_*` is discarded, so this wait can never fail
+  --> $DIR/main.rs:36:5
+   |
+LL |        let _ = app
+   |   _____^       -
+   |  |_____________|
+LL | ||         .query()
+LL | ||         .label("a")
+LL | ||         .wait_for_existence(Duration::from_secs(1));
+   | ||___________________________________________________-^
+   | |____________________________________________________|
+   |                                                      the wait's `false`-on-timeout result is dropped here
+   |
+   = note: `#[deny(discarded_wait_result)]` on by default
+help: assert the result so a timeout fails the test
+   |
+LL ~     assert!(app
+LL +         .query()
+LL +         .label("a")
+LL +         .wait_for_existence(Duration::from_secs(1)));
+   |
+
+error: the result of `wait_for_*` is discarded, so this wait can never fail
+  --> $DIR/main.rs:47:5
+   |
+LL | //     app.query()
+LL | ||         .label("a")
+LL | ||         .wait_for_nonexistence(Duration::from_secs(1));
+   | ||______________________________________________________-^
+   | |_______________________________________________________|
+   |                                                         the wait's `false`-on-timeout result is dropped here
+   |
+help: assert the result so a timeout fails the test
+   |
+LL ~     assert!(app.query()
+LL +         .label("a")
+LL +         .wait_for_nonexistence(Duration::from_secs(1)));
+   |
+
+error: the result of `wait_for_*` is discarded, so this wait can never fail
+  --> $DIR/main.rs:55:5
+   |
+LL |        let _ = app
+   |   _____^       -
+   |  |_____________|
+LL | ||         .query()
+LL | ||         .label("a")
+LL | ||         .wait_for_value_eq("1", Duration::from_secs(1));
+   | ||_______________________________________________________-^
+   | |________________________________________________________|
+   |                                                          the wait's `false`-on-timeout result is dropped here
+   |
+help: assert the result so a timeout fails the test
+   |
+LL ~     assert!(app
+LL +         .query()
+LL +         .label("a")
+LL +         .wait_for_value_eq("1", Duration::from_secs(1)));
+   |
+
+error: the result of `wait_for_*` is discarded, so this wait can never fail
+  --> $DIR/main.rs:65:5
+   |
+LL |     let _ = app.wait_for_existence(&Selector::default().label("a"), Duration::from_secs(1));
+   |     ^^^^^^^^-------------------------------------------------------------------------------^
+   |     |       |
+   |     |       the wait's `false`-on-timeout result is dropped here
+   |     help: assert the result so a timeout fails the test: `assert!(app.wait_for_existence(&Selector::default().label("a"), Duration::from_secs(1)));`
+
+error: the result of `wait_for_*` is discarded, so this wait can never fail
+  --> $DIR/main.rs:72:5
+   |
+LL |        let ok = app
+   |   _____^        -
+   |  |______________|
+LL | ||         .query()
+LL | ||         .label("a")
+LL | ||         .wait_for_existence(Duration::from_secs(1));
+   | ||___________________________________________________-^
+   | |____________________________________________________|
+   |                                                      the wait's `false`-on-timeout result is dropped here
+   |
+   = help: `wait_for_*` returns `false` on timeout; wrap it — `assert!(app.query().label(..).wait_for_existence(timeout))`
+
+error: aborting due to 5 previous errors
+

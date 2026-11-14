@@ -1,0 +1,112 @@
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:14:31
+   |
+LL |     let count: Binding<i32> = binding(3);
+   |                               ^^^^^^^^^^
+   |
+   = note: `#[warn(typed_binding_constructor)]` on by default
+help: use `Binding::i32`
+   |
+LL -     let count: Binding<i32> = binding(3);
+LL +     let count = Binding::i32(3);
+   |
+
+warning: this binding has a dedicated constructor
+  --> $DIR/main.rs:15:31
+   |
+LL |     let flag: Binding<bool> = binding(true);
+   |                               ^^^^^^^^^^^^^
+   |
+help: use `Binding::bool`
+   |
+LL -     let flag: Binding<bool> = binding(true);
+LL +     let flag = Binding::bool(true);
+   |
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:19:13
+   |
+LL |     let _ = watch(count.clone(), |v| text(v.to_string()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-^^^^^^^^^^^^^^
+   |                                           |
+   |                                           reaches a signal-taking parameter here
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+   = note: `#[warn(watch_for_reactive_value)]` on by default
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:21:13
+   |
+LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-^^^^^^^^^^
+   |                                                     |
+   |                                                     reaches a signal-taking parameter here
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+
+warning: `format!` prose in a text position is untranslatable verbatim text
+  --> $DIR/main.rs:21:43
+   |
+LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+   |                                           ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(format_in_text)]` on by default
+help: use `text!` so the sentence is one catalog key with slots
+   |
+LL -     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+LL +     let _ = watch(count.clone(), |v| text(text!("{v} left")));
+   |
+
+warning: an integer formatted into prose bypasses the plural categories
+  --> $DIR/main.rs:21:43
+   |
+LL |     let _ = watch(count.clone(), |v| text(format!("{v} left")));
+   |                                           ^^^^^^^^^^^^^^^^^^^
+   |
+   = help: `{#count}` in a `text!` key is the only channel that yields correct plural forms per locale
+   = note: `#[warn(plural_bypass)]` on by default
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:23:13
+   |
+LL |     let _ = watch(flag.clone(), |f| text("x").visible(f));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-^^
+   |                                                       |
+   |                                                       reaches a signal-taking parameter here
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:25:13
+   |
+LL |     let _ = watch(name.clone(), |n| text(n.clone()));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-^^^^^^^^^^
+   |                                          |
+   |                                          reaches a signal-taking parameter here
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:27:13
+   |
+LL |     let _ = Dynamic::watch(count.clone(), |v| vstack((text(v.to_string()), text("b"))));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                                                            |
+   |                                                            reaches a signal-taking parameter here
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+
+warning: this `watch` rebuilds its subtree to update a value the callee already tracks as a signal
+  --> $DIR/main.rs:29:13
+   |
+LL |       let _ = watch(count.clone(), |v| {
+   |  _____________^
+LL | |         vstack((text(v.to_string()), text("b"), text("c"), text("d")))
+   | |                      - reaches a signal-taking parameter here
+LL | |     });
+   | |______^
+   |
+   = help: pass the signal itself — `text!("{count}")` for text, or the signal to the `impl IntoComputed` / `IntoSignal` / `IntoText` parameter — so only that property updates and the subtree keeps its state
+
+warning: 10 warnings emitted
+

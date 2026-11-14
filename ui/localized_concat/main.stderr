@@ -1,0 +1,47 @@
+warning: concatenating localized text builds an untranslatable sentence
+  --> $DIR/main.rs:16:13
+   |
+LL |     let _ = text!("Dear ") + text!("{name}");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: word order differs by language; make it one `text!` key with slots — `text!("Dear {name}", name = ..)`
+note: the lint level is defined here
+  --> $DIR/main.rs:7:9
+   |
+LL | #![warn(localized_concat)]
+   |         ^^^^^^^^^^^^^^^^
+
+warning: concatenating localized text builds an untranslatable sentence
+  --> $DIR/main.rs:18:13
+   |
+LL |     let _ = text!("Dear ") + name.clone();
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: word order differs by language; make it one `text!` key with slots — `text!("Dear {name}", name = ..)`
+
+warning: concatenating localized text builds an untranslatable sentence
+  --> $DIR/main.rs:20:13
+   |
+LL |     let _ = Text::localized("greeting") + text!("{name}");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: word order differs by language; make it one `text!` key with slots — `text!("Dear {name}", name = ..)`
+
+warning: concatenating localized text builds an untranslatable sentence
+  --> $DIR/main.rs:22:13
+   |
+LL |     let _ = text("Dear ") + text!("{name}");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: word order differs by language; make it one `text!` key with slots — `text!("Dear {name}", name = ..)`
+
+warning: concatenating localized text builds an untranslatable sentence
+  --> $DIR/main.rs:24:13
+   |
+LL |     let _ = text!("a") + text!("b") + text!("c");
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: word order differs by language; make it one `text!` key with slots — `text!("Dear {name}", name = ..)`
+
+warning: 5 warnings emitted
+

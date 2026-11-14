@@ -1,0 +1,61 @@
+warning: a `ReactiveList` seeded by a push loop
+  --> $DIR/main.rs:45:5
+   |
+LL |       let list: ReactiveList<u32> = ReactiveList::new();
+   |       -------------------------------------------------- the `ReactiveList` is created empty here
+LL | /     for i in items {
+LL | |         list.push(i);
+LL | |     }
+   | |_____^
+   |
+   = help: `ReactiveList::from(vec)` seeds in one move; map first, then convert: `ReactiveList::from(items.into_iter().map(f).collect::<Vec<_>>())`
+note: the lint level is defined here
+  --> $DIR/main.rs:10:9
+   |
+LL | #![warn(push_loop_seed)]
+   |         ^^^^^^^^^^^^^^
+
+warning: a `ReactiveList` seeded by a push loop
+  --> $DIR/main.rs:52:5
+   |
+LL |       let other: ReactiveList<u32> = ReactiveList::new();
+   |       --------------------------------------------------- the `ReactiveList` is created empty here
+LL | /     for i in &more {
+LL | |         other.push(*i);
+LL | |     }
+   | |_____^
+   |
+   = help: `ReactiveList::from(vec)` seeds in one move; map first, then convert: `ReactiveList::from(items.into_iter().map(f).collect::<Vec<_>>())`
+
+warning: a fixed set of children as `vec!`
+  --> $DIR/main.rs:17:20
+   |
+LL |     let _ = vstack(vec![text("a"), text("b"), text("c")]);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a tuple for a fixed set of children: `(text("a"), text("b"), text("c"))`
+   |
+note: the lint level is defined here
+  --> $DIR/main.rs:9:9
+   |
+LL | #![warn(fixed_children_in_vec)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+warning: a fixed set of children as `vec!`
+  --> $DIR/main.rs:20:20
+   |
+LL |     let _ = hstack(vec![text("a")]);
+   |                    ^^^^^^^^^^^^^^^ help: use a tuple for a fixed set of children: `(text("a"),)`
+
+warning: a fixed set of children as `vec!`
+  --> $DIR/main.rs:23:20
+   |
+LL |     let _ = zstack(vec![text("a"), text("b")]);
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a tuple for a fixed set of children: `(text("a"), text("b"))`
+
+warning: a fixed set of children as `vec!`
+  --> $DIR/main.rs:29:9
+   |
+LL |         vec![text("a"), text("b")],
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use a tuple for a fixed set of children: `(text("a"), text("b"))`
+
+warning: 6 warnings emitted
+

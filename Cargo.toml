@@ -1,0 +1,349 @@
+[package]
+name = "waterui-lints"
+version = "0.1.0"
+authors = ["Lexo Liu <me@lexo.cool>"]
+description = "WaterUI-specific lints, packaged as a dylint library"
+edition = "2024"
+license = "Apache-2.0 OR MIT"
+publish = false
+
+[lib]
+name = "waterui_lints"
+crate-type = ["cdylib"]
+
+[workspace]
+members = ["ui/*"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
+dylint_linting = "6.3.2"
+serde = { version = "1.0", features = ["derive"] }
+toml = "1.1"
+
+[dev-dependencies]
+dylint_testing = "6.3.2"
+nami = "0.11.2"
+num-traits = "0.2.19"
+waterui = { version = "0.4.1", default-features = false, features = ["media", "gpu"] }
+waterui-testing = "0.4.1"
+
+[[example]]
+name = "anyview_new_in_free_fn"
+path = "ui/anyview_new_in_free_fn/main.rs"
+
+[[example]]
+name = "binding_parameter_by_value"
+path = "ui/binding_parameter_by_value/main.rs"
+
+[[example]]
+name = "blocking_in_ui_context"
+path = "ui/blocking_in_ui_context/main.rs"
+
+[[example]]
+name = "clone_refcell_field"
+path = "ui/clone_refcell_field/main.rs"
+
+[[example]]
+name = "collection_item_snapshot"
+path = "ui/collection_item_snapshot/main.rs"
+
+[[example]]
+name = "computed_parameter"
+path = "ui/computed_parameter/main.rs"
+
+[[example]]
+name = "default_binding_constructor"
+path = "ui/default_binding_constructor/main.rs"
+
+[[example]]
+name = "discarded_wait_result"
+path = "ui/discarded_wait_result/main.rs"
+
+[[example]]
+name = "empty_label_literal"
+path = "ui/empty_label_literal/main.rs"
+
+[[example]]
+name = "fixed_children_in_vec"
+path = "ui/fixed_children_in_vec/main.rs"
+
+[[example]]
+name = "format_in_text"
+path = "ui/format_in_text/main.rs"
+
+[[example]]
+name = "handler_captures_binding"
+path = "ui/handler_captures_binding/main.rs"
+
+[[example]]
+name = "hardcoded_theme_value"
+path = "ui/hardcoded_theme_value/main.rs"
+
+[[example]]
+name = "if_else_view"
+path = "ui/if_else_view/main.rs"
+
+[[example]]
+name = "image_without_label"
+path = "ui/image_without_label/main.rs"
+
+[[example]]
+name = "list_in_scroll"
+path = "ui/list_in_scroll/main.rs"
+
+[[example]]
+name = "literal_color_components"
+path = "ui/literal_color_components/main.rs"
+
+[[example]]
+name = "localized_concat"
+path = "ui/localized_concat/main.rs"
+
+[[example]]
+name = "long_text_key"
+path = "ui/long_text_key/main.rs"
+
+[[example]]
+name = "manual_binding_mutation"
+path = "ui/manual_binding_mutation/main.rs"
+
+[[example]]
+name = "manual_color_erasure"
+path = "ui/manual_color_erasure/main.rs"
+
+[[example]]
+name = "manual_computed"
+path = "ui/manual_computed/main.rs"
+
+[[example]]
+name = "manual_edge_insets"
+path = "ui/manual_edge_insets/main.rs"
+
+[[example]]
+name = "manual_identifiable"
+path = "ui/manual_identifiable/main.rs"
+
+[[example]]
+name = "manual_list_mutation"
+path = "ui/manual_list_mutation/main.rs"
+
+[[example]]
+name = "manual_muted_foreground"
+path = "ui/manual_muted_foreground/main.rs"
+
+[[example]]
+name = "manual_signal_combinator"
+path = "ui/manual_signal_combinator/main.rs"
+
+[[example]]
+name = "manual_signal_zip_op"
+path = "ui/manual_signal_zip_op/main.rs"
+
+[[example]]
+name = "manual_string_signal"
+path = "ui/manual_string_signal/main.rs"
+
+[[example]]
+name = "manual_string_signal_facade"
+path = "ui/manual_string_signal_facade/main.rs"
+
+[[example]]
+name = "manual_text_map"
+path = "ui/manual_text_map/main.rs"
+
+[[example]]
+name = "missing_translation"
+path = "ui/missing_translation/main.rs"
+
+[[example]]
+name = "needless_anyview"
+path = "ui/needless_anyview/main.rs"
+
+[[example]]
+name = "needless_computed"
+path = "ui/needless_computed/main.rs"
+
+[[example]]
+name = "needless_list_snapshot"
+path = "ui/needless_list_snapshot/main.rs"
+
+[[example]]
+name = "needless_signal_cast"
+path = "ui/needless_signal_cast/main.rs"
+
+[[example]]
+name = "needless_signal_clone"
+path = "ui/needless_signal_clone/main.rs"
+
+[[example]]
+name = "needless_state_wrapper"
+path = "ui/needless_state_wrapper/main.rs"
+
+[[example]]
+name = "non_reactive_ui_state"
+path = "ui/non_reactive_ui_state/main.rs"
+
+[[example]]
+name = "normalized_radius_overflow"
+path = "ui/normalized_radius_overflow/main.rs"
+
+[[example]]
+name = "on_change_derives_binding"
+path = "ui/on_change_derives_binding/main.rs"
+
+[[example]]
+name = "on_tap_on_control"
+path = "ui/on_tap_on_control/main.rs"
+
+[[example]]
+name = "opacity_as_visibility"
+path = "ui/opacity_as_visibility/main.rs"
+
+[[example]]
+name = "positional_state_ambiguity"
+path = "ui/positional_state_ambiguity/main.rs"
+
+[[example]]
+name = "qualified_alignment"
+path = "ui/qualified_alignment/main.rs"
+
+[[example]]
+name = "qualified_waterui_path"
+path = "ui/qualified_waterui_path/main.rs"
+
+[[example]]
+name = "redundant_anyview"
+path = "ui/redundant_anyview/main.rs"
+
+[[example]]
+name = "s_macro_in_text"
+path = "ui/s_macro_in_text/main.rs"
+
+[[example]]
+name = "set_with_own_get"
+path = "ui/set_with_own_get/main.rs"
+
+[[example]]
+name = "signal_get_in_view"
+path = "ui/signal_get_in_view/main.rs"
+
+[[example]]
+name = "spacer_in_zstack"
+path = "ui/spacer_in_zstack/main.rs"
+
+[[example]]
+name = "spawn_local_in_app"
+path = "ui/spawn_local_in_app/main.rs"
+
+[[example]]
+name = "state_created_in_rebuilt_scope"
+path = "ui/state_created_in_rebuilt_scope/main.rs"
+
+[[example]]
+name = "tappable_without_role"
+path = "ui/tappable_without_role/main.rs"
+
+[[example]]
+name = "task_handle_dropped"
+path = "ui/task_handle_dropped/main.rs"
+
+[[example]]
+name = "thread_sleep_in_test"
+path = "ui/thread_sleep_in_test/main.rs"
+
+[[example]]
+name = "typed_binding_constructor"
+path = "ui/typed_binding_constructor/main.rs"
+
+[[example]]
+name = "unwrap_in_signal_map"
+path = "ui/unwrap_in_signal_map/main.rs"
+
+[[example]]
+name = "verbatim_text_literal"
+path = "ui/verbatim_text_literal/main.rs"
+
+[[example]]
+name = "watch_for_reactive_value"
+path = "ui/watch_for_reactive_value/main.rs"
+
+[[example]]
+name = "watch_ignores_value"
+path = "ui/watch_ignores_value/main.rs"
+
+[[example]]
+name = "watch_over_collection"
+path = "ui/watch_over_collection/main.rs"
+
+[package.metadata.rust-analyzer]
+rustc_private = true
+
+# The queued lints target sugar that exists on waterui's `dev` branch but not
+# in the crates.io 0.4.1 release (`ViewExt::muted`, the `EdgeInsets` `From`
+# impls and `padding_horizontal`/`padding_vertical`, the alignment token
+# methods, `#[state]`). `dev` still declares 0.4.1, so the `waterui = "0.4.1"`
+# requirements above are satisfied by the patch unchanged, and every
+# `waterui-*` member this graph resolves comes from that one commit so the
+# graph carries exactly one copy of each — a registry crate beside its git
+# twin would compile duplicate `View`/`Resolvable` types. Drop the entries
+# once the release that carries the sugar is on crates.io. The satellite and
+# third-party pins above the framework block are the framework's own: the
+# pinned revision was built with these forks, and dropping them here would
+# run the fixtures through different code than the framework runs — git
+# dependencies do not carry their own patch table, so they are repeated
+# here.
+[patch.crates-io]
+vello = { git = "https://github.com/lexoliu/vello", rev = "7f5e1ca5769a96dc4404b812e7fa0351499cd2c4" }
+vello_hybrid = { git = "https://github.com/lexoliu/vello", rev = "a01e5039c290fa869e0f6f3708e621056740f49b" }
+vello_common = { git = "https://github.com/lexoliu/vello", rev = "a01e5039c290fa869e0f6f3708e621056740f49b" }
+vello_sparse_shaders = { git = "https://github.com/lexoliu/vello", rev = "a01e5039c290fa869e0f6f3708e621056740f49b" }
+glifo = { git = "https://github.com/lexoliu/vello", rev = "a01e5039c290fa869e0f6f3708e621056740f49b" }
+
+# Same-wave satellites waterui `dev` redirects to git revisions; the revs are
+# copied verbatim from that revision's own `[patch.crates-io]` table. The
+# satellites that table also pins but this graph never resolves under the
+# `media` + `gpu` features (`waterui-barcode`, `waterui-canvas`,
+# `waterui-chart`, `waterui-map-gpu`, `waterui-particle`, `waterui-video-gpu`)
+# are omitted, as are `xcb` — `xcap` here already takes registry 1.7.1, so the
+# 1.7.0 pin cannot apply — and `block`, which no requirement names.
+hydrolysis = { git = "https://github.com/water-rs/hydrolysis", rev = "eef0d71a9514d791204db96e1037ab116ab15146" }
+hydrolysis-m3 = { git = "https://github.com/water-rs/hydrolysis-m3", rev = "024135222165863b9aa36cca2f04d91d229cc599" }
+waterui-image = { git = "https://github.com/water-rs/image", rev = "45522b7e4d4620f05a90511e1454a1a24fa31610" }
+waterui-svg = { git = "https://github.com/water-rs/svg", rev = "d6b1b067874404f5200de4d967e06fee6378fc69" }
+
+waterui = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-macros = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-assets-planner = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-backend-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-controls = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-core = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-dylib = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-form = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-graphics = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-icon = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-inspector-protocol = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-internal = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-layout = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-locale = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-macros = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-map = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-media = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-navigation = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-preview-protocol = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-shape = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-testing = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-text = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-url = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-video = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-watcher-set = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+waterui-webview = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+
+# Gate Linux VA-API (`cros-codecs`/`cros-libva`) behind `waterkit-codec`'s
+# off-by-default `vaapi` feature so newer system `libva-dev` headers do not
+# break builds.
+waterkit-build = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-codec = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-core = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-video-core = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }

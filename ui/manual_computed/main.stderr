@@ -1,0 +1,52 @@
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:27:13
+   |
+LL |     let _ = Computed::new(count.clone());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+   |
+   = note: `#[warn(manual_computed)]` on by default
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:29:13
+   |
+LL |     let _ = Computed::new(count.map(|v| v * 2));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.map(|v| v * 2).computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:31:13
+   |
+LL |     let _ = Computed::from(count.clone());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:33:28
+   |
+LL |     let _: Computed<i32> = count.clone().into();
+   |                            ^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:35:28
+   |
+LL |     let _: Computed<i32> = count.clone().into_computed();
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:37:28
+   |
+LL |     let _: Computed<i32> = Into::into(count.clone());
+   |                            ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `count.computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:39:13
+   |
+LL |     let _ = Computed::new(constant(1));
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `constant(1).computed()`
+
+warning: this erasure is `SignalExt::computed`
+  --> $DIR/main.rs:41:13
+   |
+LL |     let _ = Computed::new(make_count().clone());
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use the method form: `make_count().clone().computed()`
+
+warning: 8 warnings emitted
+
