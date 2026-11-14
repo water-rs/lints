@@ -16,12 +16,12 @@ members = ["ui/*"]
 
 [dependencies]
 clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "9fca3bc9fc2bc83c60bde26d18ed68f11564b228" }
-dylint_linting = "6.0"
+dylint_linting = "6.3.2"
 serde = { version = "1.0", features = ["derive"] }
 toml = "1.1"
 
 [dev-dependencies]
-dylint_testing = "6.0"
+dylint_testing = "6.3.2"
 nami = "0.11.2"
 num-traits = "0.2.19"
 waterui = { version = "0.4.1", default-features = false, features = ["media", "gpu"] }
@@ -339,3 +339,11 @@ waterui-url = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47
 waterui-video = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
 waterui-watcher-set = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
 waterui-webview = { git = "https://github.com/water-rs/waterui", rev = "4ce13cb26f47e6a5332daea1dd34ce313a734c43" }
+
+# Gate Linux VA-API (`cros-codecs`/`cros-libva`) behind `waterkit-codec`'s
+# off-by-default `vaapi` feature so newer system `libva-dev` headers do not
+# break builds.
+waterkit-build = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-codec = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-core = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
+waterkit-video-core = { git = "https://github.com/water-rs/waterkit", rev = "b6113f8b3aa09402f5fafa95d160d7f6dc0715e5" }
